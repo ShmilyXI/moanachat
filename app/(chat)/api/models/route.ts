@@ -17,7 +17,7 @@ export async function GET() {
     const models = await fetchNewApiModels(runtimeConfig);
     if (models.length === 0) {
       return Response.json(
-        { error: "new_api_models_unavailable" },
+        { code: "offline:chat", error: "new_api_models_unavailable" },
         {
           headers: { "Cache-Control": "private, no-store" },
           status: 502,
