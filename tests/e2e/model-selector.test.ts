@@ -70,6 +70,6 @@ test.describe("Model Selector", () => {
 
     const payload = await response.json();
     const capabilities = payload.capabilities ?? payload;
-    expect(capabilities).toHaveProperty("moonshotai/kimi-k2.5");
+    expect(Object.hasOwn(capabilities, "moonshotai/kimi-k2.5")).toBeTruthy();
   });
 });
