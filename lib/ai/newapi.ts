@@ -65,6 +65,7 @@ export async function fetchNewApiModels(
 
   try {
     const response = await fetch(getModelsUrl(config.baseUrl), {
+      cache: "no-store",
       headers: {
         Authorization: `Bearer ${config.apiKey}`,
       },
