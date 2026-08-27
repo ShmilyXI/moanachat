@@ -67,9 +67,9 @@ test("returns no models for malformed or missing data", () => {
 test("fetches models from the configured New API endpoint with a bearer token", async () => {
   const originalFetch = globalThis.fetch;
   let request: Request | undefined;
-  globalThis.fetch = async (input, init) => {
+  globalThis.fetch = (input, init) => {
     request = new Request(input, init);
-    return Response.json({ data: [{ id: "openai/gpt-4.1" }] });
+    return Promise.resolve(Response.json({ data: [{ id: "openai/gpt-4.1" }] }));
   };
 
   try {

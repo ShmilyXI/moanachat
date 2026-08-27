@@ -1,8 +1,8 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { customProvider, gateway } from "ai";
 import { isTestEnvironment } from "../constants";
-import { fetchNewApiModels } from "./newapi";
 import { titleModel } from "./models";
+import { fetchNewApiModels } from "./newapi";
 import { getRuntimeConfig } from "./runtime-config";
 
 export const myProvider = isTestEnvironment
