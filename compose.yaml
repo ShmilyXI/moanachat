@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: moanachat
+      POSTGRES_PASSWORD: moanachat-local
+      POSTGRES_USER: moanachat
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moanachat -d moanachat"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    ports:
+      - "5433:5432"
+    volumes:
+      - moanachat-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  moanachat-postgres-data:

@@ -6,7 +6,7 @@ Create an independently runnable Next.js chatbot project named `moanachat` from 
 
 ## Architecture
 
-The project remains a standalone Next.js App Router application with the template's existing AI SDK, Auth.js, Drizzle/Postgres, optional Redis, and optional Vercel Blob integrations. Its current model provider and authentication paths remain unchanged until a later integration phase is explicitly designed.
+The project remains a standalone Next.js App Router application with the template's existing AI SDK, Auth.js, Drizzle/Postgres, optional Redis, and optional Vercel Blob integrations. A local PostgreSQL service is supplied through `compose.yaml` for development. Its current model provider and authentication paths remain unchanged until a later integration phase is explicitly designed.
 
 The repository lives at `/Users/xavier.xiao/workshop/moanachat` with its own Git history, package manifest, lockfile, environment file, and development server. No files in another repository are part of this bootstrap.
 
@@ -16,6 +16,7 @@ The repository lives at `/Users/xavier.xiao/workshop/moanachat` with its own Git
 - Rename the local package to `moanachat` without changing runtime behavior.
 - Install the lockfile-defined dependencies with the repository's declared package manager.
 - Provide a local environment template without committing credentials.
+- Provide an isolated local PostgreSQL service for authentication and chat persistence.
 - Verify that the Next.js development server can start and serve the application shell.
 
 ## Out Of Scope
