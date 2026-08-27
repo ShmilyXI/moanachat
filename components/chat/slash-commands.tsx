@@ -10,6 +10,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useRef } from "react";
+import type { TranslationKey, TranslationParams } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export type SlashCommand = {
@@ -20,52 +21,66 @@ export type SlashCommand = {
   shortcut?: string;
 };
 
-export const slashCommands: SlashCommand[] = [
+type Translate = (key: TranslationKey, params?: TranslationParams) => string;
+
+type SlashCommandDefinition = Omit<SlashCommand, "description"> & {
+  descriptionKey: TranslationKey;
+};
+
+const slashCommandDefinitions: SlashCommandDefinition[] = [
   {
     action: "new",
-    description: "Start a new chat",
+    descriptionKey: "chat.commands.new",
     icon: <PenSquareIcon className="size-3.5" />,
     name: "new",
   },
   {
     action: "clear",
-    description: "Clear current chat",
+    descriptionKey: "chat.commands.clear",
     icon: <Trash2Icon className="size-3.5" />,
     name: "clear",
   },
   {
     action: "rename",
-    description: "Rename current chat",
+    descriptionKey: "chat.commands.rename",
     icon: <PenLineIcon className="size-3.5" />,
     name: "rename",
   },
   {
     action: "model",
-    description: "Change the AI model",
+    descriptionKey: "chat.commands.model",
     icon: <ListIcon className="size-3.5" />,
     name: "model",
   },
   {
     action: "theme",
-    description: "Toggle dark/light mode",
+    descriptionKey: "chat.commands.theme",
     icon: <PaletteIcon className="size-3.5" />,
     name: "theme",
   },
   {
     action: "delete",
-    description: "Delete current chat",
+    descriptionKey: "chat.commands.delete",
     icon: <XIcon className="size-3.5" />,
     name: "delete",
   },
   {
     action: "purge",
-    description: "Delete all chats",
+    descriptionKey: "chat.commands.purge",
     icon: <BombIcon className="size-3.5" />,
     name: "purge",
   },
 ];
 
+export function getSlashCommands(t: Translate): SlashCommand[] {
+  return slashCommandDefinitions.map(({ descriptionKey, ...command }) => ({
+    ...command,
+    description: t(descriptionKey),
+  }));
+}
+
 type SlashCommandMenuProps = {
+  commands: SlashCommand[];
   query: string;
   onSelect: (command: SlashCommand) => void;
   onClose: () => void;
@@ -122,13 +137,14 @@ function SlashCommandMenuItem({
 }
 
 export function SlashCommandMenu({
+  commands,
   query,
   onSelect,
   onClose: _onClose,
   selectedIndex,
 }: SlashCommandMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
-  const filtered = slashCommands.filter((cmd) =>
+  const filtered = commands.filter((cmd) =>
     cmd.name.startsWith(query.toLowerCase())
   );
 

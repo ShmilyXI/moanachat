@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useChatVisibility } from "@/hooks/use-chat-visibility";
+import type { TranslationKey, TranslationParams } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   CheckCircleFillIcon,
@@ -26,25 +28,31 @@ import {
 
 export type VisibilityType = "private" | "public";
 
-const visibilities: Array<{
+type Visibility = {
   id: VisibilityType;
   label: string;
   description: string;
   icon: ReactNode;
-}> = [
-  {
-    description: "Only you can access this chat",
-    icon: <LockIcon />,
-    id: "private",
-    label: "Private",
-  },
-  {
-    description: "Anyone with the link can access this chat",
-    icon: <GlobeIcon />,
-    id: "public",
-    label: "Public",
-  },
-];
+};
+
+type Translate = (key: TranslationKey, params?: TranslationParams) => string;
+
+function getVisibilities(t: Translate): Visibility[] {
+  return [
+    {
+      description: t("chat.visibility.privateDescription"),
+      icon: <LockIcon />,
+      id: "private",
+      label: t("chat.visibility.private"),
+    },
+    {
+      description: t("chat.visibility.publicDescription"),
+      icon: <GlobeIcon />,
+      id: "public",
+      label: t("chat.visibility.public"),
+    },
+  ];
+}
 
 function VisibilitySelectorItem({
   setOpen,
@@ -54,7 +62,7 @@ function VisibilitySelectorItem({
 }: {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setVisibilityType: (visibilityType: VisibilityType) => void;
-  visibility: (typeof visibilities)[number];
+  visibility: Visibility;
   visibilityType: VisibilityType;
 }) {
   const handleSelect = useCallback(() => {
@@ -92,6 +100,7 @@ export function VisibilitySelector({
   chatId: string;
   selectedVisibilityType: VisibilityType;
 } & React.ComponentProps<typeof Button>) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
 
   const { visibilityType, setVisibilityType } = useChatVisibility({
@@ -99,9 +108,9 @@ export function VisibilitySelector({
     initialVisibilityType: selectedVisibilityType,
   });
 
-  const selectedVisibility = useMemo(
-    () => visibilities.find((visibility) => visibility.id === visibilityType),
-    [visibilityType]
+  const visibilities = useMemo(() => getVisibilities(t), [t]);
+  const selectedVisibility = visibilities.find(
+    (visibility) => visibility.id === visibilityType
   );
 
   return (

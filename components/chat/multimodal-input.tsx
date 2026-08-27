@@ -20,6 +20,7 @@ import {
   type SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -37,6 +38,7 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
+import { useLocale } from "@/components/locale-provider";
 import {
   type ChatModel,
   chatModels,
@@ -57,9 +59,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 import {
+  getSlashCommands,
   type SlashCommand,
   SlashCommandMenu,
-  slashCommands,
 } from "./slash-commands";
 import { SuggestedActions } from "./suggested-actions";
 import type { VisibilityType } from "./visibility-selector";
@@ -109,6 +111,7 @@ function PureMultimodalInput({
   onCancelEdit?: () => void;
   isLoading?: boolean;
 }) {
+  const { t } = useLocale();
   const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -146,6 +149,7 @@ function PureMultimodalInput({
   const [slashOpen, setSlashOpen] = useState(false);
   const [slashQuery, setSlashQuery] = useState("");
   const [slashIndex, setSlashIndex] = useState(0);
+  const slashCommands = useMemo(() => getSlashCommands(t), [t]);
 
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -408,7 +412,14 @@ function PureMultimodalInput({
     } else {
       toast.error("Please wait for the model to finish its response!");
     }
-  }, [attachments.length, handleSlashSelect, input, status, submitForm]);
+  }, [
+    attachments.length,
+    handleSlashSelect,
+    input,
+    slashCommands,
+    status,
+    submitForm,
+  ]);
 
   const handleTextareaKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -451,6 +462,7 @@ function PureMultimodalInput({
       slashIndex,
       slashOpen,
       slashQuery,
+      slashCommands,
     ]
   );
 
@@ -493,6 +505,7 @@ function PureMultimodalInput({
       <div className="relative">
         {slashOpen ? (
           <SlashCommandMenu
+            commands={slashCommands}
             onClose={handleSlashClose}
             onSelect={handleSlashSelect}
             query={slashQuery}

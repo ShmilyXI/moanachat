@@ -6,6 +6,7 @@ import type { User } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useCallback } from "react";
+import { useLocale } from "@/components/locale-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +32,7 @@ function emailToHue(email: string): number {
 }
 
 export function SidebarUserNav({ user }: { user: User }) {
+  const { t } = useLocale();
   const router = useRouter();
   const { data, status } = useSession();
   const { setTheme, resolvedTheme } = useTheme();
@@ -43,7 +45,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   const handleAuthClick = useCallback(() => {
     if (status === "loading") {
       toast({
-        description: "Checking authentication status, please try again!",
+        description: t("chat.auth.checking"),
         type: "error",
       });
 
@@ -57,7 +59,7 @@ export function SidebarUserNav({ user }: { user: User }) {
         redirectTo: "/",
       });
     }
-  }, [isGuest, router, status]);
+  }, [isGuest, router, status, t]);
 
   return (
     <SidebarMenu>
@@ -69,7 +71,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 <div className="flex flex-row items-center gap-2">
                   <div className="size-6 animate-pulse rounded-full bg-sidebar-foreground/10" />
                   <span className="animate-pulse rounded-md bg-sidebar-foreground/10 text-transparent text-[13px]">
-                    Loading...
+                    {t("chat.history.loading")}
                   </span>
                 </div>
                 <div className="animate-spin text-sidebar-foreground/50">
@@ -88,7 +90,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   }}
                 />
                 <span className="truncate text-[13px]" data-testid="user-email">
-                  {isGuest ? "Guest" : user?.email}
+                  {isGuest ? t("chat.auth.guest") : user?.email}
                 </span>
                 <ChevronUp className="ml-auto size-3.5 text-sidebar-foreground/50" />
               </SidebarMenuButton>
@@ -104,7 +106,9 @@ export function SidebarUserNav({ user }: { user: User }) {
               data-testid="user-nav-item-theme"
               onSelect={handleThemeSelect}
             >
-              {`Toggle ${resolvedTheme === "light" ? "dark" : "light"} mode`}
+              {resolvedTheme === "light"
+                ? t("chat.theme.toggleDark")
+                : t("chat.theme.toggleLight")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
@@ -113,7 +117,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 onClick={handleAuthClick}
                 type="button"
               >
-                {isGuest ? "Login to your account" : "Sign out"}
+                {isGuest ? t("chat.auth.login") : t("chat.auth.signOut")}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

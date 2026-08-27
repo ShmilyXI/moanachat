@@ -3,6 +3,7 @@
 import { PanelLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
+import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { VercelIcon } from "./icons";
@@ -17,6 +18,7 @@ function PureChatHeader({
   selectedVisibilityType: VisibilityType;
   isReadonly: boolean;
 }) {
+  const { t } = useLocale();
   const { state, toggleSidebar, isMobile } = useSidebar();
 
   if (state === "collapsed" && !isMobile) {
@@ -60,7 +62,7 @@ function PureChatHeader({
           target="_blank"
         >
           <VercelIcon size={16} />
-          Deploy with Vercel
+          {t("chat.header.deploy")}
         </Link>
       </Button>
     </header>
