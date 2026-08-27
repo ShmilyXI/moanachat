@@ -16,24 +16,24 @@
 - Modify: `package.json`
 - Create: `docs/superpowers/specs/2026-08-27-moanachat-standalone-design.md`
 
-- [ ] Set the package name to `moanachat`.
-- [ ] Record the standalone architecture and acceptance criteria in the design document.
-- [ ] Confirm the working tree contains no changes outside this project.
+- [x] Set the package name to `moanachat`.
+- [x] Record the standalone architecture and acceptance criteria in the design document.
+- [x] Confirm the working tree contains no changes outside this project.
 
 ### Task 2: Install and Configure Local Runtime
 
 **Files:**
-- Create: `.env.local` from `.env.example` without committing credentials
+- Create: `.env.local` with local-only values and without committing credentials
 
-- [ ] Install dependencies with the lockfile-defined pnpm command.
-- [ ] Set a local `AUTH_SECRET` and leave provider credentials unconfigured until the runtime integration phase.
-- [ ] Confirm `.env.local` is ignored by Git.
+- [x] Install dependencies with the lockfile-defined pnpm command.
+- [x] Set a local `AUTH_SECRET` and leave provider credentials unconfigured until the runtime integration phase.
+- [x] Confirm `.env.local` is ignored by Git.
 
 ### Task 3: Verify the Application Shell
 
 **Files:**
 - No source changes expected.
 
-- [ ] Start the Next.js development server on an available local port.
-- [ ] Request the root page and confirm a successful HTTP response.
-- [ ] Stop the verification server and report the exact local URL and any missing runtime integrations.
+- [x] Start the Next.js development server on an available local port.
+- [x] Request the health endpoint and root page and confirm successful HTTP responses.
+- [x] Report the exact local URL and the database integration required for Guest login.
