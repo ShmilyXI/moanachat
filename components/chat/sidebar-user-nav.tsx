@@ -42,7 +42,7 @@ export function SidebarUserNav({ user }: { user: User }) {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
   }, [resolvedTheme, setTheme]);
 
-  const handleAuthClick = useCallback(() => {
+  const handleAuthClick = useCallback(async () => {
     if (status === "loading") {
       toast({
         description: t("chat.auth.checking"),
@@ -55,7 +55,13 @@ export function SidebarUserNav({ user }: { user: User }) {
     if (isGuest) {
       router.push("/login");
     } else {
-      signOut({
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/runtime-config`,
+        {
+          method: "DELETE",
+        }
+      ).catch(() => undefined);
+      await signOut({
         redirectTo: "/",
       });
     }

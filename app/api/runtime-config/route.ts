@@ -29,3 +29,15 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export function DELETE() {
+  const response = NextResponse.json({ success: true });
+  response.cookies.set(RUNTIME_CONFIG_COOKIE, "", {
+    httpOnly: true,
+    maxAge: 0,
+    path: "/",
+    sameSite: "lax",
+    secure: isProductionEnvironment,
+  });
+  return response;
+}
