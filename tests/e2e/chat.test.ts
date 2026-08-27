@@ -59,3 +59,43 @@ test.describe("Chat Input Features", () => {
     await expect(input).toContainText("Line 1");
   });
 });
+
+test.describe("Locale switching", () => {
+  test("follows a Chinese browser locale", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "language", {
+        configurable: true,
+        value: "zh-CN",
+      });
+      Object.defineProperty(navigator, "languages", {
+        configurable: true,
+        value: ["zh-CN", "en-US"],
+      });
+    });
+
+    await page.goto("/");
+
+    await expect(page.getByText("今天想聊点什么？")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+  });
+
+  test("switches language and persists the choice", async ({ page }) => {
+    await page.goto("/");
+
+    await page.getByTestId("language-switcher").first().click();
+    await page.getByTestId("language-option-zh").click();
+
+    await expect(page.getByText("今天想聊点什么？")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+
+    await page.reload();
+    await expect(page.getByText("今天想聊点什么？")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+
+    await page.getByTestId("language-switcher").first().click();
+    await page.getByTestId("language-option-en").click();
+
+    await expect(page.getByText("What can I help with?")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  });
+});
