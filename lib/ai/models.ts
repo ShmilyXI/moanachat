@@ -169,6 +169,32 @@ export function getActiveModels(): ChatModel[] {
 
 export const allowedModelIds = new Set(chatModels.map((m) => m.id));
 
+export type ChatModelSelectionInput = {
+  availableModels?: readonly ChatModel[];
+  mode: "embedded" | "gateway";
+  requestedModelId: string;
+  staticDefaultModelId: string;
+};
+
+export function selectChatModel({
+  availableModels,
+  mode,
+  requestedModelId,
+  staticDefaultModelId,
+}: ChatModelSelectionInput): string {
+  if (mode === "embedded") {
+    if (availableModels?.some((model) => model.id === requestedModelId)) {
+      return requestedModelId;
+    }
+
+    return availableModels?.[0]?.id ?? staticDefaultModelId;
+  }
+
+  return allowedModelIds.has(requestedModelId)
+    ? requestedModelId
+    : staticDefaultModelId;
+}
+
 export const modelsByProvider = chatModels.reduce(
   (acc, model) => {
     if (!acc[model.provider]) {

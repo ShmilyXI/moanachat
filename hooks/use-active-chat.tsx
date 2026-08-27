@@ -22,7 +22,11 @@ import { getChatHistoryPaginationKey } from "@/components/chat/sidebar-history";
 import { toast } from "@/components/chat/toast";
 import type { VisibilityType } from "@/components/chat/visibility-selector";
 import { useAutoResume } from "@/hooks/use-auto-resume";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
+import {
+  type ChatModel,
+  DEFAULT_CHAT_MODEL,
+  selectChatModel,
+} from "@/lib/ai/models";
 import type { Vote } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
@@ -81,6 +85,43 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
   const [input, setInput] = useState("");
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
+
+  const { data: modelsData } = useSWR(
+    `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+
+  useEffect(() => {
+    const refreshModels = () => {
+      mutate(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`);
+    };
+
+    window.addEventListener("moana-runtime-config-ready", refreshModels);
+    return () => {
+      window.removeEventListener("moana-runtime-config-ready", refreshModels);
+    };
+  }, [mutate]);
+
+  const embeddedModels: ChatModel[] | undefined =
+    modelsData?.mode === "embedded" ? modelsData.models : undefined;
+
+  useEffect(() => {
+    if (!embeddedModels?.length) {
+      return;
+    }
+
+    const nextModelId = selectChatModel({
+      availableModels: embeddedModels,
+      mode: "embedded",
+      requestedModelId: currentModelId,
+      staticDefaultModelId: DEFAULT_CHAT_MODEL,
+    });
+
+    if (nextModelId !== currentModelId) {
+      setCurrentModelId(nextModelId);
+    }
+  }, [currentModelId, embeddedModels]);
 
   const { data: chatData, isLoading } = useSWR(
     isNewChat

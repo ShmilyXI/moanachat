@@ -14,14 +14,17 @@ import { createResumableStreamContext } from "resumable-stream";
 import { auth, type UserType } from "@/app/(auth)/auth";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import {
-  allowedModelIds,
   chatModels,
   DEFAULT_CHAT_MODEL,
   getCapabilities,
+  getCapabilitiesForModels,
   getModelAvailability,
+  selectChatModel,
 } from "@/lib/ai/models";
+import { fetchNewApiModels } from "@/lib/ai/newapi";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
+import { getRuntimeConfig } from "@/lib/ai/runtime-config";
 import { createDocument } from "@/lib/ai/tools/create-document";
 import { editDocument } from "@/lib/ai/tools/edit-document";
 import { getWeather } from "@/lib/ai/tools/get-weather";
@@ -94,9 +97,22 @@ export async function POST(request: Request) {
       return new ChatbotError("unauthorized:chat").toResponse();
     }
 
-    const chatModel = allowedModelIds.has(selectedChatModel)
-      ? selectedChatModel
-      : DEFAULT_CHAT_MODEL;
+    const runtimeConfig = await getRuntimeConfig();
+    const embeddedModels =
+      runtimeConfig.mode === "embedded"
+        ? await fetchNewApiModels(runtimeConfig)
+        : undefined;
+
+    if (runtimeConfig.mode === "embedded" && !embeddedModels?.length) {
+      return new ChatbotError("offline:chat").toResponse();
+    }
+
+    const chatModel = selectChatModel({
+      availableModels: embeddedModels,
+      mode: runtimeConfig.mode,
+      requestedModelId: selectedChatModel,
+      staticDefaultModelId: DEFAULT_CHAT_MODEL,
+    });
 
     await checkIpRateLimit(ipAddress(request));
 
@@ -195,7 +211,10 @@ export async function POST(request: Request) {
     }
 
     const modelConfig = chatModels.find((m) => m.id === chatModel);
-    const modelCapabilities = await getCapabilities();
+    const modelCapabilities =
+      runtimeConfig.mode === "embedded"
+        ? getCapabilitiesForModels(embeddedModels ?? [])
+        : await getCapabilities();
     const capabilities = modelCapabilities[chatModel];
     const isReasoningModel = capabilities?.reasoning === true;
     const supportsTools = capabilities?.tools === true;
@@ -268,7 +287,8 @@ export async function POST(request: Request) {
 
         const result = streamText({
           activeTools:
-            isReasoningModel && !supportsTools
+            (runtimeConfig.mode === "embedded" && !supportsTools) ||
+            (isReasoningModel && !supportsTools)
               ? []
               : [
                   "getWeather",
@@ -279,7 +299,7 @@ export async function POST(request: Request) {
                 ],
           instructions: systemPrompt({ requestHints, supportsTools }),
           messages: modelMessages,
-          model: getLanguageModel(chatModel),
+          model: await getLanguageModel(chatModel),
           onAbort() {
             stopWaitingStatus();
           },

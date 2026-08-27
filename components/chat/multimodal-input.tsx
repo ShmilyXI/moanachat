@@ -818,6 +818,7 @@ function PureModelSelectorCompact({
 
   const capabilities: Record<string, ModelCapabilities> | undefined =
     modelsData?.capabilities ?? modelsData;
+  const isEmbedded = modelsData?.mode === "embedded";
   const dynamicModels: ChatModel[] | undefined = modelsData?.models;
   const activeModels = dynamicModels ?? chatModels;
 
@@ -844,25 +845,26 @@ function PureModelSelectorCompact({
         <ModelSelectorList>
           {(() => {
             const curatedIds = new Set(chatModels.map((m) => m.id));
-            const allModels = dynamicModels
-              ? [
-                  ...chatModels,
-                  ...dynamicModels.filter((m) => !curatedIds.has(m.id)),
-                ]
-              : chatModels;
+            const allModels = isEmbedded
+              ? (dynamicModels ?? chatModels)
+              : dynamicModels
+                ? [
+                    ...chatModels,
+                    ...dynamicModels.filter((m) => !curatedIds.has(m.id)),
+                  ]
+                : chatModels;
 
             const grouped: Record<
               string,
               { model: ChatModel; curated: boolean }[]
             > = {};
             for (const model of allModels) {
-              const key = curatedIds.has(model.id)
-                ? "_available"
-                : model.provider;
+              const selectable = isEmbedded || curatedIds.has(model.id);
+              const key = selectable ? "_available" : model.provider;
               if (!grouped[key]) {
                 grouped[key] = [];
               }
-              grouped[key].push({ curated: curatedIds.has(model.id), model });
+              grouped[key].push({ curated: selectable, model });
             }
 
             const sortedKeys = Object.keys(grouped).sort((a, b) => {
