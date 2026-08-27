@@ -8,6 +8,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/locale-provider";
+import type { TranslationKey, TranslationParams } from "@/lib/i18n";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
@@ -154,24 +156,36 @@ export type ReasoningTriggerProps = ComponentProps<
   getThinkingMessage?: (isStreaming: boolean, duration?: number) => ReactNode;
 };
 
-const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
+const defaultGetThinkingMessage = (
+  t: (key: TranslationKey, params?: TranslationParams) => string,
+  isStreaming: boolean,
+  duration?: number
+) => {
   if (isStreaming || duration === 0) {
-    return <Shimmer className="font-medium" duration={1}>Thinking...</Shimmer>;
+    return (
+      <Shimmer className="font-medium" duration={1}>
+        {t("chat.reasoning.thinking")}
+      </Shimmer>
+    );
   }
   if (duration === undefined) {
-    return <p>Thought for a few seconds</p>;
+    return <p>{t("chat.reasoning.fewSeconds")}</p>;
   }
-  return <p>Thought for {duration} seconds</p>;
+  return <p>{t("chat.reasoning.seconds", { duration })}</p>;
 };
 
 export const ReasoningTrigger = memo(
   ({
     className,
     children,
-    getThinkingMessage = defaultGetThinkingMessage,
+    getThinkingMessage,
     ...props
   }: ReasoningTriggerProps) => {
+    const { t } = useLocale();
     const { isStreaming, isOpen, duration } = useReasoning();
+    const thinkingMessage = getThinkingMessage
+      ? getThinkingMessage(isStreaming, duration)
+      : defaultGetThinkingMessage(t, isStreaming, duration);
 
     return (
       <CollapsibleTrigger
@@ -183,7 +197,7 @@ export const ReasoningTrigger = memo(
       >
         {children ?? (
           <>
-            {getThinkingMessage(isStreaming, duration)}
+            {thinkingMessage}
             <ChevronDownIcon
               className={cn(
                 "size-4 transition-transform",

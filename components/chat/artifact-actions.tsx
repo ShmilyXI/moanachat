@@ -1,5 +1,7 @@
 import { memo, type ReactNode, useCallback, useState } from "react";
 import { toast } from "sonner";
+import { useLocale } from "@/components/locale-provider";
+import type { TranslationKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { artifactDefinitions, type UIArtifact } from "./artifact";
@@ -21,6 +23,17 @@ type ArtifactAction = {
   onClick: (context: ArtifactActionContext) => Promise<void> | void;
 };
 
+const artifactDescriptionKeys: Record<string, TranslationKey> = {
+  "Copy as .csv": "chat.artifact.copyCsv",
+  "Copy code to clipboard": "chat.artifact.copyCode",
+  "Copy image to clipboard": "chat.artifact.copyImage",
+  "Copy to clipboard": "chat.artifact.copy",
+  "Execute code": "chat.artifact.executeCode",
+  "View changes": "chat.artifact.viewChanges",
+  "View Next version": "chat.artifact.viewNext",
+  "View Previous version": "chat.artifact.viewPrevious",
+};
+
 function ArtifactActionButton({
   action,
   actionContext,
@@ -34,17 +47,18 @@ function ArtifactActionButton({
   isActive: boolean;
   setIsLoading: (isLoading: boolean) => void;
 }) {
+  const { t } = useLocale();
   const handleClick = useCallback(async () => {
     setIsLoading(true);
 
     try {
       await Promise.resolve(action.onClick(actionContext));
     } catch {
-      toast.error("Failed to execute action");
+      toast.error(t("chat.artifact.errorAction"));
     } finally {
       setIsLoading(false);
     }
-  }, [action, actionContext, setIsLoading]);
+  }, [action, actionContext, setIsLoading, t]);
 
   return (
     <Tooltip>
@@ -67,7 +81,9 @@ function ArtifactActionButton({
         </button>
       </TooltipTrigger>
       <TooltipContent side="left" sideOffset={8}>
-        {action.description}
+        {artifactDescriptionKeys[action.description]
+          ? t(artifactDescriptionKeys[action.description])
+          : action.description}
       </TooltipContent>
     </Tooltip>
   );

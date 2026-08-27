@@ -1,6 +1,7 @@
 "use client";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { useCallback } from "react";
+import { useLocale } from "@/components/locale-provider";
 import type { Vote } from "@/lib/db/schema";
 import type { ChatMessage } from "@/lib/types";
 import { cn, sanitizeText } from "@/lib/utils";
@@ -23,8 +24,9 @@ import { PreviewAttachment } from "./preview-attachment";
 import { Weather } from "./weather";
 
 function WaitingText() {
+  const { t } = useLocale();
   const { waitingStatus } = useDataStream();
-  const waitingText = waitingStatus?.message ?? "Waiting...";
+  const waitingText = waitingStatus?.message ?? t("chat.message.waiting");
 
   return (
     <div className="flex min-h-[calc(13px*1.65)] min-w-0 items-center text-[13px] leading-[1.65]">
@@ -46,6 +48,7 @@ function ToolApprovalActions({
   addToolApprovalResponse: UseChatHelpers<ChatMessage>["addToolApprovalResponse"];
   approvalId: string;
 }) {
+  const { t } = useLocale();
   const handleDeny = useCallback(() => {
     addToolApprovalResponse({
       approved: false,
@@ -68,14 +71,14 @@ function ToolApprovalActions({
         onClick={handleDeny}
         type="button"
       >
-        Deny
+        {t("chat.message.deny")}
       </button>
       <button
         className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-sm transition-colors hover:bg-primary/90"
         onClick={handleAllow}
         type="button"
       >
-        Allow
+        {t("chat.message.allow")}
       </button>
     </div>
   );
@@ -104,6 +107,7 @@ const PurePreviewMessage = ({
   requiresScrollPadding: boolean;
   onEdit?: (message: ChatMessage) => void;
 }) => {
+  const { t } = useLocale();
   const attachmentsFromMessage = message.parts.filter(
     (part) => part.type === "file"
   );
@@ -213,7 +217,7 @@ const PurePreviewMessage = ({
               <ToolHeader state="output-denied" type="tool-getWeather" />
               <ToolContent>
                 <div className="px-4 py-3 text-muted-foreground text-sm">
-                  Weather lookup was denied.
+                  {t("chat.message.weatherDenied")}
                 </div>
               </ToolContent>
             </Tool>
@@ -264,7 +268,7 @@ const PurePreviewMessage = ({
             className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50"
             key={toolCallId}
           >
-            Error creating document: {String(part.output.error)}
+            {t("chat.artifact.errorCreate")} {String(part.output.error)}
           </div>
         );
       }
@@ -287,7 +291,7 @@ const PurePreviewMessage = ({
             className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50"
             key={toolCallId}
           >
-            Error updating document: {String(part.output.error)}
+            {t("chat.artifact.errorUpdate")} {String(part.output.error)}
           </div>
         );
       }
@@ -321,7 +325,7 @@ const PurePreviewMessage = ({
                 output={
                   "error" in part.output ? (
                     <div className="rounded border p-2 text-red-500">
-                      Error: {String(part.output.error)}
+                      {t("chat.tool.error")}: {String(part.output.error)}
                     </div>
                   ) : (
                     <DocumentToolResult

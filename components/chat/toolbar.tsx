@@ -16,12 +16,14 @@ import {
   useState,
 } from "react";
 import { useOnClickOutside } from "usehooks-ts";
+import { useLocale } from "@/components/locale-provider";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { TranslationKey } from "@/lib/i18n";
 import type { ChatMessage } from "@/lib/types";
 import { type ArtifactKind, artifactDefinitions } from "./artifact";
 import type { ArtifactToolbarItem } from "./create-artifact";
@@ -52,6 +54,25 @@ const READING_LEVELS = [
   "Graduate",
 ];
 
+const readingLevelTranslationKeys: TranslationKey[] = [
+  "chat.toolbar.elementary",
+  "chat.toolbar.middleSchool",
+  "chat.toolbar.keepCurrentLevel",
+  "chat.toolbar.highSchool",
+  "chat.toolbar.college",
+  "chat.toolbar.graduate",
+];
+
+const toolbarDescriptionKeys: Record<string, TranslationKey> = {
+  "Add comments": "chat.artifact.addComments",
+  "Add final polish": "chat.artifact.addFinalPolish",
+  "Add logs": "chat.artifact.addLogs",
+  "Analyze and visualize data": "chat.artifact.analyzeData",
+  "Fix error": "chat.artifact.fixError",
+  "Format and clean data": "chat.artifact.formatData",
+  "Request suggestions": "chat.artifact.requestSuggestions",
+};
+
 const Tool = ({
   description,
   icon,
@@ -63,6 +84,7 @@ const Tool = ({
   sendMessage,
   onClick,
 }: ToolProps) => {
+  const { t } = useLocale();
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -70,6 +92,10 @@ const Tool = ({
       setIsHovered(false);
     }
   }, [selectedTool, description]);
+
+  const translatedDescription = toolbarDescriptionKeys[description]
+    ? t(toolbarDescriptionKeys[description])
+    : description;
 
   const handleSelect = useCallback(() => {
     if (!isToolbarVisible && setIsToolbarVisible) {
@@ -151,7 +177,7 @@ const Tool = ({
         side="left"
         sideOffset={16}
       >
-        {description}
+        {translatedDescription}
       </TooltipContent>
     </Tooltip>
   );
@@ -168,6 +194,7 @@ const ReadingLevelSelector = ({
   isAnimating: boolean;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
 }) => {
+  const { t } = useLocale();
   const y = useMotionValue(-40 * 2);
   const dragConstraints = 5 * 40 + 2;
   const yToLevel = useTransform(y, [0, -dragConstraints], [0, 5]);
@@ -259,7 +286,7 @@ const ReadingLevelSelector = ({
             side="left"
             sideOffset={16}
           >
-            {READING_LEVELS[currentLevel]}
+            {t(readingLevelTranslationKeys[currentLevel])}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

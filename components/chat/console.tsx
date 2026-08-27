@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocale } from "@/components/locale-provider";
 import { useArtifactSelector } from "@/hooks/use-artifact";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -29,6 +30,7 @@ type ConsoleProps = {
 };
 
 export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
+  const { t } = useLocale();
   const [height, setHeight] = useState<number>(300);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -95,7 +97,7 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
   return consoleOutputs.length > 0 ? (
     <>
       <div
-        aria-label="Resize console"
+        aria-label={t("chat.console.resize")}
         aria-orientation="horizontal"
         aria-valuemax={maxHeight}
         aria-valuemin={minHeight}
@@ -119,9 +121,10 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
         <div className="sticky top-0 z-50 flex h-10 w-full items-center justify-between border-b border-border/50 bg-background px-3">
           <div className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
             <TerminalWindowIcon />
-            <span>Console</span>
+            <span>{t("chat.console.label")}</span>
           </div>
           <Button
+            aria-label={t("chat.console.clear")}
             className="size-7 text-muted-foreground/50 hover:text-foreground"
             onClick={handleClearConsoleOutputs}
             size="icon-sm"
@@ -156,7 +159,7 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
                   <Spinner className="size-3.5" />
                   <span className="text-muted-foreground">
                     {consoleOutput.status === "in_progress"
-                      ? "Initializing..."
+                      ? t("chat.console.initializing")
                       : consoleOutput.status === "loading_packages"
                         ? consoleOutput.contents.map((content) =>
                             content.type === "text" ? content.value : null

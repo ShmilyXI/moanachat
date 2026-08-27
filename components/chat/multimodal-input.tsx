@@ -179,7 +179,7 @@ function PureMultimodalInput({
           setMessages(() => []);
           break;
         case "rename":
-          toast("Rename is available from the sidebar chat menu.");
+          toast(t("chat.rename.unavailable"));
           break;
         case "model": {
           const modelBtn = document.querySelector<HTMLButtonElement>(
@@ -192,24 +192,24 @@ function PureMultimodalInput({
           setTheme(resolvedTheme === "dark" ? "light" : "dark");
           break;
         case "delete":
-          toast("Delete this chat?", {
+          toast(t("chat.delete.title"), {
             action: {
-              label: "Delete",
+              label: t("chat.delete"),
               onClick: () => {
                 fetch(
                   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatId}`,
                   { method: "DELETE" }
                 );
                 router.push("/");
-                toast.success("Chat deleted");
+                toast.success(t("chat.delete.success"));
               },
             },
           });
           break;
         case "purge":
-          toast("Delete all chats?", {
+          toast(t("chat.deleteAll.title"), {
             action: {
-              label: "Delete all",
+              label: t("chat.deleteAll"),
               onClick: () => {
                 fetch(
                   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/history`,
@@ -218,7 +218,7 @@ function PureMultimodalInput({
                   }
                 );
                 router.push("/");
-                toast.success("All chats deleted");
+                toast.success(t("chat.deleteAll.success"));
               },
             },
           });
@@ -227,7 +227,7 @@ function PureMultimodalInput({
           break;
       }
     },
-    [chatId, resolvedTheme, router, setInput, setMessages, setTheme]
+    [chatId, resolvedTheme, router, setInput, setMessages, setTheme, t]
   );
 
   const submitForm = useCallback(() => {
@@ -271,35 +271,38 @@ function PureMultimodalInput({
     chatId,
   ]);
 
-  const uploadFile = useCallback(async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
+  const uploadFile = useCallback(
+    async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/files/upload`,
-        {
-          body: formData,
-          method: "POST",
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/files/upload`,
+          {
+            body: formData,
+            method: "POST",
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const { url, pathname, contentType } = data;
+
+          return {
+            contentType,
+            name: pathname,
+            url,
+          };
         }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const { url, pathname, contentType } = data;
-
-        return {
-          contentType,
-          name: pathname,
-          url,
-        };
+        const { error } = await response.json();
+        toast.error(error);
+      } catch {
+        toast.error(t("chat.upload.failedFile"));
       }
-      const { error } = await response.json();
-      toast.error(error);
-    } catch {
-      toast.error("Failed to upload file, please try again!");
-    }
-  }, []);
+    },
+    [t]
+  );
 
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -319,12 +322,12 @@ function PureMultimodalInput({
           ...successfullyUploadedAttachments,
         ]);
       } catch {
-        toast.error("Failed to upload files");
+        toast.error(t("chat.upload.failedFiles"));
       } finally {
         setUploadQueue([]);
       }
     },
-    [setAttachments, uploadFile]
+    [setAttachments, t, uploadFile]
   );
 
   const handlePaste = useCallback(
@@ -344,7 +347,7 @@ function PureMultimodalInput({
 
       event.preventDefault();
 
-      setUploadQueue((prev) => [...prev, "Pasted image"]);
+      setUploadQueue((prev) => [...prev, t("chat.upload.pastedImage")]);
 
       try {
         const uploadPromises = imageItems
@@ -365,12 +368,12 @@ function PureMultimodalInput({
           ...(successfullyUploadedAttachments as Attachment[]),
         ]);
       } catch {
-        toast.error("Failed to upload pasted image(s)");
+        toast.error(t("chat.upload.failedPastedImages"));
       } finally {
         setUploadQueue([]);
       }
     },
-    [setAttachments, uploadFile]
+    [setAttachments, t, uploadFile]
   );
 
   useEffect(() => {
@@ -410,7 +413,7 @@ function PureMultimodalInput({
     if (status === "ready" || status === "error") {
       submitForm();
     } else {
-      toast.error("Please wait for the model to finish its response!");
+      toast.error(t("chat.wait.response"));
     }
   }, [
     attachments.length,
@@ -419,6 +422,7 @@ function PureMultimodalInput({
     slashCommands,
     status,
     submitForm,
+    t,
   ]);
 
   const handleTextareaKeyDown = useCallback(
@@ -470,13 +474,13 @@ function PureMultimodalInput({
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
       {editingMessage && onCancelEdit ? (
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-          <span>Editing message</span>
+          <span>{t("chat.composer.editing")}</span>
           <button
             className="rounded px-1.5 py-0.5 text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
             onMouseDown={handleCancelEditMouseDown}
             type="button"
           >
-            Cancel
+            {t("chat.cancel")}
           </button>
         </div>
       ) : null}
@@ -551,7 +555,7 @@ function PureMultimodalInput({
           onChange={handleInput}
           onKeyDown={handleTextareaKeyDown}
           placeholder={
-            editingMessage ? "Edit your message..." : "Ask anything..."
+            editingMessage ? t("chat.composer.edit") : t("chat.composer.ask")
           }
           ref={textareaRef}
           value={input}
@@ -709,6 +713,7 @@ function ModelSelectorOption({
   selectedModelId: string;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
+  const { t } = useLocale();
   const [logoProvider] = model.id.split("/");
   const maybeWithTooltip = (icon: ReactNode, label: string) => {
     if (!curated) {
@@ -760,19 +765,19 @@ function ModelSelectorOption({
         {capabilities?.[model.id]?.tools
           ? maybeWithTooltip(
               <WrenchIcon className="size-3.5" />,
-              "Supports tool use"
+              t("chat.composer.supportsTools")
             )
           : null}
         {capabilities?.[model.id]?.vision
           ? maybeWithTooltip(
               <EyeIcon className="size-3.5" />,
-              "Supports vision"
+              t("chat.composer.supportsVision")
             )
           : null}
         {capabilities?.[model.id]?.reasoning
           ? maybeWithTooltip(
               <BrainIcon className="size-3.5" />,
-              "Supports reasoning"
+              t("chat.composer.supportsReasoning")
             )
           : null}
         {!curated && <LockIcon className="size-3 text-muted-foreground/50" />}
@@ -790,7 +795,7 @@ function ModelSelectorOption({
         <div className="w-full cursor-not-allowed">{option}</div>
       </TooltipTrigger>
       <TooltipContent side="right" sideOffset={8}>
-        This model is not available in the demo.
+        {t("chat.composer.modelUnavailable")}
       </TooltipContent>
     </Tooltip>
   );
@@ -803,6 +808,7 @@ function PureModelSelectorCompact({
   selectedModelId: string;
   onModelChange?: (modelId: string) => void;
 }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const { data: modelsData } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
@@ -834,7 +840,7 @@ function PureModelSelectorCompact({
         </Button>
       </ModelSelectorTrigger>
       <ModelSelectorContent commandDefaultValue={selectedModel.id}>
-        <ModelSelectorInput placeholder="Search models..." />
+        <ModelSelectorInput placeholder={t("chat.composer.searchModels")} />
         <ModelSelectorList>
           {(() => {
             const curatedIds = new Set(chatModels.map((m) => m.id));
@@ -898,7 +904,7 @@ function PureModelSelectorCompact({
               <ModelSelectorGroup
                 heading={
                   key === "_available"
-                    ? "Available"
+                    ? t("chat.composer.available")
                     : (providerNames[key] ?? key)
                 }
                 key={key}

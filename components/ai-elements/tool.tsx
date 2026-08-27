@@ -4,12 +4,14 @@ import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type { ComponentProps, ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/components/locale-provider";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import type { TranslationKey, TranslationParams } from "@/lib/i18n";
 import {
   CheckCircleIcon,
   ChevronDownIcon,
@@ -45,14 +47,14 @@ export type ToolHeaderProps = {
     }
 );
 
-const statusLabels: Record<ToolPart["state"], string> = {
-  "approval-requested": "Awaiting Approval",
-  "approval-responded": "Responded",
-  "input-available": "Running",
-  "input-streaming": "Pending",
-  "output-available": "Completed",
-  "output-denied": "Denied",
-  "output-error": "Error",
+const statusLabelKeys: Record<ToolPart["state"], TranslationKey> = {
+  "approval-requested": "chat.tool.awaitingApproval",
+  "approval-responded": "chat.tool.responded",
+  "input-available": "chat.tool.running",
+  "input-streaming": "chat.tool.pending",
+  "output-available": "chat.tool.completed",
+  "output-denied": "chat.tool.denied",
+  "output-error": "chat.tool.error",
 };
 
 const statusIcons: Record<ToolPart["state"], ReactNode> = {
@@ -65,10 +67,15 @@ const statusIcons: Record<ToolPart["state"], ReactNode> = {
   "output-error": <XCircleIcon className="size-4 text-red-600" />,
 };
 
-export const getStatusBadge = (status: ToolPart["state"]) => (
+type Translate = (
+  key: TranslationKey,
+  params?: TranslationParams
+) => string;
+
+export const getStatusBadge = (status: ToolPart["state"], t: Translate) => (
   <Badge className="gap-1.5 rounded-full text-xs" variant="secondary">
     {statusIcons[status]}
-    {statusLabels[status]}
+    {t(statusLabelKeys[status])}
   </Badge>
 );
 
@@ -80,6 +87,7 @@ export const ToolHeader = ({
   toolName,
   ...props
 }: ToolHeaderProps) => {
+  const { t } = useLocale();
   const derivedName =
     type === "dynamic-tool" ? toolName : type.split("-").slice(1).join("-");
 
@@ -94,7 +102,7 @@ export const ToolHeader = ({
       <div className="flex items-center gap-2">
         <WrenchIcon className="size-4 text-muted-foreground" />
         <span className="font-medium text-sm">{title ?? derivedName}</span>
-        {getStatusBadge(state)}
+        {getStatusBadge(state, t)}
       </div>
       <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
     </CollapsibleTrigger>
@@ -118,15 +126,23 @@ export type ToolInputProps = ComponentProps<"div"> & {
 };
 
 export const ToolInput = ({ className, input, ...props }: ToolInputProps) => (
-  <div className={cn("space-y-2 overflow-hidden", className)} {...props}>
-    <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-      Parameters
-    </h4>
-    <div className="rounded-md bg-muted/50">
-      <CodeBlock code={JSON.stringify(input, null, 2)} language="json" />
-    </div>
-  </div>
+  <ToolInputContent className={className} input={input} {...props} />
 );
+
+function ToolInputContent({ className, input, ...props }: ToolInputProps) {
+  const { t } = useLocale();
+
+  return (
+    <div className={cn("space-y-2 overflow-hidden", className)} {...props}>
+      <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+        {t("chat.tool.parameters")}
+      </h4>
+      <div className="rounded-md bg-muted/50">
+        <CodeBlock code={JSON.stringify(input, null, 2)} language="json" />
+      </div>
+    </div>
+  );
+}
 
 export type ToolOutputProps = ComponentProps<"div"> & {
   output: ToolPart["output"];
@@ -139,6 +155,7 @@ export const ToolOutput = ({
   errorText,
   ...props
 }: ToolOutputProps) => {
+  const { t } = useLocale();
   if (!(output || errorText)) {
     return null;
   }
@@ -156,7 +173,7 @@ export const ToolOutput = ({
   return (
     <div className={cn("space-y-2", className)} {...props}>
       <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-        {errorText ? "Error" : "Result"}
+        {errorText ? t("chat.tool.error") : t("chat.tool.result")}
       </h4>
       <div
         className={cn(

@@ -3,6 +3,7 @@ import { memo, useCallback } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
+import { useLocale } from "@/components/locale-provider";
 import type { Vote } from "@/lib/db/schema";
 import type { ChatMessage } from "@/lib/types";
 import {
@@ -24,6 +25,7 @@ export function PureMessageActions({
   isLoading: boolean;
   onEdit?: () => void;
 }) {
+  const { t } = useLocale();
   const { mutate } = useSWRConfig();
   const [_, copyToClipboard] = useCopyToClipboard();
 
@@ -35,13 +37,13 @@ export function PureMessageActions({
 
   const handleCopy = useCallback(async () => {
     if (!textFromParts) {
-      toast.error("There's no text to copy!");
+      toast.error(t("chat.message.noText"));
       return;
     }
 
     await copyToClipboard(textFromParts);
-    toast.success("Copied to clipboard!");
-  }, [copyToClipboard, textFromParts]);
+    toast.success(t("chat.message.copied"));
+  }, [copyToClipboard, t, textFromParts]);
 
   const handleUpvote = useCallback(() => {
     const upvote = fetch(
@@ -57,8 +59,8 @@ export function PureMessageActions({
     );
 
     toast.promise(upvote, {
-      error: "Failed to upvote response.",
-      loading: "Upvoting Response...",
+      error: t("chat.message.upvoteFailed"),
+      loading: t("chat.message.upvoting"),
       success: () => {
         mutate<Vote[]>(
           `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`,
@@ -83,10 +85,10 @@ export function PureMessageActions({
           { revalidate: false }
         );
 
-        return "Upvoted Response!";
+        return t("chat.message.upvoted");
       },
     });
-  }, [chatId, message.id, mutate]);
+  }, [chatId, message.id, mutate, t]);
 
   const handleDownvote = useCallback(() => {
     const downvote = fetch(
@@ -102,8 +104,8 @@ export function PureMessageActions({
     );
 
     toast.promise(downvote, {
-      error: "Failed to downvote response.",
-      loading: "Downvoting Response...",
+      error: t("chat.message.downvoteFailed"),
+      loading: t("chat.message.downvoting"),
       success: () => {
         mutate<Vote[]>(
           `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`,
@@ -128,10 +130,10 @@ export function PureMessageActions({
           { revalidate: false }
         );
 
-        return "Downvoted Response!";
+        return t("chat.message.downvoted");
       },
     });
-  }, [chatId, message.id, mutate]);
+  }, [chatId, message.id, mutate, t]);
 
   if (isLoading) {
     return null;
@@ -146,7 +148,7 @@ export function PureMessageActions({
               className="size-7 text-muted-foreground/50 hover:text-foreground"
               data-testid="message-edit-button"
               onClick={onEdit}
-              tooltip="Edit"
+              tooltip={t("chat.message.edit")}
             >
               <PencilEditIcon />
             </Action>
@@ -154,7 +156,7 @@ export function PureMessageActions({
           <Action
             className="size-7 text-muted-foreground/50 hover:text-foreground"
             onClick={handleCopy}
-            tooltip="Copy"
+            tooltip={t("chat.message.copy")}
           >
             <CopyIcon />
           </Action>
@@ -168,7 +170,7 @@ export function PureMessageActions({
       <Action
         className="text-muted-foreground/50 hover:text-foreground"
         onClick={handleCopy}
-        tooltip="Copy"
+        tooltip={t("chat.message.copy")}
       >
         <CopyIcon />
       </Action>
@@ -178,7 +180,7 @@ export function PureMessageActions({
         data-testid="message-upvote"
         disabled={vote?.isUpvoted}
         onClick={handleUpvote}
-        tooltip="Upvote Response"
+        tooltip={t("chat.message.upvote")}
       >
         <ThumbUpIcon />
       </Action>
@@ -188,7 +190,7 @@ export function PureMessageActions({
         data-testid="message-downvote"
         disabled={vote && !vote.isUpvoted}
         onClick={handleDownvote}
-        tooltip="Downvote Response"
+        tooltip={t("chat.message.downvote")}
       >
         <ThumbDownIcon />
       </Action>

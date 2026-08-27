@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useLocale } from "@/components/locale-provider";
 import type { Attachment } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon } from "./icons";
@@ -12,6 +13,7 @@ export const PreviewAttachment = ({
   isUploading?: boolean;
   onRemove?: () => void;
 }) => {
+  const { t } = useLocale();
   const { name, url, contentType } = attachment;
 
   return (
@@ -21,7 +23,7 @@ export const PreviewAttachment = ({
     >
       {contentType?.startsWith("image") ? (
         <Image
-          alt={name ?? "attachment"}
+          alt={name ?? t("chat.attachment.file")}
           className="size-full object-cover"
           height={96}
           src={url}
@@ -29,7 +31,7 @@ export const PreviewAttachment = ({
         />
       ) : (
         <div className="flex size-full items-center justify-center text-muted-foreground text-xs">
-          File
+          {t("chat.attachment.file")}
         </div>
       )}
 

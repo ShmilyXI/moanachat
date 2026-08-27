@@ -9,6 +9,7 @@ import {
   UndoIcon,
 } from "@/components/chat/icons";
 import { SpreadsheetEditor } from "@/components/chat/sheet-editor";
+import { getClientTranslator } from "@/lib/i18n";
 
 type Metadata = Record<string, never>;
 
@@ -55,7 +56,7 @@ export const sheetArtifact = new Artifact<"sheet", Metadata>({
         const cleanedCsv = unparse(nonEmptyRows);
 
         navigator.clipboard.writeText(cleanedCsv);
-        toast.success("Copied csv to clipboard!");
+        toast.success(getClientTranslator()("chat.artifact.copyCsvSuccess"));
       },
     },
   ],

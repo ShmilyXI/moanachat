@@ -37,3 +37,23 @@ export function createTranslator(locale: Locale) {
     );
   };
 }
+
+export function getClientTranslator() {
+  if (typeof window === "undefined") {
+    return createTranslator("en");
+  }
+
+  let saved: string | null = null;
+  try {
+    saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+  } catch {
+    // Preference storage is optional.
+  }
+
+  const browserLanguages = [
+    navigator.language,
+    ...(navigator.languages ?? []),
+  ].filter(Boolean);
+
+  return createTranslator(detectLocale(saved, browserLanguages));
+}

@@ -2,14 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
+import { useLocale } from "@/components/locale-provider";
 import { suggestions } from "@/lib/constants";
+import type { TranslationKey } from "@/lib/i18n";
 import { SparklesIcon } from "./icons";
 
 function PreviewSuggestionButton({
   suggestion,
+  label,
   onAction,
 }: {
   suggestion: string;
+  label: string;
   onAction: (query?: string) => void;
 }) {
   const handleClick = useCallback(() => {
@@ -22,13 +26,21 @@ function PreviewSuggestionButton({
       onClick={handleClick}
       type="button"
     >
-      {suggestion}
+      {label}
     </button>
   );
 }
 
 export function Preview() {
+  const { t } = useLocale();
   const router = useRouter();
+  const suggestionTranslationKeys: Record<string, TranslationKey> = {
+    "Help me write an essay about Silicon Valley": "chat.suggestions.essay",
+    "What are the advantages of using Next.js?": "chat.suggestions.nextjs",
+    "What is the weather in San Francisco?": "chat.suggestions.weather",
+    "Write code to demonstrate Dijkstra's algorithm":
+      "chat.suggestions.dijkstra",
+  };
 
   const handleAction = useCallback(
     (query?: string) => {
@@ -48,16 +60,18 @@ export function Preview() {
         <div className="flex size-5 items-center justify-center rounded bg-muted/60 ring-1 ring-border/50">
           <SparklesIcon size={10} />
         </div>
-        <span className="text-[13px] text-muted-foreground">Chatbot</span>
+        <span className="text-[13px] text-muted-foreground">
+          {t("chat.brand")}
+        </span>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-8">
         <div className="text-center">
           <h2 className="text-xl font-semibold tracking-tight">
-            What can I help with?
+            {t("chat.greeting.title")}
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Ask a question, write code, or explore ideas.
+            {t("chat.greeting.description")}
           </p>
         </div>
 
@@ -65,6 +79,11 @@ export function Preview() {
           {suggestions.map((suggestion) => (
             <PreviewSuggestionButton
               key={suggestion}
+              label={
+                suggestionTranslationKeys[suggestion]
+                  ? t(suggestionTranslationKeys[suggestion])
+                  : suggestion
+              }
               onAction={handleAction}
               suggestion={suggestion}
             />
@@ -78,7 +97,7 @@ export function Preview() {
           onClick={handleDefaultAction}
           type="button"
         >
-          Ask anything...
+          {t("chat.composer.ask")}
         </button>
       </div>
     </div>

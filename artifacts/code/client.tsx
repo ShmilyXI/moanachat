@@ -15,6 +15,7 @@ import {
   RedoIcon,
   UndoIcon,
 } from "@/components/chat/icons";
+import { getClientTranslator } from "@/lib/i18n";
 import { generateUUID } from "@/lib/utils";
 
 const OUTPUT_HANDLERS = {
@@ -236,7 +237,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
       icon: <CopyIcon size={18} />,
       onClick: ({ content }) => {
         navigator.clipboard.writeText(content);
-        toast.success("Copied to clipboard!");
+        toast.success(getClientTranslator()("chat.message.copied"));
       },
     },
   ],

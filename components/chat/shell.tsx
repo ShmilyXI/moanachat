@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocale } from "@/components/locale-provider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,7 @@ import { Messages } from "./messages";
 import { MultimodalInput } from "./multimodal-input";
 
 export function ChatShell() {
+  const { t } = useLocale();
   const {
     chatId,
     messages,
@@ -196,17 +198,20 @@ export function ChatShell() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Activate AI Gateway</AlertDialogTitle>
+            <AlertDialogTitle>{t("chat.gateway.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This application requires{" "}
-              {process.env.NODE_ENV === "production" ? "the owner" : "you"} to
-              activate Vercel AI Gateway.
+              {t("chat.gateway.description", {
+                actor:
+                  process.env.NODE_ENV === "production"
+                    ? t("chat.gateway.owner")
+                    : t("chat.gateway.you"),
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("chat.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleActivateGateway}>
-              Activate
+              {t("chat.gateway.activate")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

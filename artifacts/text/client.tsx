@@ -12,6 +12,7 @@ import {
 } from "@/components/chat/icons";
 import { Editor } from "@/components/chat/text-editor";
 import type { Suggestion } from "@/lib/db/schema";
+import { getClientTranslator } from "@/lib/i18n";
 import { getSuggestions } from "../actions";
 
 type TextArtifactMetadata = {
@@ -67,7 +68,7 @@ export const textArtifact = new Artifact<"text", TextArtifactMetadata>({
       icon: <CopyIcon size={18} />,
       onClick: ({ content }) => {
         navigator.clipboard.writeText(content);
-        toast.success("Copied to clipboard!");
+        toast.success(getClientTranslator()("chat.message.copied"));
       },
     },
   ],

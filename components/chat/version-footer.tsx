@@ -6,6 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon, DiffIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
+import { useLocale } from "@/components/locale-provider";
 import { useArtifact } from "@/hooks/use-artifact";
 import type { Document } from "@/lib/db/schema";
 import { cn, getDocumentTimestampByIndex } from "@/lib/utils";
@@ -26,6 +27,7 @@ export const VersionFooter = ({
   mode,
   setMode,
 }: VersionFooterProps) => {
+  const { t } = useLocale();
   const { artifact } = useArtifact();
 
   const { mutate } = useSWRConfig();
@@ -117,7 +119,10 @@ export const VersionFooter = ({
             <ChevronLeftIcon className="size-4" />
           </button>
           <span className="min-w-[4rem] text-center text-xs tabular-nums text-muted-foreground">
-            {currentVersionIndex + 1} of {documents.length}
+            {t("chat.artifact.version", {
+              current: currentVersionIndex + 1,
+              total: documents.length,
+            })}
           </span>
           <button
             className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
@@ -135,7 +140,7 @@ export const VersionFooter = ({
             mode === "diff" && "bg-muted text-foreground"
           )}
           onClick={handleToggleMode}
-          title="Show changes"
+          title={t("chat.artifact.showChanges")}
           type="button"
         >
           <DiffIcon className="size-4" />
@@ -149,7 +154,7 @@ export const VersionFooter = ({
           onClick={handleRestore}
           type="button"
         >
-          Restore
+          {t("chat.artifact.restore")}
           {isMutating ? (
             <div className="animate-spin">
               <LoaderIcon size={14} />
@@ -161,7 +166,7 @@ export const VersionFooter = ({
           onClick={handleLatest}
           type="button"
         >
-          Latest
+          {t("chat.artifact.latest")}
         </button>
       </div>
     </motion.div>
