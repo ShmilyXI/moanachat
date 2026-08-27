@@ -6,6 +6,7 @@ test.describe("New API embedded mode", () => {
   }) => {
     let runtimeConfigBody: Record<string, string> | undefined;
     let chatBody: Record<string, unknown> | undefined;
+    let modelRequestCount = 0;
 
     await page.route("**/api/runtime-config", async (route) => {
       runtimeConfigBody = route.request().postDataJSON();
@@ -17,26 +18,38 @@ test.describe("New API embedded mode", () => {
     });
 
     await page.route("**/api/models", async (route) => {
+      modelRequestCount += 1;
+      const isEmbeddedResponse = modelRequestCount > 1;
       await route.fulfill({
-        body: JSON.stringify({
-          capabilities: {
-            "openai/gpt-4.1": {
-              reasoning: false,
-              tools: true,
-              vision: false,
-            },
-          },
-          defaultModelId: "openai/gpt-4.1",
-          mode: "embedded",
-          models: [
-            {
-              description: "",
-              id: "openai/gpt-4.1",
-              name: "GPT 4.1",
-              provider: "openai",
-            },
-          ],
-        }),
+        body: JSON.stringify(
+          isEmbeddedResponse
+            ? {
+                capabilities: {
+                  "openai/gpt-4.1": {
+                    reasoning: false,
+                    tools: true,
+                    vision: false,
+                  },
+                },
+                defaultModelId: "openai/gpt-4.1",
+                mode: "embedded",
+                models: [
+                  {
+                    description: "",
+                    id: "openai/gpt-4.1",
+                    name: "GPT 4.1",
+                    provider: "openai",
+                  },
+                ],
+              }
+            : {
+                "moonshotai/kimi-k2.5": {
+                  reasoning: true,
+                  tools: true,
+                  vision: true,
+                },
+              }
+        ),
         contentType: "application/json",
         status: 200,
       });
@@ -63,6 +76,7 @@ test.describe("New API embedded mode", () => {
       });
     await expect.poll(() => page.url()).not.toContain("apiKey");
     await expect.poll(() => page.url()).not.toContain("baseUrl");
+    await expect.poll(() => modelRequestCount).toBeGreaterThan(1);
 
     const modelButton = page.getByTestId("model-selector");
     await modelButton.click();
