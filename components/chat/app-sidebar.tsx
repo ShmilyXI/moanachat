@@ -13,11 +13,13 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
+import { LanguageSwitcher } from "@/components/chat/language-switcher";
 import {
   getChatHistoryPaginationKey,
   SidebarHistory,
 } from "@/components/chat/sidebar-history";
 import { SidebarUserNav } from "@/components/chat/sidebar-user-nav";
+import { useLocale } from "@/components/locale-provider";
 import {
   Sidebar,
   SidebarContent,
@@ -45,6 +47,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
+  const { t } = useLocale();
   const router = useRouter();
   const { setOpenMobile, toggleSidebar } = useSidebar();
   const { mutate } = useSWRConfig();
@@ -78,8 +81,8 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       method: "DELETE",
     });
 
-    toast.success("All chats deleted");
-  }, [mutate, router]);
+    toast.success(t("chat.deleteAll.success"));
+  }, [mutate, router, t]);
 
   return (
     <>
@@ -91,7 +94,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 <SidebarMenuButton
                   asChild
                   className="size-8 !px-0 items-center justify-center group-data-[collapsible=icon]:group-hover/logo:opacity-0"
-                  tooltip="Chatbot"
+                  tooltip={t("chat.brand")}
                 >
                   <Link href="/" onClick={closeMobile}>
                     <MessageSquareIcon className="size-4 text-sidebar-foreground/50" />
@@ -107,7 +110,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     </SidebarMenuButton>
                   </TooltipTrigger>
                   <TooltipContent className="hidden md:block" side="right">
-                    Open sidebar
+                    {t("chat.sidebar.open")}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -125,10 +128,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   <SidebarMenuButton
                     className="h-8 rounded-lg border border-sidebar-border text-[13px] text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                     onClick={handleNewChat}
-                    tooltip="New Chat"
+                    tooltip={t("chat.new")}
                   >
                     <PenSquareIcon className="size-4" />
-                    <span className="font-medium">New chat</span>
+                    <span className="font-medium">{t("chat.new")}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 {user ? (
@@ -136,10 +139,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     <SidebarMenuButton
                       className="rounded-lg text-sidebar-foreground/40 transition-colors duration-150 hover:bg-destructive/10 hover:text-destructive"
                       onClick={handleShowDeleteAllDialog}
-                      tooltip="Delete All Chats"
+                      tooltip={t("chat.deleteAll")}
                     >
                       <TrashIcon className="size-4" />
-                      <span className="text-[13px]">Delete all</span>
+                      <span className="text-[13px]">{t("chat.deleteAll")}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ) : null}
@@ -149,6 +152,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           <SidebarHistory user={user} />
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
+          <LanguageSwitcher />
           {user ? <SidebarUserNav user={user} /> : null}
         </SidebarFooter>
         <SidebarRail />
@@ -160,16 +164,15 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
+            <AlertDialogTitle>{t("chat.deleteAll.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete all
-              your chats and remove them from our servers.
+              {t("chat.deleteAll.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("chat.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteAll}>
-              Delete All
+              {t("chat.deleteAll")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

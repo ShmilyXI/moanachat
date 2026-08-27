@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { RuntimeConfigBootstrap } from "@/components/runtime-config-bootstrap";
+import { LocaleProvider } from "@/components/locale-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -68,18 +70,21 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          disableTransitionOnChange
-          enableSystem
-        >
-          <SessionProvider
-            basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}
+        <LocaleProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            disableTransitionOnChange
+            enableSystem
           >
-            <TooltipProvider>{children}</TooltipProvider>
-          </SessionProvider>
-        </ThemeProvider>
+            <SessionProvider
+              basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}
+            >
+              <RuntimeConfigBootstrap />
+              <TooltipProvider>{children}</TooltipProvider>
+            </SessionProvider>
+          </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

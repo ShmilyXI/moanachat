@@ -1,6 +1,8 @@
 import { en, type TranslationKey } from "./locales/en";
 import { zh } from "./locales/zh";
 
+export type { TranslationKey } from "./locales/en";
+
 export type Locale = "en" | "zh";
 export type TranslationParams = Record<string, string | number>;
 

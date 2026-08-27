@@ -23,8 +23,5 @@ test("translator interpolates values and falls back to the key", () => {
     "思考了 3 秒"
   );
   assert.equal(translate("chat.greeting.title"), "今天想聊点什么？");
-  assert.equal(
-    translate("missing.key" as TranslationKey),
-    "missing.key"
-  );
+  assert.equal(translate("missing.key" as TranslationKey), "missing.key");
 });
