@@ -825,7 +825,8 @@ function PureModelSelectorCompact({
   const selectedModel =
     activeModels.find((m: ChatModel) => m.id === selectedModelId) ??
     activeModels.find((m: ChatModel) => m.id === DEFAULT_CHAT_MODEL) ??
-    activeModels[0];
+    activeModels[0] ??
+    chatModels[0];
   const [provider] = selectedModel.id.split("/");
 
   return (
