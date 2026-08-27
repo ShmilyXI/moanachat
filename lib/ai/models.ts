@@ -14,6 +14,12 @@ export type ModelCapabilities = {
   reasoning: boolean;
 };
 
+const NO_MODEL_CAPABILITIES: ModelCapabilities = {
+  reasoning: false,
+  tools: false,
+  vision: false,
+};
+
 export type ChatModel = {
   id: string;
   name: string;
@@ -118,6 +124,14 @@ type GatewayModel = {
 export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;
 };
+
+export function getCapabilitiesForModels(
+  models: readonly ChatModel[]
+): Record<string, ModelCapabilities> {
+  return Object.fromEntries(
+    models.map((model) => [model.id, { ...NO_MODEL_CAPABILITIES }])
+  );
+}
 
 export async function getAllGatewayModels(): Promise<
   GatewayModelWithCapabilities[]

@@ -1,9 +1,40 @@
-import { getAllGatewayModels, getCapabilities, isDemo } from "@/lib/ai/models";
+import {
+  getAllGatewayModels,
+  getCapabilities,
+  getCapabilitiesForModels,
+  isDemo,
+} from "@/lib/ai/models";
+import { fetchNewApiModels } from "@/lib/ai/newapi";
+import { getRuntimeConfig } from "@/lib/ai/runtime-config";
 
 export async function GET() {
-  const headers = {
+  const gatewayHeaders = {
     "Cache-Control": "public, max-age=86400, s-maxage=86400",
   };
+
+  const runtimeConfig = await getRuntimeConfig();
+  if (runtimeConfig.mode === "embedded") {
+    const models = await fetchNewApiModels(runtimeConfig);
+    if (models.length === 0) {
+      return Response.json(
+        { error: "new_api_models_unavailable" },
+        {
+          headers: { "Cache-Control": "private, no-store" },
+          status: 502,
+        }
+      );
+    }
+
+    return Response.json(
+      {
+        capabilities: getCapabilitiesForModels(models),
+        defaultModelId: models[0].id,
+        mode: "embedded",
+        models,
+      },
+      { headers: { "Cache-Control": "private, no-store" } }
+    );
+  }
 
   const curatedCapabilities = await getCapabilities();
 
@@ -13,8 +44,8 @@ export async function GET() {
       models.map((m) => [m.id, curatedCapabilities[m.id] ?? m.capabilities])
     );
 
-    return Response.json({ capabilities, models }, { headers });
+    return Response.json({ capabilities, models }, { headers: gatewayHeaders });
   }
 
-  return Response.json(curatedCapabilities, { headers });
+  return Response.json(curatedCapabilities, { headers: gatewayHeaders });
 }
