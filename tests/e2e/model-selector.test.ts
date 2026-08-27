@@ -63,4 +63,13 @@ test.describe("Model Selector", () => {
     await expect(page.getByPlaceholder("Search models...")).not.toBeVisible();
     await expect(modelButton).toContainText("DeepSeek V3.2");
   });
+
+  test("keeps the standalone capability response shape", async ({ page }) => {
+    const response = await page.request.get("/api/models");
+    expect(response.ok()).toBeTruthy();
+
+    const payload = await response.json();
+    const capabilities = payload.capabilities ?? payload;
+    expect(capabilities).toHaveProperty("moonshotai/kimi-k2.5");
+  });
 });

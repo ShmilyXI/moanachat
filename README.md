@@ -46,6 +46,18 @@ This template uses the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) t
 
 With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
 
+### New API embedded mode
+
+Moanachat supports both standalone AI Gateway mode and embedded New API mode. To launch it from a New API Chat Preset, configure a URL template like this in New API's Chats setting:
+
+```text
+https://moana.example.com/?apiBase={address}/v1&apiKey={key}
+```
+
+New API replaces `{address}` and `{key}` with the current API endpoint and an enabled user token. Moanachat stores the values in an HttpOnly cookie, requests the user's available models from `/v1/models`, and sends chat requests to the OpenAI-compatible `/v1/chat/completions` endpoint. The model selector then shows the models allowed for that token.
+
+Standalone deployments continue to use `AI_GATEWAY_API_KEY` and the curated models in `lib/ai/models.ts`. The first embedded version expects the user to have an enabled New API token; it does not provide SSO or create tokens automatically.
+
 ## Deploy Your Own
 
 You can deploy your own version of Chatbot to Vercel with one click:

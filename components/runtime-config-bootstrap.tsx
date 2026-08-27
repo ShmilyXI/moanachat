@@ -40,6 +40,7 @@ export function RuntimeConfigBootstrap() {
           "",
           `${url.pathname}${url.search}${url.hash}`
         );
+        window.dispatchEvent(new Event("moana-runtime-config-ready"));
       })
       .catch(() => {
         // Keep the bootstrap parameters visible for a later page load.
