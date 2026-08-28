@@ -1,0 +1,11 @@
+.git
+.next
+node_modules
+playwright-report
+test-results
+.playwright-cli
+.env*
+!.env.example
+*.log
+docs
+tests

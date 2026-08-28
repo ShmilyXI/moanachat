@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { RuntimeConfigBootstrap } from "@/components/runtime-config-bootstrap";
 import { LocaleProvider } from "@/components/locale-provider";
+import { RuntimeConfigBootstrap } from "@/components/runtime-config-bootstrap";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 

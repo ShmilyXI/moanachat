@@ -1,6 +1,25 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Chat Page", () => {
+  test("opens the sidebar from a narrow embedded viewport", async ({
+    page,
+  }) => {
+    const directUrl = new URL(
+      test.info().project.use.baseURL ?? "http://localhost:3000/"
+    );
+    directUrl.hostname = "127.0.0.1";
+    await page.setViewportSize({ height: 960, width: 652 });
+    await page.goto(directUrl.toString());
+
+    const sidebarToggle = page.getByTestId("sidebar-toggle-button");
+    await expect(sidebarToggle).toBeVisible({ timeout: 10_000 });
+
+    await sidebarToggle.click();
+    await expect(page.getByText("New chat")).toBeVisible({
+      timeout: 10_000,
+    });
+  });
+
   test("home page loads with input field", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("multimodal-input")).toBeVisible();

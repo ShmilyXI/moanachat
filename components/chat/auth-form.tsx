@@ -1,5 +1,8 @@
+"use client";
+
 import Form from "next/form";
 
+import { useLocale } from "@/components/locale-provider";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
@@ -7,18 +10,22 @@ export function AuthForm({
   action,
   children,
   defaultEmail = "",
+  onSubmit,
 }: {
   action: NonNullable<
     string | ((formData: FormData) => void | Promise<void>) | undefined
   >;
   children: React.ReactNode;
   defaultEmail?: string;
+  onSubmit?: React.FormEventHandler<HTMLFormElement>;
 }) {
+  const { t } = useLocale();
+
   return (
-    <Form action={action} className="flex flex-col gap-4">
+    <Form action={action} className="flex flex-col gap-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-2">
         <Label className="font-normal text-muted-foreground" htmlFor="email">
-          Email
+          {t("chat.auth.email")}
         </Label>
         <Input
           autoComplete="email"
@@ -27,7 +34,7 @@ export function AuthForm({
           defaultValue={defaultEmail}
           id="email"
           name="email"
-          placeholder="you@someo.ne"
+          placeholder={t("chat.auth.emailPlaceholder")}
           required
           type="email"
         />
@@ -35,7 +42,7 @@ export function AuthForm({
 
       <div className="flex flex-col gap-2">
         <Label className="font-normal text-muted-foreground" htmlFor="password">
-          Password
+          {t("chat.auth.password")}
         </Label>
         <Input
           className="h-10 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"

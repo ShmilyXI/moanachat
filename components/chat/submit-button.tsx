@@ -1,8 +1,8 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-
 import { LoaderIcon } from "@/components/chat/icons";
+import { useLocale } from "@/components/locale-provider";
 
 import { Button } from "../ui/button";
 
@@ -14,6 +14,7 @@ export function SubmitButton({
   isSuccessful: boolean;
 }) {
   const { pending } = useFormStatus();
+  const { t } = useLocale();
 
   return (
     <Button
@@ -31,7 +32,9 @@ export function SubmitButton({
       ) : null}
 
       <output aria-live="polite" className="sr-only">
-        {pending || isSuccessful ? "Loading" : "Submit form"}
+        {pending || isSuccessful
+          ? t("chat.auth.loading")
+          : t("chat.auth.submit")}
       </output>
     </Button>
   );

@@ -1,9 +1,12 @@
 import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
+import { isBotIdConfigured } from "./lib/bot-protection";
 
 const basePath = process.env.IS_DEMO === "1" ? "/demo" : "";
+const botIdEnabled = isBotIdConfigured();
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   ...(basePath
     ? {
         assetPrefix: "/demo-assets",
@@ -22,6 +25,7 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_BOTID_ENABLED: botIdEnabled ? "1" : "0",
   },
   experimental: {
     appNewScrollHandler: true,
@@ -51,4 +55,4 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 };
 
-export default withBotId(nextConfig);
+export default botIdEnabled ? withBotId(nextConfig) : nextConfig;
