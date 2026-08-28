@@ -9,6 +9,8 @@ import {
   BrainIcon,
   EyeIcon,
   LockIcon,
+  MicIcon,
+  MicOffIcon,
   SlidersHorizontalIcon,
   WrenchIcon,
 } from "lucide-react";
@@ -48,6 +50,12 @@ import {
   type ModelCapabilities,
 } from "@/lib/ai/models";
 import type { ChatSettings } from "@/lib/chat/settings";
+import {
+  createSpeechRecognition,
+  extractSpeechTranscript,
+  mergeSpeechTranscript,
+  type SpeechRecognitionLike,
+} from "@/lib/chat/speech";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -160,7 +168,57 @@ function PureMultimodalInput({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [slashQuery, setSlashQuery] = useState("");
   const [slashIndex, setSlashIndex] = useState(0);
+  const [isListening, setIsListening] = useState(false);
+  const speechRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const slashCommands = useMemo(() => getSlashCommands(t), [t]);
+
+  useEffect(
+    () => () => {
+      speechRecognitionRef.current?.stop();
+    },
+    []
+  );
+
+  const handleVoiceInput = useCallback(() => {
+    if (isListening) {
+      speechRecognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = createSpeechRecognition();
+    if (!recognition) {
+      toast.error(t("chat.composer.voiceUnavailable"));
+      return;
+    }
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = navigator.language || "en-US";
+    recognition.onresult = (event) => {
+      const transcript = extractSpeechTranscript(event);
+      if (transcript) {
+        setInput((current) => mergeSpeechTranscript(current, transcript));
+      }
+    };
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast.error(t("chat.composer.voiceFailed"));
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+      speechRecognitionRef.current = null;
+    };
+    speechRecognitionRef.current = recognition;
+    setIsListening(true);
+    try {
+      recognition.start();
+    } catch {
+      setIsListening(false);
+      speechRecognitionRef.current = null;
+      toast.error(t("chat.composer.voiceFailed"));
+    }
+  }, [isListening, setInput, t]);
 
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -618,24 +676,59 @@ function PureMultimodalInput({
             </Tooltip>
           </PromptInputTools>
 
-          {status === "submitted" ? (
-            <StopButton setMessages={setMessages} stop={stop} />
-          ) : (
-            <PromptInputSubmit
-              className={cn(
-                "h-7 w-7 rounded-xl transition-all duration-200",
-                input.trim()
-                  ? "bg-foreground text-background hover:opacity-85 active:scale-95"
-                  : "bg-muted text-muted-foreground/25 cursor-not-allowed"
-              )}
-              data-testid="send-button"
-              disabled={!input.trim() || uploadQueue.length > 0}
-              status={status}
-              variant="secondary"
-            >
-              <ArrowUpIcon className="size-4" />
-            </PromptInputSubmit>
-          )}
+          <div className="flex items-center gap-1">
+            {status === "submitted" ? null : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label={
+                      isListening
+                        ? t("chat.composer.stopVoice")
+                        : t("chat.composer.voice")
+                    }
+                    aria-pressed={isListening}
+                    className={cn(
+                      "h-7 w-7 rounded-lg border border-border/40 p-1 transition-colors hover:border-border hover:text-foreground",
+                      isListening && "bg-rose-500/10 text-rose-600"
+                    )}
+                    onClick={handleVoiceInput}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  >
+                    {isListening ? (
+                      <MicOffIcon className="size-3.5" />
+                    ) : (
+                      <MicIcon className="size-3.5" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  {isListening
+                    ? t("chat.composer.stopVoice")
+                    : t("chat.composer.voice")}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {status === "submitted" ? (
+              <StopButton setMessages={setMessages} stop={stop} />
+            ) : (
+              <PromptInputSubmit
+                className={cn(
+                  "h-7 w-7 rounded-xl transition-all duration-200",
+                  input.trim()
+                    ? "bg-foreground text-background hover:opacity-85 active:scale-95"
+                    : "bg-muted text-muted-foreground/25 cursor-not-allowed"
+                )}
+                data-testid="send-button"
+                disabled={!input.trim() || uploadQueue.length > 0}
+                status={status}
+                variant="secondary"
+              >
+                <ArrowUpIcon className="size-4" />
+              </PromptInputSubmit>
+            )}
+          </div>
         </PromptInputFooter>
       </PromptInput>
 

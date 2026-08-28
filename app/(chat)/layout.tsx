@@ -7,6 +7,7 @@ import { ChatSurface } from "@/components/chat/chat-surface";
 import { DataStreamProvider } from "@/components/chat/data-stream-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ActiveChatProvider } from "@/hooks/use-active-chat";
+import { getDefaultSidebarOpen } from "@/lib/chat/sidebar-state";
 import { auth } from "../(auth)/auth";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -27,10 +28,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 async function SidebarShell({ children }: { children: React.ReactNode }) {
   const [session, cookieStore] = await Promise.all([auth(), cookies()]);
-  const isCollapsed = cookieStore.get("sidebar_state")?.value !== "true";
+  const defaultOpen = getDefaultSidebarOpen(
+    cookieStore.get("sidebar_state")?.value
+  );
 
   return (
-    <SidebarProvider defaultOpen={!isCollapsed}>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar user={session?.user} />
       <SidebarInset>
         <Toaster
