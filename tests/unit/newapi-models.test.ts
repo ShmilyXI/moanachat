@@ -64,6 +64,56 @@ test("returns no models for malformed or missing data", () => {
   assert.deepEqual(normalizeNewApiModels({ data: {} }), []);
 });
 
+test("preserves Venice model metadata and capability flags", () => {
+  assert.deepEqual(
+    normalizeNewApiModels({
+      data: [
+        {
+          id: "zai-org-glm-5-1",
+          model_spec: {
+            availableContextTokens: 131_072,
+            capabilities: {
+              supportsAudioInput: true,
+              supportsFunctionCalling: true,
+              supportsReasoning: true,
+              supportsVideoInput: false,
+              supportsVision: true,
+              supportsWebSearch: true,
+            },
+            description: "Long-context model",
+            pricing: { input: 0.15, output: 0.6 },
+            privacy: "private",
+            traits: ["fastest", "reasoning"],
+          },
+          name: "GLM 5.1",
+          type: "text",
+        },
+      ],
+    }),
+    [
+      {
+        capabilities: {
+          audioInput: true,
+          reasoning: true,
+          tools: true,
+          videoInput: false,
+          vision: true,
+          webSearch: true,
+        },
+        contextLength: 131_072,
+        description: "Long-context model",
+        id: "zai-org-glm-5-1",
+        name: "GLM 5.1",
+        pricing: { input: 0.15, output: 0.6 },
+        privacy: "private",
+        provider: "zai-org-glm-5-1",
+        tags: ["fastest", "reasoning"],
+        type: "text",
+      },
+    ]
+  );
+});
+
 test("fetches models from the configured New API endpoint with a bearer token", async () => {
   const originalFetch = globalThis.fetch;
   let request: Request | undefined;

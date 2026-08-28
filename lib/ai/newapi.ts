@@ -5,6 +5,15 @@ type OpenAIModelRecord = {
   id?: unknown;
   name?: unknown;
   description?: unknown;
+  type?: unknown;
+  model_spec?: {
+    availableContextTokens?: unknown;
+    capabilities?: Record<string, unknown>;
+    description?: unknown;
+    privacy?: unknown;
+    pricing?: { input?: unknown; output?: unknown };
+    traits?: unknown;
+  };
 };
 
 type OpenAIModelsResponse = {
@@ -39,16 +48,61 @@ export function normalizeNewApiModels(payload: unknown): ChatModel[] {
         ? record.name.trim()
         : id;
     const description =
-      typeof record.description === "string" ? record.description : "";
-
-    return [
-      {
-        description,
-        id,
-        name,
-        provider: id.split("/")[0] || id,
-      },
-    ];
+      typeof record.description === "string"
+        ? record.description
+        : typeof record.model_spec?.description === "string"
+          ? record.model_spec.description
+          : "";
+    const model = {
+      description,
+      id,
+      name,
+      provider: id.split("/")[0] || id,
+    } as ChatModel;
+    const spec = record.model_spec;
+    if (typeof record.type === "string") {
+      model.type = record.type;
+    }
+    if (
+      spec &&
+      typeof spec.availableContextTokens === "number" &&
+      Number.isFinite(spec.availableContextTokens)
+    ) {
+      model.contextLength = spec.availableContextTokens;
+    }
+    if (spec && typeof spec.privacy === "string") {
+      model.privacy = spec.privacy;
+    }
+    if (spec?.pricing && typeof spec.pricing === "object") {
+      const input =
+        typeof spec.pricing.input === "number" ? spec.pricing.input : undefined;
+      const output =
+        typeof spec.pricing.output === "number"
+          ? spec.pricing.output
+          : undefined;
+      if (input !== undefined || output !== undefined) {
+        model.pricing = { input, output };
+      }
+    }
+    if (spec && Array.isArray(spec.traits)) {
+      const tags = spec.traits.filter(
+        (trait): trait is string => typeof trait === "string"
+      );
+      if (tags.length > 0) {
+        model.tags = tags;
+      }
+    }
+    if (spec?.capabilities) {
+      model.capabilities = {
+        audioInput: spec.capabilities.supportsAudioInput === true,
+        reasoning: spec.capabilities.supportsReasoning === true,
+        tools: spec.capabilities.supportsFunctionCalling === true,
+        videoInput: spec.capabilities.supportsVideoInput === true,
+        vision: spec.capabilities.supportsVision === true,
+        webSearch: spec.capabilities.supportsWebSearch === true,
+      };
+    }
+    return [model];
   });
 }
 

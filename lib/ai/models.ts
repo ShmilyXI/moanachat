@@ -12,6 +12,9 @@ export type ModelCapabilities = {
   tools: boolean;
   vision: boolean;
   reasoning: boolean;
+  webSearch?: boolean;
+  audioInput?: boolean;
+  videoInput?: boolean;
 };
 
 const NO_MODEL_CAPABILITIES: ModelCapabilities = {
@@ -27,6 +30,12 @@ export type ChatModel = {
   description: string;
   gatewayOrder?: string[];
   reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high";
+  capabilities?: ModelCapabilities;
+  contextLength?: number;
+  privacy?: string;
+  pricing?: { input?: number; output?: number };
+  tags?: string[];
+  type?: string;
 };
 
 export const chatModels: ChatModel[] = [
@@ -129,7 +138,10 @@ export function getCapabilitiesForModels(
   models: readonly ChatModel[]
 ): Record<string, ModelCapabilities> {
   return Object.fromEntries(
-    models.map((model) => [model.id, { ...NO_MODEL_CAPABILITIES }])
+    models.map((model) => [
+      model.id,
+      model.capabilities ?? { ...NO_MODEL_CAPABILITIES },
+    ])
   );
 }
 

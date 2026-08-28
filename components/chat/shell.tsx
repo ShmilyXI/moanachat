@@ -46,6 +46,10 @@ export function ChatShell() {
     votes,
     currentModelId,
     setCurrentModelId,
+    chatMode,
+    setChatMode,
+    chatSettings,
+    setChatSettings,
     showCreditCardAlert,
     setShowCreditCardAlert,
   } = useActiveChat();
@@ -123,7 +127,9 @@ export function ChatShell() {
         >
           <ChatHeader
             chatId={chatId}
+            chatMode={chatMode}
             isReadonly={isReadonly}
+            onChatModeChange={setChatMode}
             selectedVisibilityType={visibilityType}
           />
 
@@ -148,12 +154,14 @@ export function ChatShell() {
                 <MultimodalInput
                   attachments={attachments}
                   chatId={chatId}
+                  chatSettings={chatSettings}
                   editingMessage={editingMessage}
                   input={input}
                   isLoading={isLoading}
                   messages={messages}
                   onCancelEdit={handleCancelEdit}
                   onModelChange={setCurrentModelId}
+                  onSettingsChange={setChatSettings}
                   selectedModelId={currentModelId}
                   selectedVisibilityType={visibilityType}
                   sendMessage={

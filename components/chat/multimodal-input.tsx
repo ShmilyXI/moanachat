@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/noJsxPropsBind: composer callbacks are scoped to this surface
 "use client";
 
 import type { UseChatHelpers } from "@ai-sdk/react";
@@ -8,6 +9,7 @@ import {
   BrainIcon,
   EyeIcon,
   LockIcon,
+  SlidersHorizontalIcon,
   WrenchIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -45,6 +47,7 @@ import {
   DEFAULT_CHAT_MODEL,
   type ModelCapabilities,
 } from "@/lib/ai/models";
+import type { ChatSettings } from "@/lib/chat/settings";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -56,6 +59,8 @@ import {
 } from "../ai-elements/prompt-input";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { ChatSettingsDialog } from "./chat-settings-dialog";
+import { ChatToolsDialog } from "./chat-tools-dialog";
 import { PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 import {
@@ -74,6 +79,7 @@ function setCookie(name: string, value: string) {
 
 function PureMultimodalInput({
   chatId,
+  chatSettings,
   input,
   setInput,
   status,
@@ -87,11 +93,13 @@ function PureMultimodalInput({
   selectedVisibilityType,
   selectedModelId,
   onModelChange,
+  onSettingsChange,
   editingMessage,
   onCancelEdit,
   isLoading,
 }: {
   chatId: string;
+  chatSettings: ChatSettings;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   status: UseChatHelpers<ChatMessage>["status"];
@@ -107,6 +115,7 @@ function PureMultimodalInput({
   selectedVisibilityType: VisibilityType;
   selectedModelId: string;
   onModelChange?: (modelId: string) => void;
+  onSettingsChange: Dispatch<SetStateAction<ChatSettings>>;
   editingMessage?: ChatMessage | null;
   onCancelEdit?: () => void;
   isLoading?: boolean;
@@ -147,6 +156,8 @@ function PureMultimodalInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadQueue, setUploadQueue] = useState<string[]>([]);
   const [slashOpen, setSlashOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [slashQuery, setSlashQuery] = useState("");
   const [slashIndex, setSlashIndex] = useState(0);
   const slashCommands = useMemo(() => getSlashCommands(t), [t]);
@@ -562,6 +573,23 @@ function PureMultimodalInput({
         />
         <PromptInputFooter className="px-3 pb-3">
           <PromptInputTools>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label={t("chat.header.tools")}
+                  className="h-7 w-7 rounded-lg border border-border/40 p-1 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                  onClick={() => setToolsOpen(true)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <WrenchIcon className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {t("chat.header.tools")}
+              </TooltipContent>
+            </Tooltip>
             <AttachmentsButton
               fileInputRef={fileInputRef}
               selectedModelId={selectedModelId}
@@ -571,6 +599,23 @@ function PureMultimodalInput({
               onModelChange={onModelChange}
               selectedModelId={selectedModelId}
             />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label={t("chat.header.settings")}
+                  className="h-7 w-7 rounded-lg border border-border/40 p-1 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                  onClick={() => setSettingsOpen(true)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <SlidersHorizontalIcon className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {t("chat.header.settings")}
+              </TooltipContent>
+            </Tooltip>
           </PromptInputTools>
 
           {status === "submitted" ? (
@@ -593,6 +638,18 @@ function PureMultimodalInput({
           )}
         </PromptInputFooter>
       </PromptInput>
+
+      <ChatToolsDialog
+        onAddMedia={() => fileInputRef.current?.click()}
+        onOpenChange={setToolsOpen}
+        open={toolsOpen}
+      />
+      <ChatSettingsDialog
+        onOpenChange={setSettingsOpen}
+        onSettingsChange={onSettingsChange}
+        open={settingsOpen}
+        settings={chatSettings}
+      />
     </div>
   );
 }

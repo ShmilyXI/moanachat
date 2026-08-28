@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { isPublicAssetPath } from "./lib/chat/routes";
 import { guestRegex } from "./lib/constants";
 
 export async function proxy(request: NextRequest) {
@@ -7,6 +8,10 @@ export async function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/ping")) {
     return new Response("pong", { status: 200 });
+  }
+
+  if (isPublicAssetPath(pathname)) {
+    return NextResponse.next();
   }
 
   if (pathname.startsWith("/api/auth")) {
@@ -48,6 +53,6 @@ export const config = {
     "/login",
     "/register",
 
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!_next/static|_next/image|images/|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 };

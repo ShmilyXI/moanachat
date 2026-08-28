@@ -1,5 +1,6 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { customProvider, gateway } from "ai";
+import type { ChatSettings } from "@/lib/chat/settings";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
 import { fetchNewApiModels } from "./newapi";
@@ -20,7 +21,10 @@ export const myProvider = isTestEnvironment
     })()
   : null;
 
-export async function getLanguageModel(modelId: string) {
+export async function getLanguageModel(
+  modelId: string,
+  chatSettings?: ChatSettings
+) {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel(modelId);
   }
@@ -31,6 +35,19 @@ export async function getLanguageModel(modelId: string) {
       apiKey: config.apiKey,
       baseURL: `${config.baseUrl}/v1`,
       name: "new-api",
+      transformRequestBody: (body) => ({
+        ...body,
+        venice_parameters: {
+          disable_thinking: chatSettings?.reasoning === false,
+          enable_e2ee: true,
+          enable_web_citations: chatSettings?.webSearch ?? true,
+          enable_web_scraping: chatSettings?.urlScraping ?? false,
+          enable_web_search: chatSettings?.webSearch === false ? "off" : "auto",
+          include_venice_system_prompt:
+            chatSettings?.disableSystemPrompt !== true,
+          return_search_results_as_documents: chatSettings?.webSearch ?? true,
+        },
+      }),
     });
     return provider(modelId);
   }

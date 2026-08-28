@@ -27,6 +27,9 @@ import {
   DEFAULT_CHAT_MODEL,
   selectChatModel,
 } from "@/lib/ai/models";
+import type { ChatMode } from "@/lib/chat/modes";
+import { extractChatId } from "@/lib/chat/routes";
+import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
 import type { Vote } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
@@ -49,16 +52,15 @@ type ActiveChatContextValue = {
   votes: Vote[] | undefined;
   currentModelId: string;
   setCurrentModelId: (id: string) => void;
+  chatMode: ChatMode;
+  setChatMode: (mode: ChatMode) => void;
+  chatSettings: ChatSettings;
+  setChatSettings: Dispatch<SetStateAction<ChatSettings>>;
   showCreditCardAlert: boolean;
   setShowCreditCardAlert: Dispatch<SetStateAction<boolean>>;
 };
 
 const ActiveChatContext = createContext<ActiveChatContextValue | null>(null);
-
-function extractChatId(pathname: string): string | null {
-  const match = pathname.match(/\/chat\/([^/]+)/);
-  return match ? match[1] : null;
-}
 
 export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -78,6 +80,10 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const chatId = chatIdFromUrl ?? newChatIdRef.current;
 
   const [currentModelId, setCurrentModelId] = useState(DEFAULT_CHAT_MODEL);
+  const [chatMode, setChatMode] = useState<ChatMode>("normal");
+  const [chatSettings, setChatSettings] = useState<ChatSettings>(
+    DEFAULT_CHAT_SETTINGS
+  );
   const currentModelIdRef = useRef(currentModelId);
   useEffect(() => {
     currentModelIdRef.current = currentModelId;
@@ -203,6 +209,8 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
         return {
           body: {
+            chatMode,
+            chatSettings,
             id: request.id,
             ...(isToolApprovalContinuation
               ? { messages: request.messages }
@@ -244,6 +252,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       prevChatIdRef.current = chatId;
       if (isNewChat) {
         setMessages([]);
+        setChatMode("normal");
       }
     }
   }, [chatId, isNewChat, setMessages]);
@@ -299,6 +308,8 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
     () => ({
       addToolApprovalResponse,
       chatId,
+      chatMode,
+      chatSettings,
       currentModelId,
       input,
       isLoading: !isNewChat && isLoading,
@@ -306,6 +317,8 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       messages,
       regenerate,
       sendMessage,
+      setChatMode,
+      setChatSettings,
       setCurrentModelId,
       setInput,
       setMessages,
@@ -332,6 +345,8 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       isLoading,
       votes,
       currentModelId,
+      chatMode,
+      chatSettings,
       showCreditCardAlert,
     ]
   );

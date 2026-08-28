@@ -31,6 +31,8 @@ import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { isBotIdConfigured, isSecureRequest } from "@/lib/bot-protection";
+import { shouldPersistChat } from "@/lib/chat/modes";
+import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
@@ -82,8 +84,19 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, messages, selectedChatModel, selectedVisibilityType } =
-      requestBody;
+    const {
+      chatMode,
+      id,
+      message,
+      messages,
+      selectedChatModel,
+      selectedVisibilityType,
+    } = requestBody;
+    const persistChat = shouldPersistChat(chatMode);
+    const chatSettings: ChatSettings = {
+      ...DEFAULT_CHAT_SETTINGS,
+      ...requestBody.chatSettings,
+    };
 
     const [botIdResult, session] = await Promise.all([
       isBotIdConfigured() && isSecureRequest(request)
@@ -132,7 +145,7 @@ export async function POST(request: Request) {
 
     const isToolApprovalFlow = Boolean(messages);
 
-    const chat = await getChatById({ id });
+    const chat = persistChat ? await getChatById({ id }) : null;
     let messagesFromDb: DBMessage[] = [];
     let titlePromise: Promise<string> | null = null;
 
@@ -141,7 +154,7 @@ export async function POST(request: Request) {
         return new ChatbotError("forbidden:chat").toResponse();
       }
       messagesFromDb = await getMessagesByChatId({ id });
-    } else if (message?.role === "user") {
+    } else if (persistChat && message?.role === "user") {
       await saveChat({
         id,
         title: "New chat",
@@ -198,7 +211,7 @@ export async function POST(request: Request) {
       longitude,
     };
 
-    if (message?.role === "user") {
+    if (persistChat && message?.role === "user") {
       await saveMessages({
         messages: [
           {
@@ -302,7 +315,7 @@ export async function POST(request: Request) {
                 ],
           instructions: systemPrompt({ requestHints, supportsTools }),
           messages: modelMessages,
-          model: await getLanguageModel(chatModel),
+          model: await getLanguageModel(chatModel, chatSettings),
           onAbort() {
             stopWaitingStatus();
           },
@@ -330,6 +343,10 @@ export async function POST(request: Request) {
             functionId: "stream-text",
             isEnabled: isProductionEnvironment,
           },
+          temperature:
+            runtimeConfig.mode === "embedded"
+              ? chatSettings.temperature
+              : undefined,
           tools: {
             createDocument: createDocument({
               dataStream,
@@ -349,6 +366,8 @@ export async function POST(request: Request) {
               session,
             }),
           },
+          topP:
+            runtimeConfig.mode === "embedded" ? chatSettings.topP : undefined,
         });
 
         dataStream.merge(
@@ -370,6 +389,10 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onEnd: async ({ messages: finishedMessages }) => {
+        if (!persistChat) {
+          return;
+        }
+
         if (isToolApprovalFlow) {
           await Promise.all(
             finishedMessages.map(async (finishedMsg) => {
