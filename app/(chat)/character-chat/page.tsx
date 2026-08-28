@@ -6,9 +6,11 @@ import {
   BotIcon,
   PlusIcon,
   SparklesIcon,
+  Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,49 +18,44 @@ import {
   VenicePageHeader,
   VenicePageLayout,
 } from "@/components/venice/venice-page";
+import { fetcher } from "@/lib/utils";
 
 type Character = {
   id: string;
   name: string;
   description: string;
   prompt: string;
+  visibility: "private" | "public";
 };
 
 export default function CharactersPage() {
   const { t } = useLocale();
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const {
+    data: characters = [],
+    isLoading,
+    mutate,
+  } = useSWR<Character[]>("/api/characters", fetcher);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(
-        window.localStorage.getItem("moanachat-characters") ?? "[]"
-      );
-      if (Array.isArray(saved)) {
-        setCharacters(saved);
-      }
-    } catch {
-      // Local character drafts are optional.
-    }
-  }, []);
-
-  const createCharacter = () => {
+  const createCharacter = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
       return;
     }
-    const next = [
-      ...characters,
-      {
+    const response = await fetch("/api/characters", {
+      body: JSON.stringify({
         description: description.trim(),
-        id: crypto.randomUUID(),
         name: trimmedName,
         prompt: description.trim(),
-      },
-    ];
-    setCharacters(next);
-    window.localStorage.setItem("moanachat-characters", JSON.stringify(next));
+      }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    });
+    if (!response.ok) {
+      return;
+    }
+    await mutate();
     setName("");
     setDescription("");
   };
@@ -85,7 +82,11 @@ export default function CharactersPage() {
               {characters.length}
             </span>
           </div>
-          {characters.length === 0 ? (
+          {isLoading ? (
+            <div className="flex min-h-64 items-center justify-center text-sm text-muted-foreground">
+              {t("chat.history.loading")}
+            </div>
+          ) : characters.length === 0 ? (
             <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 text-center">
               <BotIcon className="mb-3 size-7 text-muted-foreground" />
               <p className="text-sm font-medium">{t("characters.empty")}</p>
@@ -112,6 +113,19 @@ export default function CharactersPage() {
                         {character.description || t("characters.noDescription")}
                       </p>
                     </div>
+                    <button
+                      aria-label={t("chat.delete")}
+                      className="ml-auto rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      onClick={async () => {
+                        await fetch(`/api/characters?id=${character.id}`, {
+                          method: "DELETE",
+                        });
+                        await mutate();
+                      }}
+                      type="button"
+                    >
+                      <Trash2Icon className="size-4" />
+                    </button>
                   </div>
                 </article>
               ))}

@@ -1,6 +1,7 @@
 export const en = {
   "agent.description":
     "Ask one question and let Venice find the context, tools, and next steps.",
+  "agent.empty": "Your agent workspace is ready.",
   "agent.input": "Ask Venice anything...",
   "agent.private": "Private by default",
   "agent.starter.image": "Generate an image",
@@ -290,6 +291,7 @@ export const en = {
   "chat.weather.sunrise": "Sunrise",
   "chat.weather.sunset": "Sunset",
   "feed.description": "Browse images and ideas shared by the Venice community.",
+  "feed.empty": "No public creations yet",
   "feed.emptyNotifications": "No notifications yet",
   "feed.images": "Images",
   "feed.like": "Like",

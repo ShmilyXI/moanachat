@@ -41,6 +41,7 @@ const chatSettingsSchema = z
   .optional();
 
 export const postRequestBodySchema = z.object({
+  characterId: z.uuid().optional(),
   chatMode: chatModeSchema,
   chatSettings: chatSettingsSchema,
   id: z.uuid(),

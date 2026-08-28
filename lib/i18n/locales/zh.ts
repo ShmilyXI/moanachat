@@ -2,6 +2,7 @@ import type { TranslationKey } from "./en";
 
 export const zh: Record<TranslationKey, string> = {
   "agent.description": "提出一个问题，让 Venice 帮你找到上下文、工具和下一步。",
+  "agent.empty": "智能体工作区已准备好。",
   "agent.input": "向 Venice 提问...",
   "agent.private": "默认私密",
   "agent.starter.image": "生成任意图像",
@@ -274,6 +275,7 @@ export const zh: Record<TranslationKey, string> = {
   "chat.weather.sunrise": "日出",
   "chat.weather.sunset": "日落",
   "feed.description": "浏览 Venice 社区分享的图像和想法。",
+  "feed.empty": "还没有公开内容",
   "feed.emptyNotifications": "还没有通知",
   "feed.images": "图片",
   "feed.like": "支持",

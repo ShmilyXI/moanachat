@@ -10,7 +10,8 @@ import {
   VideoIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import useSWR from "swr";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,62 +19,115 @@ import {
   VenicePageHeader,
   VenicePageLayout,
 } from "@/components/venice/venice-page";
+import { type FeedItem, fetchFeed, setFeedReaction } from "@/lib/feed-client";
 import { cn } from "@/lib/utils";
 
-type FeedItem = {
-  id: string;
-  image: string;
-  title: string;
-  author: string;
-  kind: "image" | "video";
-};
+type FeedFilter = "all" | "image" | "video" | "notifications";
 
-const feedItems: FeedItem[] = [
-  {
-    author: "Venice creator",
-    id: "1",
-    image: "/images/demo-thumbnail.png",
-    kind: "image",
-    title: "Cinematic study in light",
-  },
-  {
-    author: "Venice creator",
-    id: "2",
-    image: "/images/mouth of the seine, monet.jpg",
-    kind: "image",
-    title: "A quiet afternoon by the river",
-  },
-  {
-    author: "Venice creator",
-    id: "3",
-    image: "/preview.png",
-    kind: "video",
-    title: "A moving sketch of an imagined city",
-  },
-];
+function FeedMedia({ item }: { item: FeedItem }) {
+  if (item.kind === "audio") {
+    return (
+      <div className="flex aspect-[4/3] items-center justify-center bg-muted px-5">
+        <audio className="w-full" controls src={item.mediaUrl}>
+          <track
+            default
+            kind="captions"
+            label="Generated media"
+            src="data:text/vtt,WEBVTT"
+            srcLang="en"
+          />
+        </audio>
+      </div>
+    );
+  }
+  if (item.kind === "video") {
+    return (
+      <video
+        className="aspect-[4/3] w-full bg-black object-contain"
+        controls
+        preload="metadata"
+        src={item.mediaUrl}
+      >
+        <track
+          default
+          kind="captions"
+          label="Generated media"
+          src="data:text/vtt,WEBVTT"
+          srcLang="en"
+        />
+      </video>
+    );
+  }
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <Image
+        alt={item.title}
+        className="object-cover transition-transform duration-500 hover:scale-[1.03]"
+        fill
+        sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+        src={item.mediaUrl}
+        unoptimized
+      />
+    </div>
+  );
+}
 
 export default function FeedPage() {
   const { t } = useLocale();
-  const [filter, setFilter] = useState<
-    "all" | "image" | "video" | "notifications"
-  >("all");
-  const [liked, setLiked] = useState<Record<string, boolean>>({});
-  const [saved, setSaved] = useState<Record<string, boolean>>({});
+  const [filter, setFilter] = useState<FeedFilter>("all");
   const [query, setQuery] = useState("");
+  const kind = filter === "image" || filter === "video" ? filter : undefined;
+  const {
+    data: items = [],
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<FeedItem[]>(
+    filter === "notifications" ? null : ["/api/feed", kind],
+    ([, selectedKind]) =>
+      fetchFeed(selectedKind as FeedItem["kind"] | undefined),
+    { revalidateOnFocus: false }
+  );
 
-  const visibleItems = feedItems.filter((item) => {
-    if (
-      filter !== "all" &&
-      filter !== "notifications" &&
-      item.kind !== filter
-    ) {
-      return false;
-    }
-    return (
-      !query.trim() ||
-      `${item.title} ${item.author}`.toLowerCase().includes(query.toLowerCase())
+  const visibleItems = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return items.filter(
+      (item) =>
+        !normalized ||
+        `${item.title} ${item.author}`.toLowerCase().includes(normalized)
     );
-  });
+  }, [items, query]);
+
+  const updateReaction = async (item: FeedItem, reaction: "like" | "save") => {
+    const active = reaction === "like" ? !item.liked : !item.saved;
+    await mutate(
+      (current) =>
+        current?.map((entry) => {
+          if (entry.id !== item.id) {
+            return entry;
+          }
+          return {
+            ...entry,
+            liked: reaction === "like" ? active : entry.liked,
+            likes:
+              reaction === "like"
+                ? entry.likes + (active ? 1 : -1)
+                : entry.likes,
+            saved: reaction === "save" ? active : entry.saved,
+            saves:
+              reaction === "save"
+                ? entry.saves + (active ? 1 : -1)
+                : entry.saves,
+          };
+        }),
+      { optimisticData: items, revalidate: false, rollbackOnError: true }
+    );
+    try {
+      await setFeedReaction({ active, kind: reaction, postId: item.id });
+    } catch {
+      await mutate();
+    }
+  };
 
   return (
     <VenicePageLayout>
@@ -96,7 +150,7 @@ export default function FeedPage() {
                 : "text-muted-foreground"
             )}
             key={value as string}
-            onClick={() => setFilter(value as typeof filter)}
+            onClick={() => setFilter(value as FeedFilter)}
             size="sm"
             variant="ghost"
           >
@@ -119,6 +173,18 @@ export default function FeedPage() {
         <div className="px-5 py-14 text-center text-sm text-muted-foreground md:px-10">
           {t("feed.emptyNotifications")}
         </div>
+      ) : error ? (
+        <div className="px-5 py-14 text-center text-sm text-destructive md:px-10">
+          {error.message}
+        </div>
+      ) : isLoading ? (
+        <div className="px-5 py-14 text-center text-sm text-muted-foreground md:px-10">
+          {t("chat.history.loading")}
+        </div>
+      ) : visibleItems.length === 0 ? (
+        <div className="px-5 py-14 text-center text-sm text-muted-foreground md:px-10">
+          {t("feed.empty")}
+        </div>
       ) : (
         <div className="mx-auto grid w-full max-w-6xl gap-5 px-5 py-6 sm:grid-cols-2 md:px-10 lg:grid-cols-3">
           {visibleItems.map((item) => (
@@ -126,15 +192,7 @@ export default function FeedPage() {
               className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[var(--shadow-card)]"
               key={item.id}
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                <Image
-                  alt={item.title}
-                  className="object-cover transition-transform duration-500 hover:scale-[1.03]"
-                  fill
-                  sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
-                  src={item.image}
-                />
-              </div>
+              <FeedMedia item={item} />
               <div className="p-4">
                 <h2 className="truncate text-sm font-medium">{item.title}</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -145,42 +203,42 @@ export default function FeedPage() {
                     aria-label={t("feed.like")}
                     className={cn(
                       "size-8 rounded-lg",
-                      liked[item.id] && "text-rose-500"
+                      item.liked && "text-rose-500"
                     )}
                     onClick={() =>
-                      setLiked((current) => ({
-                        ...current,
-                        [item.id]: !current[item.id],
-                      }))
+                      updateReaction(item, "like").catch(() => undefined)
                     }
                     size="icon"
                     variant="ghost"
                   >
                     <HeartIcon
                       className="size-4"
-                      fill={liked[item.id] ? "currentColor" : "none"}
+                      fill={item.liked ? "currentColor" : "none"}
                     />
                   </Button>
+                  <span className="mr-2 text-xs text-muted-foreground">
+                    {item.likes}
+                  </span>
                   <Button
                     aria-label={t("feed.save")}
                     className={cn(
                       "size-8 rounded-lg",
-                      saved[item.id] && "text-foreground"
+                      item.saved && "text-foreground"
                     )}
                     onClick={() =>
-                      setSaved((current) => ({
-                        ...current,
-                        [item.id]: !current[item.id],
-                      }))
+                      updateReaction(item, "save").catch(() => undefined)
                     }
                     size="icon"
                     variant="ghost"
                   >
                     <BookmarkIcon
                       className="size-4"
-                      fill={saved[item.id] ? "currentColor" : "none"}
+                      fill={item.saved ? "currentColor" : "none"}
                     />
                   </Button>
+                  <span className="text-xs text-muted-foreground">
+                    {item.saves}
+                  </span>
                 </div>
               </div>
             </article>

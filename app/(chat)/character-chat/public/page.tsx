@@ -4,6 +4,7 @@
 import { BotIcon, MessageCircleIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import useSWR from "swr";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +12,9 @@ import {
   VenicePageHeader,
   VenicePageLayout,
 } from "@/components/venice/venice-page";
+import { fetcher } from "@/lib/utils";
 
-const publicCharacters = [
+const fallbackCharacters = [
   {
     description: "A thoughtful partner for drafts, ideas, and revision.",
     id: "writer",
@@ -30,10 +32,27 @@ const publicCharacters = [
   },
 ];
 
+type CharacterCard = {
+  characterId?: string;
+  description: string;
+  id: string;
+  name: string;
+};
+
 export default function PublicCharactersPage() {
   const { t } = useLocale();
   const [query, setQuery] = useState("");
-  const items = publicCharacters.filter((item) =>
+  const { data: serverCharacters = [] } = useSWR<
+    Array<{ description: string; id: string; name: string }>
+  >("/api/characters/public", fetcher);
+  const characters: CharacterCard[] =
+    serverCharacters.length > 0
+      ? serverCharacters.map((character) => ({
+          ...character,
+          characterId: character.id,
+        }))
+      : fallbackCharacters;
+  const items = characters.filter((item) =>
     `${item.name} ${item.description}`
       .toLowerCase()
       .includes(query.toLowerCase())
@@ -76,7 +95,7 @@ export default function PublicCharactersPage() {
                 variant="outline"
               >
                 <Link
-                  href={`/?query=${encodeURIComponent(`Talk to ${character.name}`)}`}
+                  href={`/?query=${encodeURIComponent(`Talk to ${character.name}`)}${character.characterId ? `&characterId=${character.characterId}` : ""}`}
                 >
                   <MessageCircleIcon className="size-3.5" />
                   {t("characters.startChat")}

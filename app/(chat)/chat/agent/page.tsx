@@ -1,31 +1,80 @@
-// The page owns short-lived input handlers for a single interactive surface.
-// biome-ignore-all lint/performance/noJsxPropsBind: local handlers keep this page self-contained
+// biome-ignore-all lint/performance/noJsxPropsBind: agent interactions are scoped to this page
 "use client";
 
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import {
   ArrowUpIcon,
   BotIcon,
   ImageIcon,
   LightbulbIcon,
   SparklesIcon,
+  SquareIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useDataStream } from "@/components/chat/data-stream-provider";
+import { PreviewMessage, ThinkingMessage } from "@/components/chat/message";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { VenicePageLayout } from "@/components/venice/venice-page";
+import type { ChatMessage } from "@/lib/types";
+import { generateUUID } from "@/lib/utils";
 
 export default function AgentChatPage() {
   const { t } = useLocale();
-  const router = useRouter();
+  const { setDataStream } = useDataStream();
   const [prompt, setPrompt] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const chatIdRef = useRef(generateUUID());
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const {
+    addToolApprovalResponse,
+    messages,
+    regenerate,
+    sendMessage,
+    setMessages,
+    status,
+    stop,
+  } = useChat<ChatMessage>({
+    generateId: generateUUID,
+    id: chatIdRef.current,
+    onData: (dataPart) => {
+      setDataStream((current) => [...current, dataPart]);
+    },
+    onError: (streamError) => {
+      setError(streamError.message || "Agent request failed");
+    },
+    transport: new DefaultChatTransport({
+      api: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/agent`,
+      prepareSendMessagesRequest({ id, messages: currentMessages }) {
+        return {
+          body: {
+            id,
+            messages: currentMessages,
+          },
+        };
+      },
+    }),
+  });
 
-  const submit = () => {
+  const messageCount = messages.length;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when streamed message state changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messageCount]);
+
+  const submit = async () => {
     const value = prompt.trim();
-    if (!value) {
+    if (!value || status === "submitted" || status === "streaming") {
       return;
     }
-    router.push(`/?query=${encodeURIComponent(value)}`);
+    setPrompt("");
+    setError(null);
+    await sendMessage({
+      parts: [{ text: value, type: "text" }],
+      role: "user",
+    });
   };
 
   const starters = [
@@ -34,11 +83,12 @@ export default function AgentChatPage() {
     { icon: <BotIcon />, label: t("agent.starter.video") },
     { icon: <SparklesIcon />, label: t("agent.starter.surprise") },
   ];
+  const isLoading = status === "submitted" || status === "streaming";
 
   return (
-    <VenicePageLayout className="flex min-h-[calc(100dvh-1px)] flex-col items-center justify-center px-5 py-12">
-      <div className="w-full max-w-3xl">
-        <div className="mx-auto mb-8 flex max-w-xl flex-col items-center text-center">
+    <VenicePageLayout className="flex min-h-[calc(100dvh-1px)] flex-col items-center px-5 py-8">
+      <div className="flex w-full max-w-3xl min-h-0 flex-1 flex-col">
+        <div className="mx-auto mb-6 flex max-w-xl shrink-0 flex-col items-center text-center">
           <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-foreground text-background">
             <BotIcon className="size-6" />
           </div>
@@ -50,15 +100,49 @@ export default function AgentChatPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card shadow-[var(--shadow-composer)] focus-within:shadow-[var(--shadow-composer-focus)]">
+        <div className="min-h-0 flex-1 overflow-y-auto pb-5">
+          {messages.length === 0 ? (
+            <div className="flex min-h-36 items-center justify-center text-sm text-muted-foreground">
+              {t("agent.empty")}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6">
+              {messages.map((message, index) => (
+                <PreviewMessage
+                  addToolApprovalResponse={addToolApprovalResponse}
+                  chatId={chatIdRef.current}
+                  isLoading={isLoading && index === messages.length - 1}
+                  isReadonly={false}
+                  key={message.id}
+                  message={message}
+                  regenerate={regenerate}
+                  requiresScrollPadding={false}
+                  setMessages={setMessages}
+                  vote={undefined}
+                />
+              ))}
+              {status === "submitted" && <ThinkingMessage />}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {error ? (
+          <p className="mb-3 shrink-0 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {error}
+          </p>
+        ) : null}
+
+        <div className="shrink-0 rounded-2xl border border-border/60 bg-card shadow-[var(--shadow-composer)] focus-within:shadow-[var(--shadow-composer-focus)]">
           <textarea
             aria-label={t("agent.input")}
-            className="min-h-32 w-full resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-muted-foreground/45"
+            className="min-h-28 w-full resize-none bg-transparent px-4 py-4 text-sm outline-none placeholder:text-muted-foreground/45"
+            disabled={isLoading}
             onChange={(event) => setPrompt(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
-                submit();
+                submit().catch(() => undefined);
               }
             }}
             placeholder={t("agent.input")}
@@ -68,31 +152,45 @@ export default function AgentChatPage() {
             <span className="text-xs text-muted-foreground/60">
               {t("agent.private")}
             </span>
-            <Button
-              aria-label={t("chat.composer.submit")}
-              className="size-8 rounded-xl"
-              disabled={!prompt.trim()}
-              onClick={submit}
-              size="icon"
-            >
-              <ArrowUpIcon className="size-4" />
-            </Button>
+            {isLoading ? (
+              <Button
+                aria-label={t("chat.composer.stop")}
+                className="size-8 rounded-xl"
+                onClick={() => stop()}
+                size="icon"
+                variant="outline"
+              >
+                <SquareIcon className="size-3.5" />
+              </Button>
+            ) : (
+              <Button
+                aria-label={t("chat.composer.submit")}
+                className="size-8 rounded-xl"
+                disabled={!prompt.trim()}
+                onClick={() => submit().catch(() => undefined)}
+                size="icon"
+              >
+                <ArrowUpIcon className="size-4" />
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {starters.map((starter) => (
-            <button
-              className="flex min-h-20 flex-col items-start justify-between gap-3 rounded-xl border border-border/50 bg-card/50 px-3 py-3 text-left text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              key={starter.label}
-              onClick={() => setPrompt(starter.label)}
-              type="button"
-            >
-              <span className="text-foreground">{starter.icon}</span>
-              <span>{starter.label}</span>
-            </button>
-          ))}
-        </div>
+        {messages.length === 0 ? (
+          <div className="mt-5 grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+            {starters.map((starter) => (
+              <button
+                className="flex min-h-20 flex-col items-start justify-between gap-3 rounded-xl border border-border/50 bg-card/50 px-3 py-3 text-left text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                key={starter.label}
+                onClick={() => setPrompt(starter.label)}
+                type="button"
+              >
+                <span className="text-foreground">{starter.icon}</span>
+                <span>{starter.label}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
     </VenicePageLayout>
   );

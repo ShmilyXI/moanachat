@@ -134,3 +134,81 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const character = pgTable("Character", {
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  description: text("description").notNull().default(""),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  name: text("name").notNull(),
+  prompt: text("prompt").notNull(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => user.id),
+  visibility: varchar("visibility", { enum: ["private", "public"] })
+    .notNull()
+    .default("private"),
+});
+
+export type Character = InferSelectModel<typeof character>;
+
+export const studioAsset = pgTable("StudioAsset", {
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  error: text("error"),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  kind: varchar("kind", {
+    enum: ["audio", "image", "project", "video"],
+  }).notNull(),
+  metadata: json("metadata"),
+  mimeType: text("mimeType"),
+  model: text("model"),
+  outputUrl: text("outputUrl"),
+  prompt: text("prompt"),
+  providerJobId: text("providerJobId"),
+  status: varchar("status", {
+    enum: ["completed", "failed", "processing", "queued"],
+  }).notNull(),
+  title: text("title").notNull(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => user.id),
+});
+
+export type StudioAsset = InferSelectModel<typeof studioAsset>;
+
+export const feedPost = pgTable("FeedPost", {
+  authorName: text("authorName"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  kind: varchar("kind", { enum: ["audio", "image", "video"] }).notNull(),
+  mediaUrl: text("mediaUrl").notNull(),
+  title: text("title").notNull(),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => user.id),
+  visibility: varchar("visibility", { enum: ["private", "public"] })
+    .notNull()
+    .default("public"),
+});
+
+export type FeedPost = InferSelectModel<typeof feedPost>;
+
+export const feedReaction = pgTable(
+  "FeedReaction",
+  {
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    kind: varchar("kind", { enum: ["like", "save"] }).notNull(),
+    postId: uuid("postId")
+      .notNull()
+      .references(() => feedPost.id),
+    userId: uuid("userId")
+      .notNull()
+      .references(() => user.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.postId, table.userId, table.kind] }),
+  })
+);
+
+export type FeedReaction = InferSelectModel<typeof feedReaction>;

@@ -31,12 +31,14 @@ import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { isBotIdConfigured, isSecureRequest } from "@/lib/bot-protection";
+import { canUseCharacter } from "@/lib/chat/character-access";
 import { shouldPersistChat } from "@/lib/chat/modes";
 import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
   deleteChatById,
+  getCharacterById,
   getChatById,
   getMessageCountByUserId,
   getMessagesByChatId,
@@ -86,6 +88,7 @@ export async function POST(request: Request) {
   try {
     const {
       chatMode,
+      characterId,
       id,
       message,
       messages,
@@ -97,6 +100,9 @@ export async function POST(request: Request) {
       ...DEFAULT_CHAT_SETTINGS,
       ...requestBody.chatSettings,
     };
+    const character = characterId
+      ? await getCharacterById({ id: characterId })
+      : null;
 
     const [botIdResult, session] = await Promise.all([
       isBotIdConfigured() && isSecureRequest(request)
@@ -111,6 +117,10 @@ export async function POST(request: Request) {
 
     if (!session?.user) {
       return new ChatbotError("unauthorized:chat").toResponse();
+    }
+
+    if (character && !canUseCharacter(character, session.user.id)) {
+      return new ChatbotError("forbidden:chat").toResponse();
     }
 
     const runtimeConfig = await getRuntimeConfig();
@@ -313,7 +323,14 @@ export async function POST(request: Request) {
                   "updateDocument",
                   "requestSuggestions",
                 ],
-          instructions: systemPrompt({ requestHints, supportsTools }),
+          instructions: [
+            systemPrompt({ requestHints, supportsTools }),
+            character
+              ? `You are the character ${character.name}. Stay consistent with this character context:\n${character.prompt}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join("\n\n"),
           messages: modelMessages,
           model: await getLanguageModel(chatModel, chatSettings),
           onAbort() {

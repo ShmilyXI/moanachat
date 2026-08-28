@@ -68,6 +68,9 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const { mutate } = useSWRConfig();
 
   const chatIdFromUrl = extractChatId(pathname);
+  const characterIdFromUrl = new URLSearchParams(
+    typeof window === "undefined" ? "" : window.location.search
+  ).get("characterId");
   const isNewChat = !chatIdFromUrl;
   const newChatIdRef = useRef(generateUUID());
   const prevPathnameRef = useRef(pathname);
@@ -209,6 +212,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
         return {
           body: {
+            ...(characterIdFromUrl ? { characterId: characterIdFromUrl } : {}),
             chatMode,
             chatSettings,
             id: request.id,
