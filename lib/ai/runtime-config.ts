@@ -10,6 +10,17 @@ export type RuntimeConfig = {
   apiKey?: string;
 };
 
+export type RuntimeConfigCandidate = Pick<
+  RuntimeConfig,
+  "apiKey" | "baseUrl"
+>;
+
+type RuntimeConfigSources = {
+  account?: RuntimeConfigCandidate;
+  cookie?: RuntimeConfigCandidate;
+  gatewayApiKey?: unknown;
+};
+
 type RuntimeConfigValues = {
   apiKey?: unknown;
   apiBase?: unknown;
@@ -112,16 +123,25 @@ export function decodeRuntimeConfig(value: string): RuntimeConfig {
   return parseEmbeddedRuntimeConfig(JSON.parse(decoded));
 }
 
-export function resolveRuntimeConfig(
-  cookieValue: string | undefined,
-  gatewayApiKey = process.env.AI_GATEWAY_API_KEY
-): RuntimeConfig {
-  if (cookieValue) {
-    try {
-      return decodeRuntimeConfig(cookieValue);
-    } catch {
-      // An invalid or stale embedded cookie should not prevent standalone use.
-    }
+function isCompleteCandidate(
+  candidate: RuntimeConfigCandidate | undefined
+): candidate is Required<RuntimeConfigCandidate> {
+  return Boolean(
+    candidate?.baseUrl?.trim() && candidate.apiKey?.trim()
+  );
+}
+
+export function resolveRuntimeConfigSources({
+  account,
+  cookie,
+  gatewayApiKey,
+}: RuntimeConfigSources): RuntimeConfig {
+  if (isCompleteCandidate(account)) {
+    return { ...account, mode: "embedded" };
+  }
+
+  if (isCompleteCandidate(cookie)) {
+    return { ...cookie, mode: "embedded" };
   }
 
   const trimmedGatewayKey =
@@ -132,10 +152,65 @@ export function resolveRuntimeConfig(
     : { mode: "gateway" };
 }
 
+export function resolveRuntimeConfig(
+  cookieValue: string | undefined,
+  gatewayApiKey = process.env.AI_GATEWAY_API_KEY
+): RuntimeConfig {
+  let cookie: RuntimeConfigCandidate | undefined;
+  if (cookieValue) {
+    try {
+      cookie = decodeRuntimeConfig(cookieValue);
+    } catch {
+      // An invalid or stale embedded cookie should not prevent standalone use.
+    }
+  }
+
+  return resolveRuntimeConfigSources({ cookie, gatewayApiKey });
+}
+
 export async function getRuntimeConfig(): Promise<RuntimeConfig> {
-  const cookieStore = await cookies();
-  return resolveRuntimeConfig(
-    cookieStore.get(RUNTIME_CONFIG_COOKIE)?.value,
-    process.env.AI_GATEWAY_API_KEY
-  );
+  const [{ auth }, { getUserRuntimeConfigByUserId }, { decryptRuntimeApiKey }] =
+    await Promise.all([
+      import("@/app/(auth)/auth"),
+      import("@/lib/db/queries"),
+      import("@/lib/ai/runtime-config-crypto"),
+    ]);
+  const [session, cookieStore] = await Promise.all([auth(), cookies()]);
+
+  let account: RuntimeConfigCandidate | undefined;
+  if (session?.user?.type === "regular" && session.user.id) {
+    try {
+      const stored = await getUserRuntimeConfigByUserId({
+        userId: session.user.id,
+      });
+      if (stored) {
+        account = {
+          apiKey: decryptRuntimeApiKey({
+            authTag: stored.authTag,
+            ciphertext: stored.encryptedApiKey,
+            iv: stored.iv,
+          }),
+          baseUrl: stored.baseUrl,
+        };
+      }
+    } catch {
+      // Invalid account data should fall back to legacy runtime sources.
+    }
+  }
+
+  let cookie: RuntimeConfigCandidate | undefined;
+  const cookieValue = cookieStore.get(RUNTIME_CONFIG_COOKIE)?.value;
+  if (cookieValue) {
+    try {
+      cookie = decodeRuntimeConfig(cookieValue);
+    } catch {
+      // An invalid or stale embedded cookie should not prevent standalone use.
+    }
+  }
+
+  return resolveRuntimeConfigSources({
+    account,
+    cookie,
+    gatewayApiKey: process.env.AI_GATEWAY_API_KEY,
+  });
 }

@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   parseEmbeddedRuntimeConfig,
   resolveRuntimeConfig,
+  resolveRuntimeConfigSources,
 } from "@/lib/ai/runtime-config";
 
 test("parses baseUrl and apiKey query parameters", () => {
@@ -96,4 +97,41 @@ test("falls back to the gateway key when the embedded cookie is invalid", () => 
     apiKey: "gateway-test",
     mode: "gateway",
   });
+});
+
+test("prefers the authenticated account configuration", () => {
+  assert.deepEqual(
+    resolveRuntimeConfigSources({
+      account: { apiKey: "account-key", baseUrl: "https://account.example" },
+      cookie: { apiKey: "cookie-key", baseUrl: "https://cookie.example" },
+      gatewayApiKey: "gateway-key",
+    }),
+    {
+      apiKey: "account-key",
+      baseUrl: "https://account.example",
+      mode: "embedded",
+    }
+  );
+});
+
+test("falls back to the embedded cookie when account configuration is invalid", () => {
+  assert.deepEqual(
+    resolveRuntimeConfigSources({
+      account: { apiKey: "", baseUrl: "" },
+      cookie: { apiKey: "cookie-key", baseUrl: "https://cookie.example" },
+      gatewayApiKey: "gateway-key",
+    }),
+    {
+      apiKey: "cookie-key",
+      baseUrl: "https://cookie.example",
+      mode: "embedded",
+    }
+  );
+});
+
+test("falls back to the gateway key when account and cookie are missing", () => {
+  assert.deepEqual(
+    resolveRuntimeConfigSources({ gatewayApiKey: "gateway-key" }),
+    { apiKey: "gateway-key", mode: "gateway" }
+  );
 });

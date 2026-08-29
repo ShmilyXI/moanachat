@@ -33,6 +33,7 @@ import {
   suggestion,
   type User,
   user,
+  userRuntimeConfig,
   vote,
 } from "./schema";
 import { generateHashedPassword } from "./utils";
@@ -73,6 +74,78 @@ export async function createGuestUser() {
     throw new ChatbotError("bad_request:database", { cause: error });
   }
 }
+
+export async function getUserRuntimeConfigByUserId({
+  userId,
+}: {
+  userId: string;
+}) {
+  try {
+    const [result] = await db
+      .select()
+      .from(userRuntimeConfig)
+      .where(eq(userRuntimeConfig.userId, userId))
+      .limit(1);
+    return result ?? null;
+  } catch (cause) {
+    throw new ChatbotError("bad_request:database", { cause });
+  }
+}
+
+export async function upsertUserRuntimeConfig({
+  authTag,
+  baseUrl,
+  ciphertext,
+  iv,
+  userId,
+}: {
+  authTag: string;
+  baseUrl: string;
+  ciphertext: string;
+  iv: string;
+  userId: string;
+}) {
+  try {
+    const [result] = await db
+      .insert(userRuntimeConfig)
+      .values({
+        authTag,
+        baseUrl,
+        encryptedApiKey: ciphertext,
+        iv,
+        userId,
+      })
+      .onConflictDoUpdate({
+        set: {
+          authTag,
+          baseUrl,
+          encryptedApiKey: ciphertext,
+          iv,
+          updatedAt: new Date(),
+        },
+        target: userRuntimeConfig.userId,
+      })
+      .returning();
+    return result;
+  } catch (cause) {
+    throw new ChatbotError("bad_request:database", { cause });
+  }
+}
+
+export async function deleteUserRuntimeConfig({
+  userId,
+}: {
+  userId: string;
+}) {
+  try {
+    await db
+      .delete(userRuntimeConfig)
+      .where(eq(userRuntimeConfig.userId, userId));
+  } catch (cause) {
+    throw new ChatbotError("bad_request:database", { cause });
+  }
+}
+
 export async function saveChat({
   id,
   userId,
