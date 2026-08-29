@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
+import { RuntimeConfigForm } from "@/components/venice/runtime-config-form";
 import {
   VenicePageHeader,
   VenicePageLayout,
@@ -63,6 +64,7 @@ export default function ApiDashboardPage() {
           </section>
         ))}
       </div>
+      <RuntimeConfigForm />
       <div className="mx-auto w-full max-w-5xl px-5 pb-10 md:px-10">
         <section className="rounded-2xl border border-border/60 bg-card p-5 shadow-[var(--shadow-card)] md:p-6">
           <h2 className="text-base font-medium">{t("api.quickstart")}</h2>

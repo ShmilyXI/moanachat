@@ -12,6 +12,32 @@ export const en = {
   "api.compatDescription":
     "Use the same OpenAI-compatible request shape with your own client.",
   "api.compatibility": "OpenAI compatible",
+  "api.connection.apiKey": "New API key",
+  "api.connection.apiKeyPlaceholder": "sk-...",
+  "api.connection.baseUrl": "New API base URL",
+  "api.connection.baseUrlPlaceholder": "https://your-new-api.example.com",
+  "api.connection.clear": "Clear connection",
+  "api.connection.cleared": "Connection cleared.",
+  "api.connection.clearFailed": "Failed to clear the connection.",
+  "api.connection.configured": "Configured",
+  "api.connection.current": "Connected to {{baseUrl}}",
+  "api.connection.description":
+    "Use your account's New API connection for chat, agents, and media tools.",
+  "api.connection.invalid": "Enter both the New API base URL and API key.",
+  "api.connection.loadFailed": "Unable to load your connection settings.",
+  "api.connection.loading": "Loading connection settings...",
+  "api.connection.modelCount": "{{count}} models available",
+  "api.connection.save": "Save connection",
+  "api.connection.saved": "Connection saved.",
+  "api.connection.saveFailed": "Failed to save the connection.",
+  "api.connection.saving": "Saving...",
+  "api.connection.signInRequired":
+    "Sign in to bind a New API connection to your account.",
+  "api.connection.title": "Connection settings",
+  "api.connection.unconfigured": "No connection configured",
+  "api.connection.verifyFailed":
+    "The connection was saved, but model discovery failed.",
+  "api.connection.verifying": "Verifying connection...",
   "api.description":
     "Build with text, image, audio, and video models through one gateway.",
   "api.docs": "Documentation",
