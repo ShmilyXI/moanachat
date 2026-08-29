@@ -132,11 +132,7 @@ export async function upsertUserRuntimeConfig({
   }
 }
 
-export async function deleteUserRuntimeConfig({
-  userId,
-}: {
-  userId: string;
-}) {
+export async function deleteUserRuntimeConfig({ userId }: { userId: string }) {
   try {
     await db
       .delete(userRuntimeConfig)

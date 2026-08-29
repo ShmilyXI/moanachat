@@ -194,6 +194,8 @@ export const zh: Record<TranslationKey, string> = {
   "chat.nav.feed": "动态",
   "chat.nav.studio": "工作室",
   "chat.new": "新建聊天",
+  "chat.provider.notConfigured":
+    "还没有配置 AI 服务，请前往 API 设置添加 New API 连接。",
   "chat.reasoning.fewSeconds": "思考了几秒",
   "chat.reasoning.seconds": "思考了 {{duration}} 秒",
   "chat.reasoning.thinking": "思考中...",

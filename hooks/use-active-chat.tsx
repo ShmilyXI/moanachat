@@ -21,6 +21,7 @@ import { useDataStream } from "@/components/chat/data-stream-provider";
 import { getChatHistoryPaginationKey } from "@/components/chat/sidebar-history";
 import { toast } from "@/components/chat/toast";
 import type { VisibilityType } from "@/components/chat/visibility-selector";
+import { useLocale } from "@/components/locale-provider";
 import { useAutoResume } from "@/hooks/use-auto-resume";
 import {
   type ChatModel,
@@ -63,6 +64,7 @@ type ActiveChatContextValue = {
 const ActiveChatContext = createContext<ActiveChatContextValue | null>(null);
 
 export function ActiveChatProvider({ children }: { children: ReactNode }) {
+  const { t } = useLocale();
   const pathname = usePathname();
   const { setDataStream, setWaitingStatus } = useDataStream();
   const { mutate } = useSWRConfig();
@@ -171,7 +173,13 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       if (error.message?.includes("AI Gateway requires a valid credit card")) {
         setShowCreditCardAlert(true);
       } else if (error instanceof ChatbotError) {
-        toast({ description: error.message, type: "error" });
+        toast({
+          description:
+            error.type === "not_configured"
+              ? t("chat.provider.notConfigured")
+              : error.message,
+          type: "error",
+        });
       } else {
         toast({
           description: error.message || "Oops, an error occurred!",

@@ -34,7 +34,7 @@ import { isBotIdConfigured, isSecureRequest } from "@/lib/bot-protection";
 import { canUseCharacter } from "@/lib/chat/character-access";
 import { shouldPersistChat } from "@/lib/chat/modes";
 import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
-import { isProductionEnvironment } from "@/lib/constants";
+import { isProductionEnvironment, isTestEnvironment } from "@/lib/constants";
 import {
   createStreamId,
   deleteChatById,
@@ -124,6 +124,13 @@ export async function POST(request: Request) {
     }
 
     const runtimeConfig = await getRuntimeConfig();
+    if (
+      !isTestEnvironment &&
+      runtimeConfig.mode === "gateway" &&
+      !runtimeConfig.apiKey
+    ) {
+      return new ChatbotError("not_configured:chat").toResponse();
+    }
     const embeddedModels =
       runtimeConfig.mode === "embedded"
         ? await fetchNewApiModels(runtimeConfig)

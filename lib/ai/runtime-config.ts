@@ -10,10 +10,13 @@ export type RuntimeConfig = {
   apiKey?: string;
 };
 
-export type RuntimeConfigCandidate = Pick<
-  RuntimeConfig,
-  "apiKey" | "baseUrl"
->;
+export type RuntimeConfigCandidate = Pick<RuntimeConfig, "apiKey" | "baseUrl">;
+
+export type RuntimeConfigStatus = {
+  configured: boolean;
+  mode: RuntimeConfig["mode"];
+  baseUrl?: string;
+};
 
 type RuntimeConfigSources = {
   account?: RuntimeConfigCandidate;
@@ -126,9 +129,21 @@ export function decodeRuntimeConfig(value: string): RuntimeConfig {
 function isCompleteCandidate(
   candidate: RuntimeConfigCandidate | undefined
 ): candidate is Required<RuntimeConfigCandidate> {
-  return Boolean(
-    candidate?.baseUrl?.trim() && candidate.apiKey?.trim()
-  );
+  return Boolean(candidate?.baseUrl?.trim() && candidate.apiKey?.trim());
+}
+
+export function serializeRuntimeConfigStatus(
+  config: RuntimeConfig
+): RuntimeConfigStatus {
+  if (config.mode === "embedded" && isCompleteCandidate(config)) {
+    return {
+      baseUrl: config.baseUrl,
+      configured: true,
+      mode: "embedded",
+    };
+  }
+
+  return { configured: false, mode: config.mode };
 }
 
 export function resolveRuntimeConfigSources({

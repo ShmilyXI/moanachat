@@ -205,6 +205,8 @@ export const en = {
   "chat.nav.feed": "Feed",
   "chat.nav.studio": "Studio",
   "chat.new": "New chat",
+  "chat.provider.notConfigured":
+    "No AI provider is configured. Open API settings to add your New API connection.",
   "chat.reasoning.fewSeconds": "Thought for a few seconds",
   "chat.reasoning.seconds": "Thought for {{duration}} seconds",
   "chat.reasoning.thinking": "Thinking...",

@@ -3,6 +3,7 @@ export type ErrorType =
   | "unauthorized"
   | "forbidden"
   | "not_found"
+  | "not_configured"
   | "rate_limit"
   | "offline";
 
@@ -104,6 +105,8 @@ export function getMessageByErrorCode(errorCode: ErrorCode): string {
       return "This chat belongs to another user. Please check the chat ID and try again.";
     case "unauthorized:chat":
       return "You need to sign in to view this chat. Please sign in and try again.";
+    case "not_configured:chat":
+      return "No AI provider is configured. Open /api-dashboard to add your New API connection.";
     case "offline:chat":
       return "We're having trouble sending your message. Please check your internet connection and try again.";
 
@@ -133,6 +136,8 @@ function getStatusCodeByType(type: ErrorType) {
       return 404;
     case "rate_limit":
       return 429;
+    case "not_configured":
+      return 503;
     case "offline":
       return 503;
     default:

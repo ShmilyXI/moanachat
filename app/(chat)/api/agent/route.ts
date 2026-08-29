@@ -26,6 +26,7 @@ import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
+import { isTestEnvironment } from "@/lib/constants";
 import { getMessageCountByUserId } from "@/lib/db/queries";
 import { ChatbotError } from "@/lib/errors";
 import { checkIpRateLimit } from "@/lib/ratelimit";
@@ -57,6 +58,13 @@ export async function POST(request: Request) {
     }
 
     const runtimeConfig = await getRuntimeConfig();
+    if (
+      !isTestEnvironment &&
+      runtimeConfig.mode === "gateway" &&
+      !runtimeConfig.apiKey
+    ) {
+      return new ChatbotError("not_configured:chat").toResponse();
+    }
     const embeddedModels =
       runtimeConfig.mode === "embedded"
         ? await fetchNewApiModels(runtimeConfig)
