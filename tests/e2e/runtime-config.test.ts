@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { generateRandomTestUser } from "../helpers";
 
 test.describe("Runtime provider configuration", () => {
   test("saves and clears a New API connection without returning the key", async ({
@@ -95,5 +96,80 @@ test.describe("Runtime provider configuration", () => {
 
     await page.getByRole("button", { name: "Clear connection" }).click();
     await expect(page.getByText("No connection configured")).toBeVisible();
+  });
+
+  test("persists the connection per signed-in account", async ({ browser }) => {
+    const contextA = await browser.newContext();
+    const contextB = await browser.newContext();
+    const pageA = await contextA.newPage();
+    const pageB = await contextB.newPage();
+    const userA = {
+      ...generateRandomTestUser(),
+      email: `runtime-a-${Date.now()}@playwright.com`,
+    };
+    const userB = {
+      ...generateRandomTestUser(),
+      email: `runtime-b-${Date.now()}@playwright.com`,
+    };
+    const apiKey = `sk-account-${Date.now()}`;
+    let runtimeResponseBody = "";
+
+    try {
+      await pageA.goto("/register");
+      await pageA.getByLabel("Email").fill(userA.email);
+      await pageA.getByLabel("Password").fill(userA.password);
+      await pageA.getByRole("button", { name: "Sign up" }).click();
+      await pageA.waitForURL("**/", { timeout: 10_000 });
+      await pageA.route("**/api/models", async (route) => {
+        await route.fulfill({
+          body: JSON.stringify({
+            capabilities: {},
+            defaultModelId: "openai/gpt-4.1",
+            mode: "embedded",
+            models: [
+              {
+                description: "",
+                id: "openai/gpt-4.1",
+                name: "GPT 4.1",
+                provider: "openai",
+              },
+            ],
+          }),
+          contentType: "application/json",
+          status: 200,
+        });
+      });
+      pageA.on("response", async (response) => {
+        if (
+          response.url().includes("/api/runtime-config") &&
+          response.request().method() === "POST"
+        ) {
+          runtimeResponseBody = await response.text();
+        }
+      });
+
+      await pageA.goto("/api-dashboard");
+      await pageA
+        .getByLabel("New API base URL")
+        .fill("https://account.example");
+      await pageA.getByLabel("New API key").fill(apiKey);
+      await pageA.getByRole("button", { name: "Save connection" }).click();
+      await expect(pageA.getByText("Connection saved.")).toBeVisible();
+      await expect(
+        pageA.getByText("Connected to https://account.example")
+      ).toBeVisible();
+      expect(runtimeResponseBody).not.toContain(apiKey);
+
+      await pageB.goto("/register");
+      await pageB.getByLabel("Email").fill(userB.email);
+      await pageB.getByLabel("Password").fill(userB.password);
+      await pageB.getByRole("button", { name: "Sign up" }).click();
+      await pageB.waitForURL("**/", { timeout: 10_000 });
+      await pageB.goto("/api-dashboard");
+      await expect(pageB.getByText("No connection configured")).toBeVisible();
+    } finally {
+      await contextA.close();
+      await contextB.close();
+    }
   });
 });
