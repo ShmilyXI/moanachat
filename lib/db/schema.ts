@@ -25,6 +25,21 @@ export const user = pgTable("User", {
 
 export type User = InferSelectModel<typeof user>;
 
+export const userRuntimeConfig = pgTable("UserRuntimeConfig", {
+  authTag: text("authTag").notNull(),
+  baseUrl: text("baseUrl").notNull(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  encryptedApiKey: text("encryptedApiKey").notNull(),
+  iv: text("iv").notNull(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  userId: uuid("userId")
+    .primaryKey()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+});
+
+export type UserRuntimeConfig = InferSelectModel<typeof userRuntimeConfig>;
+
 export const chat = pgTable("Chat", {
   createdAt: timestamp("createdAt").notNull(),
   id: uuid("id").primaryKey().notNull().defaultRandom(),
