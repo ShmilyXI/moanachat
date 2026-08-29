@@ -42,7 +42,11 @@ export default function AgentChatPage() {
       setDataStream((current) => [...current, dataPart]);
     },
     onError: (streamError) => {
-      setError(streamError.message || "Agent request failed");
+      setError(
+        streamError.message?.includes("No AI provider")
+          ? t("chat.provider.notConfigured")
+          : streamError.message || "Agent request failed"
+      );
     },
     transport: new DefaultChatTransport({
       api: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/agent`,
