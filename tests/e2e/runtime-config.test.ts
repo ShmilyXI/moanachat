@@ -257,7 +257,21 @@ test.describe("Runtime provider configuration", () => {
       await route.fulfill({ body: "", status: 405 });
     });
 
-    await page.goto("/api-dashboard");
+    await page.route("**/api/models", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          capabilities: {},
+          defaultModelId: "openai/gpt-4.1",
+          mode: "embedded",
+          models: [],
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/");
+    await page.getByRole("link", { name: "API" }).click();
     await expect(page.getByLabel("New API base URL")).toHaveValue(
       "https://newapi.example.com"
     );
@@ -265,7 +279,8 @@ test.describe("Runtime provider configuration", () => {
     await page.getByRole("button", { name: "Get models" }).click();
     const picker = page.getByTestId("runtime-model-picker");
     await expect(picker).toBeVisible();
-    const checkboxes = picker.getByRole("checkbox");
+    await picker.getByRole("button", { name: "Enabled models" }).click();
+    const checkboxes = page.getByRole("checkbox");
     await expect(checkboxes).toHaveCount(3);
     await expect(checkboxes.nth(0)).toBeChecked();
     await expect(checkboxes.nth(1)).toBeChecked();

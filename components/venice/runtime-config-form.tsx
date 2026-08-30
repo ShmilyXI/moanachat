@@ -3,6 +3,7 @@
 
 import {
   CheckCircle2Icon,
+  DownloadIcon,
   LoaderCircleIcon,
   SaveIcon,
   Trash2Icon,
@@ -13,6 +14,8 @@ import useSWR from "swr";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RuntimeModelPicker } from "@/components/venice/runtime-model-picker";
+import type { ChatModel } from "@/lib/ai/models";
 import type { RuntimeConfigStatus } from "@/lib/ai/runtime-config";
 
 type RuntimeConfigStatusResponse = RuntimeConfigStatus & {
@@ -20,7 +23,7 @@ type RuntimeConfigStatusResponse = RuntimeConfigStatus & {
 };
 
 type RuntimeConfigModelsResponse = {
-  models?: Array<{ id: string; name: string }>;
+  models?: ChatModel[];
 };
 
 async function fetchRuntimeStatus(
@@ -64,13 +67,25 @@ export function RuntimeConfigForm() {
   const [apiKey, setApiKey] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [modelCount, setModelCount] = useState<number | null>(null);
+  const [discoveredModels, setDiscoveredModels] = useState<ChatModel[]>([]);
+  const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
+  const [defaultModelId, setDefaultModelId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
 
   useEffect(() => {
     if (data?.configured && data.baseUrl) {
       setBaseUrl(data.baseUrl);
     }
-  }, [data?.baseUrl, data?.configured]);
+    if (!data) {
+      return;
+    }
+
+    const enabledModelIds = data.enabledModelIds ?? [];
+    setSelectedModelIds(enabledModelIds);
+    setDefaultModelId(data.defaultModelId ?? enabledModelIds[0] ?? "");
+  }, [data]);
 
   const save = async () => {
     const trimmedBaseUrl = baseUrl.trim();
@@ -99,6 +114,10 @@ export function RuntimeConfigForm() {
         );
       }
 
+      setApiKey("");
+      setDiscoveredModels([]);
+      setSelectedModelIds([]);
+      setDefaultModelId("");
       setFeedback(t("api.connection.verifying"));
       const modelsResponse = await fetch("/api/models", { cache: "no-store" });
       const modelsPayload =
@@ -109,7 +128,6 @@ export function RuntimeConfigForm() {
         );
       }
 
-      setApiKey("");
       setModelCount(modelsPayload.models?.length ?? 0);
       setFeedback(t("api.connection.saved"));
       await mutate();
@@ -122,6 +140,123 @@ export function RuntimeConfigForm() {
       );
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const discoverModels = async () => {
+    const trimmedBaseUrl = baseUrl.trim();
+    const trimmedApiKey = apiKey.trim();
+    if (!trimmedBaseUrl || (!data?.configured && !trimmedApiKey)) {
+      setFeedback(t("api.connection.invalid"));
+      return;
+    }
+
+    setIsDiscovering(true);
+    setFeedback(t("api.connection.fetchingModels"));
+    try {
+      const body: { apiKey?: string; baseUrl: string } = {
+        baseUrl: trimmedBaseUrl,
+      };
+      if (trimmedApiKey) {
+        body.apiKey = trimmedApiKey;
+      }
+
+      const response = await fetch("/api/runtime-config/models", {
+        body: JSON.stringify(body),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+      const payload = (await response.json()) as RuntimeConfigModelsResponse & {
+        error?: string;
+      };
+      if (!response.ok || !payload.models?.length) {
+        throw new Error(
+          getResponseError(payload, t("api.connection.discoveryFailed"))
+        );
+      }
+
+      const { models = [] } = payload;
+      const discoveredIds = new Set(models.map((model) => model.id));
+      const savedIds = (data?.enabledModelIds ?? []).filter((id) =>
+        discoveredIds.has(id)
+      );
+      const nextSelectedIds = savedIds.length
+        ? savedIds
+        : models.map((model) => model.id);
+      const savedDefault = data?.defaultModelId;
+      const nextDefaultModelId =
+        savedDefault && nextSelectedIds.includes(savedDefault)
+          ? savedDefault
+          : (nextSelectedIds[0] ?? "");
+
+      setDiscoveredModels(models);
+      setSelectedModelIds(nextSelectedIds);
+      setDefaultModelId(nextDefaultModelId);
+      setModelCount(models.length);
+      setFeedback(t("api.connection.modelsFetched", { count: models.length }));
+    } catch (discoverError) {
+      setFeedback(
+        discoverError instanceof Error
+          ? discoverError.message
+          : t("api.connection.discoveryFailed")
+      );
+    } finally {
+      setIsDiscovering(false);
+    }
+  };
+
+  const saveModelSelection = async () => {
+    if (selectedModelIds.length === 0) {
+      setFeedback(t("api.connection.selectAtLeastOneModel"));
+      return;
+    }
+
+    const nextDefaultModelId = selectedModelIds.includes(defaultModelId)
+      ? defaultModelId
+      : (selectedModelIds[0] ?? "");
+    if (!nextDefaultModelId) {
+      setFeedback(t("api.connection.selectAtLeastOneModel"));
+      return;
+    }
+
+    setIsSavingPreferences(true);
+    setFeedback(t("api.connection.savingModelSelection"));
+    try {
+      const response = await fetch("/api/runtime-config/models", {
+        body: JSON.stringify({
+          defaultModelId: nextDefaultModelId,
+          enabledModelIds: selectedModelIds,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "PUT",
+      });
+      const payload = (await response.json()) as {
+        defaultModelId?: string;
+        enabledModelIds?: string[];
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(
+          getResponseError(
+            payload,
+            t("api.connection.saveModelSelectionFailed")
+          )
+        );
+      }
+
+      setDefaultModelId(payload.defaultModelId ?? nextDefaultModelId);
+      setSelectedModelIds(payload.enabledModelIds ?? selectedModelIds);
+      setFeedback(t("api.connection.modelSelectionSaved"));
+      await mutate();
+      window.dispatchEvent(new Event("moana-runtime-config-ready"));
+    } catch (saveError) {
+      setFeedback(
+        saveError instanceof Error
+          ? saveError.message
+          : t("api.connection.saveModelSelectionFailed")
+      );
+    } finally {
+      setIsSavingPreferences(false);
     }
   };
 
@@ -139,6 +274,9 @@ export function RuntimeConfigForm() {
       }
       setBaseUrl("");
       setApiKey("");
+      setDiscoveredModels([]);
+      setSelectedModelIds([]);
+      setDefaultModelId("");
       setFeedback(t("api.connection.cleared"));
       await mutate();
       window.dispatchEvent(new Event("moana-runtime-config-ready"));
@@ -163,7 +301,7 @@ export function RuntimeConfigForm() {
   };
 
   const isConfigured = data?.configured === true;
-  const showForm = !data?.requiresSignIn;
+  const showForm = Boolean(data && !data.requiresSignIn);
 
   return (
     <section className="mx-auto w-full max-w-5xl px-5 py-6 md:px-10 md:py-8">
@@ -263,6 +401,22 @@ export function RuntimeConfigForm() {
                   {t("api.connection.clear")}
                 </Button>
               ) : null}
+              <Button
+                className="gap-2 rounded-lg"
+                disabled={isSaving || isDiscovering || isSavingPreferences}
+                onClick={discoverModels}
+                type="button"
+                variant="outline"
+              >
+                {isDiscovering ? (
+                  <LoaderCircleIcon className="size-4 animate-spin" />
+                ) : (
+                  <DownloadIcon className="size-4" />
+                )}
+                {isDiscovering
+                  ? t("api.connection.fetchingModels")
+                  : t("api.connection.getModels")}
+              </Button>
               {feedback ? (
                 <span className="text-sm text-muted-foreground">
                   {feedback}
@@ -279,6 +433,32 @@ export function RuntimeConfigForm() {
                 {t("api.connection.modelCount", { count: modelCount })}
               </p>
             )}
+            {discoveredModels.length > 0 ? (
+              <div className="space-y-3 md:col-span-2">
+                <RuntimeModelPicker
+                  defaultModelId={defaultModelId}
+                  models={discoveredModels}
+                  onDefaultModelChange={setDefaultModelId}
+                  onSelectedModelIdsChange={setSelectedModelIds}
+                  selectedModelIds={selectedModelIds}
+                />
+                <Button
+                  className="gap-2 rounded-lg"
+                  disabled={isSaving || isDiscovering || isSavingPreferences}
+                  onClick={saveModelSelection}
+                  type="button"
+                >
+                  {isSavingPreferences ? (
+                    <LoaderCircleIcon className="size-4 animate-spin" />
+                  ) : (
+                    <SaveIcon className="size-4" />
+                  )}
+                  {isSavingPreferences
+                    ? t("api.connection.savingModelSelection")
+                    : t("api.connection.saveModelSelection")}
+                </Button>
+              </div>
+            ) : null}
           </form>
         ) : null}
       </div>
