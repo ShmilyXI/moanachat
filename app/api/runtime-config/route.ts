@@ -79,6 +79,8 @@ export async function GET() {
           iv: stored.iv,
         }),
         baseUrl: stored.baseUrl,
+        defaultModelId: stored.defaultModelId ?? undefined,
+        enabledModelIds: stored.enabledModelIds ?? undefined,
         mode: "embedded",
       })
     );

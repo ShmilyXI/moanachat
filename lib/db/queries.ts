@@ -119,7 +119,9 @@ export async function upsertUserRuntimeConfig({
         set: {
           authTag,
           baseUrl,
+          defaultModelId: null,
           encryptedApiKey: ciphertext,
+          enabledModelIds: null,
           iv,
           updatedAt: new Date(),
         },

@@ -172,4 +172,115 @@ test.describe("Runtime provider configuration", () => {
       await contextB.close();
     }
   });
+
+  test("discovers and saves an account model selection", async ({ page }) => {
+    let discoveryBody: Record<string, unknown> | undefined;
+    let preferenceBody: Record<string, unknown> | undefined;
+
+    await page.route("**/api/runtime-config", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          body: JSON.stringify({
+            baseUrl: "https://newapi.example.com",
+            configured: true,
+            mode: "embedded",
+          }),
+          contentType: "application/json",
+          status: 200,
+        });
+        return;
+      }
+
+      await route.fulfill({
+        body: JSON.stringify({
+          baseUrl: "https://newapi.example.com",
+          configured: true,
+          mode: "embedded",
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.route("**/api/runtime-config/models", async (route) => {
+      const method = route.request().method();
+      if (method === "POST") {
+        discoveryBody = route.request().postDataJSON();
+        await route.fulfill({
+          body: JSON.stringify({
+            capabilities: {},
+            mode: "embedded",
+            models: [
+              {
+                description: "",
+                id: "openai/gpt-4.1",
+                name: "GPT 4.1",
+                provider: "openai",
+              },
+              {
+                description: "",
+                id: "anthropic/claude-3.7",
+                name: "Claude 3.7",
+                provider: "anthropic",
+              },
+              {
+                description: "",
+                id: "deepseek/deepseek-v3",
+                name: "DeepSeek V3",
+                provider: "deepseek",
+              },
+            ],
+          }),
+          contentType: "application/json",
+          status: 200,
+        });
+        return;
+      }
+
+      if (method === "PUT") {
+        preferenceBody = route.request().postDataJSON();
+        await route.fulfill({
+          body: JSON.stringify({
+            defaultModelId: "anthropic/claude-3.7",
+            enabledModelIds: [
+              "openai/gpt-4.1",
+              "anthropic/claude-3.7",
+            ],
+            success: true,
+          }),
+          contentType: "application/json",
+          status: 200,
+        });
+        return;
+      }
+
+      await route.fulfill({ body: "", status: 405 });
+    });
+
+    await page.goto("/api-dashboard");
+    await expect(page.getByLabel("New API base URL")).toHaveValue(
+      "https://newapi.example.com"
+    );
+
+    await page.getByRole("button", { name: "Get models" }).click();
+    const picker = page.getByTestId("runtime-model-picker");
+    await expect(picker).toBeVisible();
+    const checkboxes = picker.getByRole("checkbox");
+    await expect(checkboxes).toHaveCount(3);
+    await expect(checkboxes.nth(0)).toBeChecked();
+    await expect(checkboxes.nth(1)).toBeChecked();
+    await expect(checkboxes.nth(2)).toBeChecked();
+
+    await checkboxes.nth(2).uncheck();
+    await page.getByLabel("Default model").selectOption("anthropic/claude-3.7");
+    await page
+      .getByRole("button", { name: "Save model selection" })
+      .click();
+
+    await expect.poll(() => preferenceBody).toEqual({
+      defaultModelId: "anthropic/claude-3.7",
+      enabledModelIds: ["openai/gpt-4.1", "anthropic/claude-3.7"],
+    });
+    expect(discoveryBody).toEqual({ baseUrl: "https://newapi.example.com" });
+  });
 });
