@@ -67,9 +67,110 @@ test.describe("Model Selector", () => {
   test("keeps the standalone capability response shape", async ({ page }) => {
     const response = await page.request.get("/api/models");
     expect(response.ok()).toBeTruthy();
+    expect(response.headers()["cache-control"]).toBe("private, no-store");
 
     const payload = await response.json();
     const capabilities = payload.capabilities ?? payload;
     expect(Object.hasOwn(capabilities, "moonshotai/kimi-k2.5")).toBeTruthy();
+  });
+
+  test("refreshes models after the runtime configuration changes", async ({
+    page,
+  }) => {
+    let useEmbeddedModels = false;
+    let modelRequestCount = 0;
+
+    await page.addInitScript(() => {
+      const originalFetch = window.fetch.bind(window);
+      window.fetch = (input, init) => {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+        if (url.includes("/api/models")) {
+          const state = window as unknown as {
+            __modelFetchCaches?: Array<RequestCache | null>;
+          };
+          state.__modelFetchCaches ??= [];
+          state.__modelFetchCaches.push(init?.cache ?? null);
+        }
+        return originalFetch(input, init);
+      };
+    });
+
+    await page.route("**/api/models", async (route) => {
+      modelRequestCount += 1;
+      if (!useEmbeddedModels) {
+        await route.fulfill({
+          body: JSON.stringify({
+            capabilities: {
+              "openai/gpt-oss-20b": {
+                reasoning: true,
+                tools: true,
+                vision: false,
+              },
+            },
+          }),
+          contentType: "application/json",
+          status: 200,
+        });
+        return;
+      }
+
+      await route.fulfill({
+        body: JSON.stringify({
+          capabilities: {
+            "gpt-5.6-sol": {
+              reasoning: true,
+              tools: true,
+              vision: false,
+            },
+          },
+          defaultModelId: "gpt-5.6-sol",
+          mode: "embedded",
+          models: [
+            {
+              description: "",
+              id: "gpt-5.6-sol",
+              name: "GPT 5.6 Sol",
+              provider: "openai",
+            },
+          ],
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/");
+    const modelButton = page.getByTestId("model-selector");
+    await expect.poll(() => modelRequestCount).toBeGreaterThan(0);
+    await page.waitForTimeout(2000);
+    const initialModelRequestCount = modelRequestCount;
+    await expect(modelButton).not.toContainText("GPT 5.6 Sol");
+
+    useEmbeddedModels = true;
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event("moana-runtime-config-ready"));
+    });
+
+    await expect
+      .poll(() => modelRequestCount)
+      .toBeGreaterThan(initialModelRequestCount);
+    const modelFetchCaches = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __modelFetchCaches?: Array<RequestCache | null>;
+          }
+        ).__modelFetchCaches ?? []
+    );
+    expect(modelFetchCaches.length).toBeGreaterThan(0);
+    expect(
+      modelFetchCaches.every((cache) => cache === "no-store")
+    ).toBeTruthy();
+    await expect(modelButton).toContainText("GPT 5.6 Sol");
   });
 });

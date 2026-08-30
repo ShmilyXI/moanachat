@@ -34,7 +34,12 @@ import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
 import type { Vote } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import {
+  fetcher,
+  fetcherNoStore,
+  fetchWithErrorHandlers,
+  generateUUID,
+} from "@/lib/utils";
 
 type ActiveChatContextValue = {
   chatId: string;
@@ -99,7 +104,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
   const { data: modelsData } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
-    fetcher,
+    fetcherNoStore,
     { revalidateOnFocus: false }
   );
 

@@ -13,7 +13,7 @@ import { getRuntimeConfig } from "@/lib/ai/runtime-config";
 
 export async function GET() {
   const gatewayHeaders = {
-    "Cache-Control": "public, max-age=86400, s-maxage=86400",
+    "Cache-Control": "private, no-store",
   };
 
   const runtimeConfig = await getRuntimeConfig();

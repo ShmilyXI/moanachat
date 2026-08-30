@@ -37,7 +37,7 @@ import {
   type SpeechRecognitionLike,
 } from "@/lib/chat/speech";
 import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, fetcherNoStore } from "@/lib/utils";
 import {
   PromptInput,
   PromptInputFooter,
@@ -788,7 +788,7 @@ function PureAttachmentsButton({
 }) {
   const { data: modelsResponse } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
-    (url: string) => fetch(url).then((r) => r.json()),
+    fetcherNoStore,
     { dedupingInterval: 3_600_000, revalidateOnFocus: false }
   );
 

@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { VenicePageLayout } from "@/components/venice/venice-page";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import type { ChatMessage } from "@/lib/types";
-import { fetcher, generateUUID } from "@/lib/utils";
+import { fetcherNoStore, generateUUID } from "@/lib/utils";
 
 export default function AgentChatPage() {
   const { t } = useLocale();
@@ -33,7 +33,7 @@ export default function AgentChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: modelsData } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
-    fetcher,
+    fetcherNoStore,
     { revalidateOnFocus: false }
   );
   const embeddedModels =

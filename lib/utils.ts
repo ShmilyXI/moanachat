@@ -13,8 +13,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const fetcher = async (url: string) => {
-  const response = await fetch(url);
+export const fetcher = async (url: string, init?: RequestInit) => {
+  const response = await fetch(url, init);
 
   if (!response.ok) {
     const { code, cause } = await response.json();
@@ -23,6 +23,9 @@ export const fetcher = async (url: string) => {
 
   return response.json();
 };
+
+export const fetcherNoStore = (url: string) =>
+  fetcher(url, { cache: "no-store" });
 
 export async function fetchWithErrorHandlers(
   input: RequestInfo | URL,
