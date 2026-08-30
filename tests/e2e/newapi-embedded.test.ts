@@ -25,15 +25,26 @@ test.describe("New API embedded mode", () => {
           isEmbeddedResponse
             ? {
                 capabilities: {
+                  "anthropic/claude-3.7": {
+                    reasoning: false,
+                    tools: true,
+                    vision: false,
+                  },
                   "openai/gpt-4.1": {
                     reasoning: false,
                     tools: true,
                     vision: false,
                   },
                 },
-                defaultModelId: "openai/gpt-4.1",
+                defaultModelId: "anthropic/claude-3.7",
                 mode: "embedded",
                 models: [
+                  {
+                    description: "",
+                    id: "anthropic/claude-3.7",
+                    name: "Claude 3.7",
+                    provider: "anthropic",
+                  },
                   {
                     description: "",
                     id: "openai/gpt-4.1",
@@ -79,6 +90,7 @@ test.describe("New API embedded mode", () => {
     await expect.poll(() => modelRequestCount).toBeGreaterThan(1);
 
     const modelButton = page.getByTestId("model-selector");
+    await expect(modelButton).toContainText("Claude 3.7");
     await modelButton.click();
     await expect(page.getByRole("option", { name: /GPT 4\.1/ })).toBeVisible();
     await page.getByRole("option", { name: /GPT 4\.1/ }).click();

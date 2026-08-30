@@ -126,13 +126,14 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       availableModels: embeddedModels,
       mode: "embedded",
       requestedModelId: currentModelId,
-      staticDefaultModelId: DEFAULT_CHAT_MODEL,
+      staticDefaultModelId:
+        modelsData?.defaultModelId ?? DEFAULT_CHAT_MODEL,
     });
 
     if (nextModelId !== currentModelId) {
       setCurrentModelId(nextModelId);
     }
-  }, [currentModelId, embeddedModels]);
+  }, [currentModelId, embeddedModels, modelsData?.defaultModelId]);
 
   const { data: chatData, isLoading } = useSWR(
     isNewChat
