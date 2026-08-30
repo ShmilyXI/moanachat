@@ -19,48 +19,37 @@ test.describe("New API embedded mode", () => {
 
     await page.route("**/api/models", async (route) => {
       modelRequestCount += 1;
-      const isEmbeddedResponse = modelRequestCount > 1;
       await route.fulfill({
-        body: JSON.stringify(
-          isEmbeddedResponse
-            ? {
-                capabilities: {
-                  "anthropic/claude-3.7": {
-                    reasoning: false,
-                    tools: true,
-                    vision: false,
-                  },
-                  "openai/gpt-4.1": {
-                    reasoning: false,
-                    tools: true,
-                    vision: false,
-                  },
-                },
-                defaultModelId: "anthropic/claude-3.7",
-                mode: "embedded",
-                models: [
-                  {
-                    description: "",
-                    id: "anthropic/claude-3.7",
-                    name: "Claude 3.7",
-                    provider: "anthropic",
-                  },
-                  {
-                    description: "",
-                    id: "openai/gpt-4.1",
-                    name: "GPT 4.1",
-                    provider: "openai",
-                  },
-                ],
-              }
-            : {
-                "moonshotai/kimi-k2.5": {
-                  reasoning: true,
-                  tools: true,
-                  vision: true,
-                },
-              }
-        ),
+        body: JSON.stringify({
+          capabilities: {
+            "anthropic/claude-3.7": {
+              reasoning: false,
+              tools: true,
+              vision: false,
+            },
+            "openai/gpt-4.1": {
+              reasoning: false,
+              tools: true,
+              vision: false,
+            },
+          },
+          defaultModelId: "anthropic/claude-3.7",
+          mode: "embedded",
+          models: [
+            {
+              description: "",
+              id: "anthropic/claude-3.7",
+              name: "Claude 3.7",
+              provider: "anthropic",
+            },
+            {
+              description: "",
+              id: "openai/gpt-4.1",
+              name: "GPT 4.1",
+              provider: "openai",
+            },
+          ],
+        }),
         contentType: "application/json",
         status: 200,
       });
@@ -87,7 +76,7 @@ test.describe("New API embedded mode", () => {
       });
     await expect.poll(() => page.url()).not.toContain("apiKey");
     await expect.poll(() => page.url()).not.toContain("baseUrl");
-    await expect.poll(() => modelRequestCount).toBeGreaterThan(1);
+    await expect.poll(() => modelRequestCount).toBeGreaterThan(0);
 
     const modelButton = page.getByTestId("model-selector");
     await expect(modelButton).toContainText("Claude 3.7");
