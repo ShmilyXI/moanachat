@@ -1,10 +1,61 @@
 import { strict as assert } from "node:assert/strict";
 import { test } from "node:test";
 import {
+  normalizeRuntimeModelPreferences,
   parseEmbeddedRuntimeConfig,
   resolveRuntimeConfig,
   resolveRuntimeConfigSources,
 } from "@/lib/ai/runtime-config";
+
+test("keeps a valid enabled set and default model", () => {
+  assert.deepEqual(
+    normalizeRuntimeModelPreferences({
+      defaultModelId: "openai/gpt-4.1",
+      enabledModelIds: ["openai/gpt-4.1", "deepseek/deepseek-v3"],
+    }),
+    {
+      defaultModelId: "openai/gpt-4.1",
+      enabledModelIds: ["openai/gpt-4.1", "deepseek/deepseek-v3"],
+    }
+  );
+});
+
+test("trims model IDs and removes duplicates", () => {
+  assert.deepEqual(
+    normalizeRuntimeModelPreferences({
+      defaultModelId: " openai/gpt-4.1 ",
+      enabledModelIds: [
+        " openai/gpt-4.1 ",
+        "deepseek/deepseek-v3",
+        "deepseek/deepseek-v3",
+      ],
+    }),
+    {
+      defaultModelId: "openai/gpt-4.1",
+      enabledModelIds: ["openai/gpt-4.1", "deepseek/deepseek-v3"],
+    }
+  );
+});
+
+test("rejects an empty set and a default outside the set", () => {
+  assert.throws(
+    () =>
+      normalizeRuntimeModelPreferences({
+        defaultModelId: "missing",
+        enabledModelIds: [],
+      }),
+    /at least one|default/i
+  );
+
+  assert.throws(
+    () =>
+      normalizeRuntimeModelPreferences({
+        defaultModelId: "missing",
+        enabledModelIds: ["openai/gpt-4.1"],
+      }),
+    /default/i
+  );
+});
 
 test("parses baseUrl and apiKey query parameters", () => {
   assert.deepEqual(

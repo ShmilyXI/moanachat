@@ -4,18 +4,28 @@ export const RUNTIME_CONFIG_COOKIE = "moana-runtime-config";
 export const RUNTIME_CONFIG_MAX_AGE = 7 * 24 * 60 * 60;
 export const MAX_RUNTIME_CONFIG_VALUE_LENGTH = 2048;
 
+export type RuntimeModelPreferences = {
+  enabledModelIds: string[];
+  defaultModelId: string;
+};
+
 export type RuntimeConfig = {
   mode: "embedded" | "gateway";
   baseUrl?: string;
   apiKey?: string;
+  enabledModelIds?: string[];
+  defaultModelId?: string;
 };
 
-export type RuntimeConfigCandidate = Pick<RuntimeConfig, "apiKey" | "baseUrl">;
+export type RuntimeConfigCandidate = Pick<RuntimeConfig, "apiKey" | "baseUrl"> &
+  Partial<RuntimeModelPreferences>;
 
 export type RuntimeConfigStatus = {
   configured: boolean;
   mode: RuntimeConfig["mode"];
   baseUrl?: string;
+  enabledModelIds?: string[];
+  defaultModelId?: string;
 };
 
 type RuntimeConfigSources = {
@@ -97,6 +107,68 @@ export function normalizeApiKey(value: unknown): string {
   return validateString(value, "API key");
 }
 
+export function normalizeRuntimeModelPreferences(
+  input: unknown
+): RuntimeModelPreferences | undefined {
+  if (input === undefined || input === null) {
+    return undefined;
+  }
+
+  if (typeof input !== "object") {
+    throw new Error("Runtime model preferences must be an object");
+  }
+
+  const values = input as {
+    defaultModelId?: unknown;
+    enabledModelIds?: unknown;
+  };
+
+  if (values.enabledModelIds == null && values.defaultModelId == null) {
+    return undefined;
+  }
+
+  if (!Array.isArray(values.enabledModelIds)) {
+    throw new Error("Runtime enabled model IDs must be an array");
+  }
+
+  const enabledModelIds: string[] = [];
+  const seen = new Set<string>();
+  for (const value of values.enabledModelIds) {
+    if (typeof value !== "string") {
+      throw new Error("Runtime model IDs must be strings");
+    }
+
+    const modelId = value.trim();
+    if (!modelId) {
+      throw new Error("Runtime model IDs must not be empty");
+    }
+
+    if (!seen.has(modelId)) {
+      seen.add(modelId);
+      enabledModelIds.push(modelId);
+    }
+  }
+
+  if (enabledModelIds.length === 0) {
+    throw new Error("Runtime model preferences must include at least one model");
+  }
+
+  if (typeof values.defaultModelId !== "string") {
+    throw new Error("Runtime default model ID must be a string");
+  }
+
+  const defaultModelId = values.defaultModelId.trim();
+  if (!defaultModelId) {
+    throw new Error("Runtime default model ID must not be empty");
+  }
+
+  if (!seen.has(defaultModelId)) {
+    throw new Error("Runtime default model must be enabled");
+  }
+
+  return { defaultModelId, enabledModelIds };
+}
+
 export function parseEmbeddedRuntimeConfig(input: unknown): RuntimeConfig {
   const baseUrl = readValue(input, "baseUrl") ?? readValue(input, "apiBase");
   const apiKey = readValue(input, "apiKey");
@@ -136,9 +208,15 @@ export function serializeRuntimeConfigStatus(
   config: RuntimeConfig
 ): RuntimeConfigStatus {
   if (config.mode === "embedded" && isCompleteCandidate(config)) {
+    const preferences = normalizeRuntimeModelPreferences({
+      defaultModelId: config.defaultModelId,
+      enabledModelIds: config.enabledModelIds,
+    });
+
     return {
       baseUrl: config.baseUrl,
       configured: true,
+      ...(preferences ?? {}),
       mode: "embedded",
     };
   }
@@ -199,6 +277,11 @@ export async function getRuntimeConfig(): Promise<RuntimeConfig> {
         userId: session.user.id,
       });
       if (stored) {
+        const preferences = normalizeRuntimeModelPreferences({
+          defaultModelId: stored.defaultModelId,
+          enabledModelIds: stored.enabledModelIds,
+        });
+
         account = {
           apiKey: decryptRuntimeApiKey({
             authTag: stored.authTag,
@@ -206,6 +289,7 @@ export async function getRuntimeConfig(): Promise<RuntimeConfig> {
             iv: stored.iv,
           }),
           baseUrl: stored.baseUrl,
+          ...(preferences ?? {}),
         };
       }
     } catch {

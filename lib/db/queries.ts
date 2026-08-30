@@ -132,6 +132,31 @@ export async function upsertUserRuntimeConfig({
   }
 }
 
+export async function updateUserRuntimeModelPreferences({
+  defaultModelId,
+  enabledModelIds,
+  userId,
+}: {
+  defaultModelId: string;
+  enabledModelIds: string[];
+  userId: string;
+}) {
+  try {
+    const [result] = await db
+      .update(userRuntimeConfig)
+      .set({
+        defaultModelId,
+        enabledModelIds,
+        updatedAt: new Date(),
+      })
+      .where(eq(userRuntimeConfig.userId, userId))
+      .returning();
+    return result ?? null;
+  } catch (cause) {
+    throw new ChatbotError("bad_request:database", { cause });
+  }
+}
+
 export async function deleteUserRuntimeConfig({ userId }: { userId: string }) {
   try {
     await db

@@ -22,6 +22,13 @@
       "when": 1787989338776,
       "tag": "0002_account_runtime_config",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788077633974,
+      "tag": "0003_account_model_preferences",
+      "breakpoints": true
     }
   ]
 }

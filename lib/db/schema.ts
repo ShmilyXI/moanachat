@@ -29,7 +29,9 @@ export const userRuntimeConfig = pgTable("UserRuntimeConfig", {
   authTag: text("authTag").notNull(),
   baseUrl: text("baseUrl").notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
+  defaultModelId: text("defaultModelId"),
   encryptedApiKey: text("encryptedApiKey").notNull(),
+  enabledModelIds: json("enabledModelIds").$type<string[]>(),
   iv: text("iv").notNull(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
   userId: uuid("userId")
