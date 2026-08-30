@@ -22,6 +22,32 @@ type OpenAIModelsResponse = {
 
 export type NewApiConfig = Pick<RuntimeConfig, "baseUrl" | "apiKey">;
 
+export function filterRuntimeModels(
+  models: readonly ChatModel[],
+  enabledModelIds: readonly string[] | undefined
+): ChatModel[] {
+  if (enabledModelIds === undefined) {
+    return [...models];
+  }
+
+  const enabled = new Set(enabledModelIds);
+  return models.filter((model) => enabled.has(model.id));
+}
+
+export function getRuntimeDefaultModel(
+  models: readonly ChatModel[],
+  preferredModelId: string | undefined
+): string | undefined {
+  if (
+    preferredModelId &&
+    models.some((model) => model.id === preferredModelId)
+  ) {
+    return preferredModelId;
+  }
+
+  return models[0]?.id;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }

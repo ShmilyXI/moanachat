@@ -199,6 +199,10 @@ export function selectChatModel({
       return requestedModelId;
     }
 
+    if (availableModels?.some((model) => model.id === staticDefaultModelId)) {
+      return staticDefaultModelId;
+    }
+
     return availableModels?.[0]?.id ?? staticDefaultModelId;
   }
 

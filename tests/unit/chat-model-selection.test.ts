@@ -41,6 +41,18 @@ test("falls back to the first discovered embedded model", () => {
   );
 });
 
+test("prefers the saved default when it is in the discovered list", () => {
+  assert.equal(
+    selectChatModel({
+      availableModels: embeddedModels,
+      mode: "embedded",
+      requestedModelId: "missing-model",
+      staticDefaultModelId: "anthropic/claude-3.7",
+    }),
+    "anthropic/claude-3.7"
+  );
+});
+
 test("keeps the static default when no embedded model is available", () => {
   assert.equal(
     selectChatModel({
