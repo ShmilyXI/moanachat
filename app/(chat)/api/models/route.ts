@@ -4,7 +4,11 @@ import {
   getCapabilitiesForModels,
   isDemo,
 } from "@/lib/ai/models";
-import { fetchNewApiModels } from "@/lib/ai/newapi";
+import {
+  filterRuntimeModels,
+  fetchNewApiModels,
+  getRuntimeDefaultModel,
+} from "@/lib/ai/newapi";
 import { getRuntimeConfig } from "@/lib/ai/runtime-config";
 
 export async function GET() {
@@ -14,8 +18,12 @@ export async function GET() {
 
   const runtimeConfig = await getRuntimeConfig();
   if (runtimeConfig.mode === "embedded") {
-    const models = await fetchNewApiModels(runtimeConfig);
-    if (models.length === 0) {
+    const discoveredModels = await fetchNewApiModels(runtimeConfig);
+    const models = filterRuntimeModels(
+      discoveredModels,
+      runtimeConfig.enabledModelIds
+    );
+    if (discoveredModels.length === 0 || models.length === 0) {
       return Response.json(
         { code: "offline:chat", error: "new_api_models_unavailable" },
         {
@@ -28,7 +36,10 @@ export async function GET() {
     return Response.json(
       {
         capabilities: getCapabilitiesForModels(models),
-        defaultModelId: models[0].id,
+        defaultModelId: getRuntimeDefaultModel(
+          models,
+          runtimeConfig.defaultModelId
+        ),
         mode: "embedded",
         models,
       },

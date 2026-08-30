@@ -17,7 +17,7 @@ import {
   getCapabilitiesForModels,
   selectChatModel,
 } from "@/lib/ai/models";
-import { fetchNewApiModels } from "@/lib/ai/newapi";
+import { filterRuntimeModels, fetchNewApiModels } from "@/lib/ai/newapi";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { getRuntimeConfig } from "@/lib/ai/runtime-config";
 import { createDocument } from "@/lib/ai/tools/create-document";
@@ -67,7 +67,10 @@ export async function POST(request: Request) {
     }
     const embeddedModels =
       runtimeConfig.mode === "embedded"
-        ? await fetchNewApiModels(runtimeConfig)
+        ? filterRuntimeModels(
+            await fetchNewApiModels(runtimeConfig),
+            runtimeConfig.enabledModelIds
+          )
         : undefined;
     if (runtimeConfig.mode === "embedded" && !embeddedModels?.length) {
       return new ChatbotError("offline:chat").toResponse();
@@ -77,7 +80,8 @@ export async function POST(request: Request) {
       availableModels: embeddedModels,
       mode: runtimeConfig.mode,
       requestedModelId: parsed.data.selectedChatModel ?? DEFAULT_CHAT_MODEL,
-      staticDefaultModelId: DEFAULT_CHAT_MODEL,
+      staticDefaultModelId:
+        runtimeConfig.defaultModelId ?? DEFAULT_CHAT_MODEL,
     });
     const chatSettings: ChatSettings = {
       ...DEFAULT_CHAT_SETTINGS,
