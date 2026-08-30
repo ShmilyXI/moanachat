@@ -126,8 +126,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       availableModels: embeddedModels,
       mode: "embedded",
       requestedModelId: currentModelId,
-      staticDefaultModelId:
-        modelsData?.defaultModelId ?? DEFAULT_CHAT_MODEL,
+      staticDefaultModelId: modelsData?.defaultModelId ?? DEFAULT_CHAT_MODEL,
     });
 
     if (nextModelId !== currentModelId) {

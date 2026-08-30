@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  BrainIcon,
-  EyeIcon,
-  LockIcon,
-  WrenchIcon,
-} from "lucide-react";
+import { BrainIcon, EyeIcon, LockIcon, WrenchIcon } from "lucide-react";
 import {
   type Dispatch,
   memo,

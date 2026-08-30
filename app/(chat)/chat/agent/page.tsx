@@ -15,11 +15,11 @@ import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { useDataStream } from "@/components/chat/data-stream-provider";
 import { PreviewMessage, ThinkingMessage } from "@/components/chat/message";
-import { useLocale } from "@/components/locale-provider";
 import { ModelSelectorCompact } from "@/components/chat/model-selector-compact";
+import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { VenicePageLayout } from "@/components/venice/venice-page";
+import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import type { ChatMessage } from "@/lib/types";
 import { fetcher, generateUUID } from "@/lib/utils";
 
@@ -48,7 +48,9 @@ export default function AgentChatPage() {
       modelsData?.defaultModelId ?? embeddedModels[0]?.id;
     if (
       preferredModelId &&
-      !embeddedModels.some((model: { id: string }) => model.id === selectedModelId)
+      !embeddedModels.some(
+        (model: { id: string }) => model.id === selectedModelId
+      )
     ) {
       setSelectedModelId(preferredModelId);
     }

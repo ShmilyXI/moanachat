@@ -56,8 +56,8 @@ test.describe("Agentic Chat model selector", () => {
     await page.getByLabel("Ask Venice anything...").fill("Hello agent");
     await page.getByRole("button", { name: "Submit" }).click();
 
-    await expect.poll(() => agentBody?.selectedChatModel).toBe(
-      "anthropic/claude-3.7"
-    );
+    await expect
+      .poll(() => agentBody?.selectedChatModel)
+      .toBe("anthropic/claude-3.7");
   });
 });

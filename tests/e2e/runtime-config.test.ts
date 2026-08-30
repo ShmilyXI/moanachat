@@ -242,10 +242,7 @@ test.describe("Runtime provider configuration", () => {
         await route.fulfill({
           body: JSON.stringify({
             defaultModelId: "anthropic/claude-3.7",
-            enabledModelIds: [
-              "openai/gpt-4.1",
-              "anthropic/claude-3.7",
-            ],
+            enabledModelIds: ["openai/gpt-4.1", "anthropic/claude-3.7"],
             success: true,
           }),
           contentType: "application/json",
@@ -288,14 +285,14 @@ test.describe("Runtime provider configuration", () => {
 
     await checkboxes.nth(2).uncheck();
     await page.getByLabel("Default model").selectOption("anthropic/claude-3.7");
-    await page
-      .getByRole("button", { name: "Save model selection" })
-      .click();
+    await page.getByRole("button", { name: "Save model selection" }).click();
 
-    await expect.poll(() => preferenceBody).toEqual({
-      defaultModelId: "anthropic/claude-3.7",
-      enabledModelIds: ["openai/gpt-4.1", "anthropic/claude-3.7"],
-    });
+    await expect
+      .poll(() => preferenceBody)
+      .toEqual({
+        defaultModelId: "anthropic/claude-3.7",
+        enabledModelIds: ["openai/gpt-4.1", "anthropic/claude-3.7"],
+      });
     expect(discoveryBody).toEqual({ baseUrl: "https://newapi.example.com" });
   });
 });

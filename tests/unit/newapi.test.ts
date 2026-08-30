@@ -1,10 +1,7 @@
 import { strict as assert } from "node:assert/strict";
 import { test } from "node:test";
-import {
-  filterRuntimeModels,
-  getRuntimeDefaultModel,
-} from "@/lib/ai/newapi";
 import type { ChatModel } from "@/lib/ai/models";
+import { filterRuntimeModels, getRuntimeDefaultModel } from "@/lib/ai/newapi";
 
 const discoveredModels: ChatModel[] = [
   {
@@ -48,5 +45,8 @@ test("falls back to the first available model when the saved default is gone", (
 });
 
 test("treats undefined preferences as legacy all-enabled behavior", () => {
-  assert.deepEqual(filterRuntimeModels(discoveredModels, undefined), discoveredModels);
+  assert.deepEqual(
+    filterRuntimeModels(discoveredModels, undefined),
+    discoveredModels
+  );
 });

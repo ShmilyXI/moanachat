@@ -111,7 +111,7 @@ export function normalizeRuntimeModelPreferences(
   input: unknown
 ): RuntimeModelPreferences | undefined {
   if (input === undefined || input === null) {
-    return undefined;
+    return;
   }
 
   if (typeof input !== "object") {
@@ -123,8 +123,11 @@ export function normalizeRuntimeModelPreferences(
     enabledModelIds?: unknown;
   };
 
-  if (values.enabledModelIds == null && values.defaultModelId == null) {
-    return undefined;
+  if (
+    (values.enabledModelIds === undefined || values.enabledModelIds === null) &&
+    (values.defaultModelId === undefined || values.defaultModelId === null)
+  ) {
+    return;
   }
 
   if (!Array.isArray(values.enabledModelIds)) {
@@ -150,7 +153,9 @@ export function normalizeRuntimeModelPreferences(
   }
 
   if (enabledModelIds.length === 0) {
-    throw new Error("Runtime model preferences must include at least one model");
+    throw new Error(
+      "Runtime model preferences must include at least one model"
+    );
   }
 
   if (typeof values.defaultModelId !== "string") {

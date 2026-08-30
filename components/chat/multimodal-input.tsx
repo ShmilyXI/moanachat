@@ -823,7 +823,6 @@ function PureAttachmentsButton({
 
 const AttachmentsButton = memo(PureAttachmentsButton);
 
-
 function PureStopButton({
   stop,
   setMessages,

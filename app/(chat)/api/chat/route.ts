@@ -21,7 +21,7 @@ import {
   getModelAvailability,
   selectChatModel,
 } from "@/lib/ai/models";
-import { filterRuntimeModels, fetchNewApiModels } from "@/lib/ai/newapi";
+import { fetchNewApiModels, filterRuntimeModels } from "@/lib/ai/newapi";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { getRuntimeConfig } from "@/lib/ai/runtime-config";
@@ -147,8 +147,7 @@ export async function POST(request: Request) {
       availableModels: embeddedModels,
       mode: runtimeConfig.mode,
       requestedModelId: selectedChatModel,
-      staticDefaultModelId:
-        runtimeConfig.defaultModelId ?? DEFAULT_CHAT_MODEL,
+      staticDefaultModelId: runtimeConfig.defaultModelId ?? DEFAULT_CHAT_MODEL,
     });
 
     await checkIpRateLimit(ipAddress(request));

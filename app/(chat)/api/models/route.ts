@@ -5,8 +5,8 @@ import {
   isDemo,
 } from "@/lib/ai/models";
 import {
-  filterRuntimeModels,
   fetchNewApiModels,
+  filterRuntimeModels,
   getRuntimeDefaultModel,
 } from "@/lib/ai/newapi";
 import { getRuntimeConfig } from "@/lib/ai/runtime-config";

@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert/strict";
 import { test } from "node:test";
 import {
-  serializeRuntimeConfigStatus,
   type RuntimeConfig,
+  serializeRuntimeConfigStatus,
 } from "@/lib/ai/runtime-config";
 import { getMessageByErrorCode } from "@/lib/errors";
 
