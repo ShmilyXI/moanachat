@@ -12,21 +12,51 @@ import {
   SquareIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import useSWR from "swr";
 import { useDataStream } from "@/components/chat/data-stream-provider";
 import { PreviewMessage, ThinkingMessage } from "@/components/chat/message";
 import { useLocale } from "@/components/locale-provider";
+import { ModelSelectorCompact } from "@/components/chat/model-selector-compact";
 import { Button } from "@/components/ui/button";
+import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { VenicePageLayout } from "@/components/venice/venice-page";
 import type { ChatMessage } from "@/lib/types";
-import { generateUUID } from "@/lib/utils";
+import { fetcher, generateUUID } from "@/lib/utils";
 
 export default function AgentChatPage() {
   const { t } = useLocale();
   const { setDataStream } = useDataStream();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState(DEFAULT_CHAT_MODEL);
   const chatIdRef = useRef(generateUUID());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: modelsData } = useSWR(
+    `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+  const embeddedModels =
+    modelsData?.mode === "embedded" ? modelsData.models : undefined;
+
+  useEffect(() => {
+    if (!embeddedModels?.length) {
+      return;
+    }
+
+    const preferredModelId =
+      modelsData?.defaultModelId ?? embeddedModels[0]?.id;
+    if (
+      preferredModelId &&
+      !embeddedModels.some((model: { id: string }) => model.id === selectedModelId)
+    ) {
+      setSelectedModelId(preferredModelId);
+    }
+  }, [embeddedModels, modelsData?.defaultModelId, selectedModelId]);
+
+  const isEmbedded = modelsData?.mode === "embedded";
+  const modelSelectionUnavailable =
+    isEmbedded && (!modelsData || !embeddedModels?.length || !selectedModelId);
   const {
     addToolApprovalResponse,
     messages,
@@ -55,6 +85,7 @@ export default function AgentChatPage() {
           body: {
             id,
             messages: currentMessages,
+            selectedChatModel: selectedModelId,
           },
         };
       },
@@ -153,9 +184,15 @@ export default function AgentChatPage() {
             value={prompt}
           />
           <div className="flex items-center justify-between border-t border-border/40 px-3 py-2.5">
-            <span className="text-xs text-muted-foreground/60">
-              {t("agent.private")}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground/60">
+                {t("agent.private")}
+              </span>
+              <ModelSelectorCompact
+                onModelChange={setSelectedModelId}
+                selectedModelId={selectedModelId}
+              />
+            </div>
             {isLoading ? (
               <Button
                 aria-label={t("chat.composer.stop")}
@@ -170,7 +207,7 @@ export default function AgentChatPage() {
               <Button
                 aria-label={t("chat.composer.submit")}
                 className="size-8 rounded-xl"
-                disabled={!prompt.trim()}
+                disabled={!prompt.trim() || modelSelectionUnavailable}
                 onClick={() => submit().catch(() => undefined)}
                 size="icon"
               >
