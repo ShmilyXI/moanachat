@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/app/(auth)/auth";
+import { isSupportedAttachmentType } from "@/lib/chat/attachments";
 
 const FileSchema = z.object({
   file: z
@@ -10,8 +11,8 @@ const FileSchema = z.object({
     .refine((file) => file.size <= 5 * 1024 * 1024, {
       message: "File size should be less than 5MB",
     })
-    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
-      message: "File type should be JPEG or PNG",
+    .refine((file) => isSupportedAttachmentType(file.type), {
+      message: "Unsupported file type",
     }),
 });
 

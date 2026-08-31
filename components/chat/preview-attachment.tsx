@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useLocale } from "@/components/locale-provider";
+import { attachmentLabel } from "@/lib/chat/attachments";
 import type { Attachment } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon } from "./icons";
@@ -31,7 +32,9 @@ export const PreviewAttachment = ({
         />
       ) : (
         <div className="flex size-full items-center justify-center text-muted-foreground text-xs">
-          {t("chat.attachment.file")}
+          <span className="rounded-md border border-border/50 px-1.5 py-0.5 font-medium text-[10px]">
+            {attachmentLabel(name ?? "", contentType)}
+          </span>
         </div>
       )}
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isSupportedAttachmentType } from "@/lib/chat/attachments";
 
 const textPartSchema = z.object({
   text: z.string().min(1).max(2000),
@@ -6,7 +7,9 @@ const textPartSchema = z.object({
 });
 
 const filePartSchema = z.object({
-  mediaType: z.enum(["image/jpeg", "image/png"]),
+  mediaType: z.string().refine(isSupportedAttachmentType, {
+    message: "Unsupported attachment type",
+  }),
   name: z.string().min(1).max(100),
   type: z.enum(["file"]),
   url: z.url(),

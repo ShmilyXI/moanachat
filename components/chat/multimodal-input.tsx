@@ -29,6 +29,7 @@ import useSWR from "swr";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useLocale } from "@/components/locale-provider";
 import type { ModelCapabilities } from "@/lib/ai/models";
+import { SUPPORTED_ATTACHMENT_MIME_TYPES } from "@/lib/chat/attachments";
 import type { ChatSettings } from "@/lib/chat/settings";
 import {
   createSpeechRecognition,
@@ -542,6 +543,7 @@ function PureMultimodalInput({
         )}
 
       <input
+        accept={SUPPORTED_ATTACHMENT_MIME_TYPES.join(",")}
         className="pointer-events-none fixed -top-4 -left-4 size-0.5 opacity-0"
         multiple
         onChange={handleFileChange}
