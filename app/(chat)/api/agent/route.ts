@@ -11,10 +11,14 @@ import { auth, type UserType } from "@/app/(auth)/auth";
 import { agentRequestSchema, buildAgentInstructions } from "@/lib/ai/agent";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import {
-  chatModels,
+  AttachmentPreparationError,
+  prepareMessagesForModel,
+} from "@/lib/ai/file-attachments";
+import {
   DEFAULT_CHAT_MODEL,
   getCapabilities,
   getCapabilitiesForModels,
+  getChatModelProviderOptions,
   selectChatModel,
 } from "@/lib/ai/models";
 import { fetchNewApiModels, filterRuntimeModels } from "@/lib/ai/newapi";
@@ -28,11 +32,15 @@ import { updateDocument } from "@/lib/ai/tools/update-document";
 import { type ChatSettings, DEFAULT_CHAT_SETTINGS } from "@/lib/chat/settings";
 import { isTestEnvironment } from "@/lib/constants";
 import { getMessageCountByUserId } from "@/lib/db/queries";
-import { ChatbotError } from "@/lib/errors";
+import { ChatbotError, getAIProviderErrorMessage } from "@/lib/errors";
 import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage } from "@/lib/types";
 
 export const maxDuration = 60;
+
+function handleAIStreamError(error: unknown): string {
+  return getAIProviderErrorMessage(error) ?? "An error occurred.";
+}
 
 export async function POST(request: Request) {
   const parsed = agentRequestSchema.safeParse(await request.json());
@@ -93,9 +101,10 @@ export async function POST(request: Request) {
     const supportsTools = capabilities?.tools === true;
     const isReasoningModel = capabilities?.reasoning === true;
     const { city, country, latitude, longitude } = geolocation(request);
-    const modelMessages = await convertToModelMessages(
+    const preparedMessages = await prepareMessagesForModel(
       parsed.data.messages as ChatMessage[]
     );
+    const modelMessages = await convertToModelMessages(preparedMessages);
 
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
@@ -114,16 +123,7 @@ export async function POST(request: Request) {
           }),
           messages: modelMessages,
           model: await getLanguageModel(selectedModel, chatSettings),
-          providerOptions: {
-            ...(chatModels.find((model) => model.id === selectedModel)
-              ?.reasoningEffort && {
-              openai: {
-                reasoningEffort: chatModels.find(
-                  (model) => model.id === selectedModel
-                )?.reasoningEffort,
-              },
-            }),
-          },
+          providerOptions: getChatModelProviderOptions(selectedModel),
           stopWhen: isStepCount(8),
           temperature:
             runtimeConfig.mode === "embedded"
@@ -154,11 +154,13 @@ export async function POST(request: Request) {
 
         writer.merge(
           result.toUIMessageStream({
+            onError: handleAIStreamError,
             sendReasoning: isReasoningModel,
           })
         );
       },
       generateId,
+      onError: handleAIStreamError,
     });
 
     return createUIMessageStreamResponse({ stream });
@@ -166,6 +168,22 @@ export async function POST(request: Request) {
     if (error instanceof ChatbotError) {
       return error.toResponse();
     }
+
+    if (error instanceof AttachmentPreparationError) {
+      return Response.json(
+        { code: "bad_request:api", message: error.message },
+        { status: 400 }
+      );
+    }
+
+    const providerErrorMessage = getAIProviderErrorMessage(error);
+    if (providerErrorMessage) {
+      console.error("AI provider request failed in agent API:", {
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return new Response(providerErrorMessage, { status: 502 });
+    }
+
     console.error("Unhandled error in agent API:", error);
     return new ChatbotError("bad_request:api").toResponse();
   }

@@ -14,10 +14,15 @@ import { createResumableStreamContext } from "resumable-stream";
 import { auth, type UserType } from "@/app/(auth)/auth";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import {
+  AttachmentPreparationError,
+  prepareMessagesForModel,
+} from "@/lib/ai/file-attachments";
+import {
   chatModels,
   DEFAULT_CHAT_MODEL,
   getCapabilities,
   getCapabilitiesForModels,
+  getChatModelProviderOptions,
   getModelAvailability,
   selectChatModel,
 } from "@/lib/ai/models";
@@ -255,7 +260,8 @@ export async function POST(request: Request) {
     const isReasoningModel = capabilities?.reasoning === true;
     const supportsTools = capabilities?.tools === true;
 
-    const modelMessages = await convertToModelMessages(uiMessages);
+    const preparedMessages = await prepareMessagesForModel(uiMessages);
+    const modelMessages = await convertToModelMessages(preparedMessages);
 
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
@@ -357,14 +363,7 @@ export async function POST(request: Request) {
           onError() {
             stopWaitingStatus();
           },
-          providerOptions: {
-            ...(modelConfig?.gatewayOrder && {
-              gateway: { order: modelConfig.gatewayOrder },
-            }),
-            ...(modelConfig?.reasoningEffort && {
-              openai: { reasoningEffort: modelConfig.reasoningEffort },
-            }),
-          },
+          providerOptions: getChatModelProviderOptions(chatModel),
           stopWhen: isStepCount(5),
           telemetry: {
             functionId: "stream-text",
@@ -501,6 +500,13 @@ export async function POST(request: Request) {
 
     if (error instanceof ChatbotError) {
       return error.toResponse();
+    }
+
+    if (error instanceof AttachmentPreparationError) {
+      return Response.json(
+        { code: "bad_request:api", message: error.message },
+        { status: 400 }
+      );
     }
 
     if (
