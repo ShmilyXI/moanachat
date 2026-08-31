@@ -17,6 +17,9 @@ test("accepts the supported image and document media types", () => {
 
 test("labels attachments with a useful file type", () => {
   assert.equal(attachmentLabel("notes.md", "text/markdown"), "MD");
-  assert.equal(attachmentLabel("report.docx", "application/octet-stream"), "DOCX");
+  assert.equal(
+    attachmentLabel("report.docx", "application/octet-stream"),
+    "DOCX"
+  );
   assert.equal(attachmentLabel("unknown", "application/pdf"), "PDF");
 });
