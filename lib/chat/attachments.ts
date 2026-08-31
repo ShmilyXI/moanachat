@@ -51,6 +51,10 @@ export function isSupportedAttachmentType(
   );
 }
 
+export function canUploadAttachments(status: string): boolean {
+  return status !== "submitted" && status !== "streaming";
+}
+
 export function buildInlineAttachment({
   contentType,
   data,
@@ -70,7 +74,13 @@ export function buildInlineAttachment({
 
 export function attachmentLabel(name: string, mediaType: string): string {
   const extension = name.split(".").at(-1)?.trim().toUpperCase();
-  if (extension && extension.length <= 5 && /^[A-Z0-9]+$/.test(extension)) {
+  const isGenericName = name.trim().toLowerCase() === "file";
+  if (
+    !isGenericName &&
+    extension &&
+    extension.length <= 5 &&
+    /^[A-Z0-9]+$/.test(extension)
+  ) {
     return extension;
   }
 

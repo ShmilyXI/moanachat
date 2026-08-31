@@ -27,7 +27,10 @@ import {
 import { toast } from "sonner";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useLocale } from "@/components/locale-provider";
-import { SUPPORTED_ATTACHMENT_MIME_TYPES } from "@/lib/chat/attachments";
+import {
+  canUploadAttachments,
+  SUPPORTED_ATTACHMENT_MIME_TYPES,
+} from "@/lib/chat/attachments";
 import type { ChatSettings } from "@/lib/chat/settings";
 import {
   createSpeechRecognition,
@@ -795,7 +798,7 @@ function PureAttachmentsButton({
         "text-foreground hover:border-border hover:text-foreground"
       )}
       data-testid="attachments-button"
-      disabled={status !== "ready"}
+      disabled={!canUploadAttachments(status)}
       onClick={handleClick}
       variant="ghost"
     >

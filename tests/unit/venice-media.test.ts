@@ -6,7 +6,7 @@ import {
   parseMediaResponse,
 } from "@/lib/ai/venice-media";
 
-test("builds Venice image generation requests", () => {
+test("builds Moana image generation requests", () => {
   assert.deepEqual(
     buildMediaRequest({
       aspectRatio: "16:9",

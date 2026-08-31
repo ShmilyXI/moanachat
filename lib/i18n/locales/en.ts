@@ -1,8 +1,8 @@
 export const en = {
   "agent.description":
-    "Ask one question and let Venice find the context, tools, and next steps.",
+    "Ask one question and let Moana find the context, tools, and next steps.",
   "agent.empty": "Your agent workspace is ready.",
-  "agent.input": "Ask Venice anything...",
+  "agent.input": "Ask Moana anything...",
   "agent.private": "Private by default",
   "agent.starter.image": "Generate an image",
   "agent.starter.surprise": "Surprise me",
@@ -63,7 +63,7 @@ export const en = {
   "api.keys": "API keys",
   "api.modelName": "your-model",
   "api.quickstart": "Quick start",
-  "api.title": "Venice API",
+  "api.title": "Moana API",
   "api.tryChat": "Try chat",
   "characters.browse": "Browse public characters",
   "characters.create": "Create a character",
@@ -143,7 +143,7 @@ export const en = {
   "chat.auth.signOut": "Sign out",
   "chat.auth.signUp": "Sign up",
   "chat.auth.submit": "Submit form",
-  "chat.brand": "Venice",
+  "chat.brand": "Moana",
   "chat.cancel": "Cancel",
   "chat.commands.clear": "Clear current chat",
   "chat.commands.delete": "Delete current chat",
@@ -258,7 +258,7 @@ export const en = {
   "chat.settings.contextDescription":
     "Use all available context and compact long chats.",
   "chat.settings.contextUsage": "Context usage",
-  "chat.settings.disableSystemPrompt": "Disable Venice system prompt",
+  "chat.settings.disableSystemPrompt": "Disable Moana system prompt",
   "chat.settings.reasoning": "Reasoning",
   "chat.settings.reasoningDescription": "This model cannot disable reasoning.",
   "chat.settings.reset": "Reset",
@@ -269,7 +269,7 @@ export const en = {
   "chat.settings.urlScraping": "URL scraping",
   "chat.settings.urlScrapingDescription":
     "Extract content from URLs in your messages.",
-  "chat.settings.veniceVoice": "Venice Voice",
+  "chat.settings.veniceVoice": "Moana Voice",
   "chat.settings.webSearch": "Web search",
   "chat.settings.webSearchDescription":
     "Search the web for current information.",
@@ -337,7 +337,7 @@ export const en = {
   "chat.weather.now": "Now",
   "chat.weather.sunrise": "Sunrise",
   "chat.weather.sunset": "Sunset",
-  "feed.description": "Browse images and ideas shared by the Venice community.",
+  "feed.description": "Browse images and ideas shared by the Moana community.",
   "feed.empty": "No public creations yet",
   "feed.emptyNotifications": "No notifications yet",
   "feed.images": "Images",

@@ -25,6 +25,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { removeChatFromHistory } from "@/lib/chat/history";
 import type { Chat } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
 import { LoaderIcon } from "./icons";
@@ -129,29 +130,26 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     ? paginatedChatHistories.every((page) => page.chats.length === 0)
     : false;
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     const chatToDelete = deleteId;
     const isCurrentChat = pathname === `/chat/${chatToDelete}`;
 
     setShowDeleteDialog(false);
 
-    if (isCurrentChat) {
-      router.replace("/");
-    }
-
-    mutate((chatHistories) => {
-      if (chatHistories) {
-        return chatHistories.map((chatHistory) => ({
-          ...chatHistory,
-          chats: chatHistory.chats.filter((chat) => chat.id !== chatToDelete),
-        }));
-      }
-    });
-
-    fetch(
+    await fetch(
       `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatToDelete}`,
       { method: "DELETE" }
     );
+
+    await mutate(
+      (chatHistories) =>
+        removeChatFromHistory(chatHistories, chatToDelete ?? ""),
+      { revalidate: false }
+    );
+
+    if (isCurrentChat) {
+      router.replace("/");
+    }
 
     toast.success(t("chat.delete.success"));
   }, [deleteId, mutate, pathname, router, t]);

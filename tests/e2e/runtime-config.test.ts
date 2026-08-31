@@ -86,6 +86,7 @@ test.describe("Runtime provider configuration", () => {
 
     await expect(page.getByText("1 models available")).toBeVisible();
     await expect(page.getByText("https://newapi.example.com")).toBeVisible();
+    await expect(page.getByLabel("New API key")).toHaveValue("");
     expect(savedBody).toEqual({
       apiKey: "sk-account-secret",
       baseUrl: "https://newapi.example.com",

@@ -12,6 +12,7 @@ import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
 import { auth, type UserType } from "@/app/(auth)/auth";
+import { getChatStreamErrorMessage } from "@/lib/ai/chat-errors";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import {
   AttachmentPreparationError,
@@ -53,7 +54,7 @@ import {
   updateMessage,
 } from "@/lib/db/queries";
 import type { DBMessage } from "@/lib/db/schema";
-import { ChatbotError } from "@/lib/errors";
+import { ChatbotError, getAIProviderErrorMessage } from "@/lib/errors";
 import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage, WaitingStatusData } from "@/lib/types";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
@@ -398,6 +399,7 @@ export async function POST(request: Request) {
 
         dataStream.merge(
           toUIMessageStream({
+            onError: getChatStreamErrorMessage,
             sendReasoning: isReasoningModel,
             stream: result.stream,
           })
@@ -461,6 +463,10 @@ export async function POST(request: Request) {
         }
       },
       onError: (error) => {
+        const providerErrorMessage = getAIProviderErrorMessage(error);
+        if (providerErrorMessage) {
+          return providerErrorMessage;
+        }
         if (
           error instanceof Error &&
           error.message?.includes(

@@ -80,6 +80,104 @@ export class ChatbotError extends Error {
   }
 }
 
+type AIProviderErrorDetails = {
+  statusCodes: number[];
+  text: string[];
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function collectAIProviderErrorDetails(
+  value: unknown,
+  details: AIProviderErrorDetails,
+  seen: Set<object>,
+  depth = 0
+) {
+  if (depth > 4 || value === null || value === undefined) {
+    return;
+  }
+
+  if (typeof value === "string") {
+    details.text.push(value);
+    return;
+  }
+
+  if (!isRecord(value)) {
+    return;
+  }
+
+  if (seen.has(value)) {
+    return;
+  }
+  seen.add(value);
+
+  const { errors, statusCode } = value;
+  if (typeof statusCode === "number") {
+    details.statusCodes.push(statusCode);
+  }
+
+  for (const key of ["message", "responseBody", "code"]) {
+    const text = value[key];
+    if (typeof text === "string") {
+      details.text.push(text);
+      if (key === "responseBody") {
+        try {
+          collectAIProviderErrorDetails(
+            JSON.parse(text),
+            details,
+            seen,
+            depth + 1
+          );
+        } catch {
+          // Some providers return a plain-text error body.
+        }
+      }
+    }
+  }
+
+  for (const key of ["data", "error", "cause", "lastError"]) {
+    collectAIProviderErrorDetails(value[key], details, seen, depth + 1);
+  }
+
+  if (Array.isArray(errors)) {
+    for (const nestedError of errors) {
+      collectAIProviderErrorDetails(nestedError, details, seen, depth + 1);
+    }
+  }
+}
+
+/**
+ * Maps known upstream provider failures to actionable, safe client messages.
+ * Provider response bodies are inspected only for classification and are never returned.
+ */
+export function getAIProviderErrorMessage(error: unknown): string | undefined {
+  const details: AIProviderErrorDetails = { statusCodes: [], text: [] };
+  collectAIProviderErrorDetails(error, details, new Set<object>());
+
+  const text = details.text.join("\n");
+  if (
+    /(insufficient[\s_-]*(user[\s_-]*)?(quota|balance)|quota[\s_-]*exceeded|余额不足|额度不足|余额不够|额度不够|请充值|充值后)/i.test(
+      text
+    )
+  ) {
+    return "The AI provider account has insufficient balance. Recharge the account or choose another enabled model.";
+  }
+
+  if (details.statusCodes.includes(401)) {
+    return "The AI provider rejected the API key. Check the API URL and key in /api-dashboard.";
+  }
+
+  if (details.statusCodes.includes(429)) {
+    return "The AI provider is rate limiting requests. Please wait and try again.";
+  }
+
+  if (details.statusCodes.includes(403)) {
+    return "The AI provider denied this request. Check the account permissions and enabled model.";
+  }
+}
+
 export function getMessageByErrorCode(errorCode: ErrorCode): string {
   if (errorCode.includes("database")) {
     return "An error occurred while executing a database query.";

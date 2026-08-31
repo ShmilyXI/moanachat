@@ -65,7 +65,7 @@ test("returns no models for malformed or missing data", () => {
   assert.deepEqual(normalizeNewApiModels({ data: {} }), []);
 });
 
-test("preserves Venice model metadata and capability flags", () => {
+test("preserves Moana model metadata and capability flags", () => {
   assert.deepEqual(
     normalizeNewApiModels({
       data: [

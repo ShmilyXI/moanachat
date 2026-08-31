@@ -117,7 +117,7 @@ export function StudioFrame({
       <VenicePageHeader
         actions={actions}
         description={description}
-        eyebrow="Venice Studio"
+        eyebrow="Moana Studio"
         title={title}
       />
       <StudioNavigation />

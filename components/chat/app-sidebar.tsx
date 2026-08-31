@@ -1,17 +1,13 @@
 "use client";
 
 import {
-  BotIcon,
   FolderPlusIcon,
   Grid2X2Icon,
-  ImageIcon,
   MessageSquareIcon,
   PanelLeftIcon,
   PenSquareIcon,
-  RssIcon,
   SearchIcon,
   TrashIcon,
-  UsersRoundIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -56,7 +52,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 export function AppSidebar({ user }: { user: User | undefined }) {
   const { t } = useLocale();
   const router = useRouter();
-  const { isMobile, setOpenMobile, toggleSidebar } = useSidebar();
+  const { setOpenMobile, toggleSidebar } = useSidebar();
   const { mutate } = useSWRConfig();
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [folders, setFolders] = useState<string[]>([]);
@@ -141,7 +137,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   <Link href="/" onClick={closeMobile}>
                     <MessageSquareIcon className="size-4 text-sidebar-foreground/50" />
                     <span className="font-serif text-base italic tracking-tight group-data-[collapsible=icon]:hidden">
-                      Venice
+                      Moana
                     </span>
                   </Link>
                 </SidebarMenuButton>
@@ -181,45 +177,15 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                {(
-                  [
-                    { href: "/", icon: MessageSquareIcon, key: "chat" },
-                    { href: "/chat/agent", icon: BotIcon, key: "agent" },
-                    { href: "/studio/image", icon: ImageIcon, key: "studio" },
-                    { href: "/feed", icon: RssIcon, key: "feed" },
-                  ] as const
-                ).map(({ href, icon: Icon, key }) => (
-                  <SidebarMenuItem key={key}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-9 rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                      tooltip={t(`chat.nav.${key}` as const)}
-                    >
-                      <Link href={href} onClick={closeMobile}>
-                        <Icon className="size-4" />
-                        <span className="text-[13px]">
-                          {t(`chat.nav.${key}` as const)}
-                        </span>
-                        {key === "agent" && !isMobile ? (
-                          <span className="ml-auto rounded-full bg-violet-200 px-1.5 py-0.5 text-[10px] font-medium text-violet-800 dark:bg-violet-300/20 dark:text-violet-200">
-                            {t("chat.new")}
-                          </span>
-                        ) : null}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
                     className="h-9 rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    tooltip={t("chat.nav.characters")}
+                    tooltip={t("chat.nav.chat")}
                   >
-                    <Link href="/character-chat" onClick={closeMobile}>
-                      <UsersRoundIcon className="size-4" />
-                      <span className="text-[13px]">
-                        {t("chat.nav.characters")}
-                      </span>
+                    <Link href="/" onClick={closeMobile}>
+                      <MessageSquareIcon className="size-4" />
+                      <span className="text-[13px]">{t("chat.nav.chat")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -295,32 +261,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   </SidebarMenuItem>
                 ) : null}
               </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup className="pt-0 group-data-[collapsible=icon]:hidden">
-            <SidebarGroupContent>
-              <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/30 px-3 py-3 text-xs text-sidebar-foreground/70">
-                <p className="font-medium text-sidebar-foreground">
-                  {t("chat.sidebar.characters")}
-                </p>
-                <p className="mt-1 leading-relaxed">
-                  {t("chat.sidebar.charactersEmpty")}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1">
-                  <Link
-                    className="underline underline-offset-2 hover:text-sidebar-foreground"
-                    href="/character-chat/public"
-                  >
-                    {t("chat.sidebar.browseCharacters")}
-                  </Link>
-                  <Link
-                    className="underline underline-offset-2 hover:text-sidebar-foreground"
-                    href="/character-chat"
-                  >
-                    {t("chat.sidebar.createCharacter")}
-                  </Link>
-                </div>
-              </div>
             </SidebarGroupContent>
           </SidebarGroup>
           <SidebarHistory user={user} />

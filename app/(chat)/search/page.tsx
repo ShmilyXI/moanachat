@@ -14,16 +14,17 @@ import {
 import { fetcher } from "@/lib/utils";
 
 type HistoryChat = { id: string; title: string; createdAt: string };
+type HistoryResponse = { chats: HistoryChat[]; hasMore: boolean };
 
 export default function SearchPage() {
   const { t } = useLocale();
   const [query, setQuery] = useState("");
-  const { data, isLoading } = useSWR<HistoryChat[]>(
+  const { data, isLoading } = useSWR<HistoryResponse>(
     "/api/history?limit=50",
     fetcher
   );
   const chats = useMemo(() => {
-    const source = data ?? [];
+    const source = data?.chats ?? [];
     return source.filter(
       (chat) =>
         !query.trim() || chat.title.toLowerCase().includes(query.toLowerCase())

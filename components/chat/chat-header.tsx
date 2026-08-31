@@ -1,6 +1,6 @@
 "use client";
 
-import { BotIcon, PanelLeftIcon, PenSquareIcon } from "lucide-react";
+import { PanelLeftIcon, PenSquareIcon } from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
 import { useLocale } from "@/components/locale-provider";
@@ -40,19 +40,6 @@ function PureChatHeader({
           <PanelLeftIcon className="size-4" />
         </Button>
       ) : null}
-
-      <Link
-        className="hidden items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground sm:flex"
-        href="/chat/agent"
-      >
-        <BotIcon className="size-3.5" />
-        {isMobile ? null : <span>{t("chat.header.agent")}</span>}
-        {isMobile ? null : (
-          <span className="rounded-full bg-violet-200 px-1.5 py-0.5 text-[10px] font-medium text-violet-800 dark:bg-violet-300/20 dark:text-violet-200">
-            {t("chat.new")}
-          </span>
-        )}
-      </Link>
 
       <div className="ml-auto flex items-center gap-1.5">
         {isReadonly ? null : (

@@ -26,7 +26,7 @@ export async function getLanguageModel(
   chatSettings?: ChatSettings
 ) {
   if (isTestEnvironment && myProvider) {
-    return myProvider.languageModel(modelId);
+    return myProvider.languageModel("chat-model");
   }
 
   const config = await getRuntimeConfig();

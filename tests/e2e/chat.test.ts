@@ -37,6 +37,38 @@ test.describe("Chat Page", () => {
     await expect(page.getByTestId("send-button")).toBeVisible();
   });
 
+  test("hides studio and feed from the sidebar navigation", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("link", { exact: true, name: "Studio" })
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("link", { exact: true, name: "Feed" })
+    ).toHaveCount(0);
+  });
+
+  test("hides agent and character surfaces from the chat shell", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("link", { exact: true, name: "Agentic Chat" })
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("link", { exact: true, name: "Characters" })
+    ).toHaveCount(0);
+    await expect(
+      page.getByText("Try Agentic Chat", { exact: true })
+    ).toHaveCount(0);
+    await expect(page.getByText("My characters", { exact: true })).toHaveCount(
+      0
+    );
+  });
+
   test("suggested actions are visible on empty chat", async ({ page }) => {
     await page.goto("/");
     const suggestions = page.locator("[data-testid='suggested-actions']");

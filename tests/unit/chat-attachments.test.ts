@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   attachmentLabel,
   buildInlineAttachment,
+  canUploadAttachments,
   isSupportedAttachmentType,
   SUPPORTED_ATTACHMENT_MIME_TYPES,
 } from "@/lib/chat/attachments";
@@ -22,6 +23,7 @@ test("labels attachments with a useful file type", () => {
     attachmentLabel("report.docx", "application/octet-stream"),
     "DOCX"
   );
+  assert.equal(attachmentLabel("file", "application/vnd.ms-excel"), "XLS");
   assert.equal(attachmentLabel("unknown", "application/pdf"), "PDF");
 });
 
@@ -38,4 +40,11 @@ test("builds an inline attachment when external blob storage is unavailable", ()
       url: "data:text/plain;base64,SGk=",
     }
   );
+});
+
+test("keeps attachment uploads available after a chat error", () => {
+  assert.equal(canUploadAttachments("error"), true);
+  assert.equal(canUploadAttachments("ready"), true);
+  assert.equal(canUploadAttachments("submitted"), false);
+  assert.equal(canUploadAttachments("streaming"), false);
 });

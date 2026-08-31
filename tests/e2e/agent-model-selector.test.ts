@@ -53,11 +53,52 @@ test.describe("Agentic Chat model selector", () => {
     await page.getByRole("option", { name: /Claude 3\.7/ }).click();
     await expect(modelButton).toContainText("Claude 3.7");
 
-    await page.getByLabel("Ask Venice anything...").fill("Hello agent");
+    await page.getByLabel("Ask Moana anything...").fill("Hello agent");
     await page.getByRole("button", { name: "Submit" }).click();
 
     await expect
       .poll(() => agentBody?.selectedChatModel)
       .toBe("anthropic/claude-3.7");
+  });
+
+  test("shows an actionable provider error when the request is rejected", async ({
+    page,
+  }) => {
+    await page.route("**/api/models", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          defaultModelId: "openai/gpt-4.1",
+          mode: "embedded",
+          models: [
+            {
+              description: "",
+              id: "openai/gpt-4.1",
+              name: "GPT 4.1",
+              provider: "openai",
+            },
+          ],
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.route("**/api/agent", async (route) => {
+      await route.fulfill({
+        body: "The AI provider account has insufficient balance. Recharge the account or choose another enabled model.",
+        contentType: "text/plain",
+        status: 502,
+      });
+    });
+
+    await page.goto("/chat/agent");
+    await page.getByLabel("Ask Moana anything...").fill("Hello agent");
+    await page.getByRole("button", { name: "Submit" }).click();
+
+    await expect(
+      page.getByText(
+        "The AI provider account has insufficient balance. Recharge the account or choose another enabled model."
+      )
+    ).toBeVisible();
   });
 });

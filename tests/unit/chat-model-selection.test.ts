@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert/strict";
 import { test } from "node:test";
-import { selectChatModel } from "@/lib/ai/models";
+import { getChatModelProviderOptions, selectChatModel } from "@/lib/ai/models";
 
 const embeddedModels = [
   {
@@ -82,4 +82,15 @@ test("validates standalone requests against the curated model list", () => {
     }),
     "moonshotai/kimi-k2.5"
   );
+});
+
+test("uses the same gateway and reasoning provider options for every chat surface", () => {
+  assert.deepEqual(getChatModelProviderOptions("deepseek/deepseek-v3.2"), {
+    gateway: { order: ["bedrock", "deepinfra"] },
+  });
+  assert.deepEqual(getChatModelProviderOptions("openai/gpt-oss-20b"), {
+    gateway: { order: ["groq", "bedrock"] },
+    openai: { reasoningEffort: "low" },
+  });
+  assert.deepEqual(getChatModelProviderOptions("custom/model"), {});
 });
