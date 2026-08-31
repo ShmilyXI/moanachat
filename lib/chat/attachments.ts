@@ -20,7 +20,8 @@ const MEDIA_TYPE_LABELS: Record<SupportedAttachmentMediaType, string> = {
   "application/pdf": "PDF",
   "application/vnd.ms-excel": "XLS",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "DOCX",
   "image/jpeg": "JPG",
   "image/png": "PNG",
   "image/webp": "WEBP",
@@ -37,17 +38,12 @@ export function isSupportedAttachmentType(
   value: unknown
 ): value is SupportedAttachmentMediaType {
   return (
-    typeof value === "string" &&
-    SUPPORTED_ATTACHMENT_MIME_TYPE_SET.has(value)
+    typeof value === "string" && SUPPORTED_ATTACHMENT_MIME_TYPE_SET.has(value)
   );
 }
 
 export function attachmentLabel(name: string, mediaType: string): string {
-  const extension = name
-    .split(".")
-    .at(-1)
-    ?.trim()
-    .toUpperCase();
+  const extension = name.split(".").at(-1)?.trim().toUpperCase();
   if (extension && extension.length <= 5 && /^[A-Z0-9]+$/.test(extension)) {
     return extension;
   }
