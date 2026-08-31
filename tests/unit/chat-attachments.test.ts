@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert/strict";
 import { test } from "node:test";
 import {
   attachmentLabel,
+  buildInlineAttachment,
   isSupportedAttachmentType,
   SUPPORTED_ATTACHMENT_MIME_TYPES,
 } from "@/lib/chat/attachments";
@@ -22,4 +23,19 @@ test("labels attachments with a useful file type", () => {
     "DOCX"
   );
   assert.equal(attachmentLabel("unknown", "application/pdf"), "PDF");
+});
+
+test("builds an inline attachment when external blob storage is unavailable", () => {
+  assert.deepEqual(
+    buildInlineAttachment({
+      contentType: "text/plain",
+      data: new Uint8Array([72, 105]),
+      filename: "notes.txt",
+    }),
+    {
+      contentType: "text/plain",
+      pathname: "notes.txt",
+      url: "data:text/plain;base64,SGk=",
+    }
+  );
 });

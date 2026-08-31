@@ -34,12 +34,38 @@ const SUPPORTED_ATTACHMENT_MIME_TYPE_SET = new Set<string>(
   SUPPORTED_ATTACHMENT_MIME_TYPES
 );
 
+function toBase64(data: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x80_00;
+  for (let index = 0; index < data.length; index += chunkSize) {
+    binary += String.fromCharCode(...data.subarray(index, index + chunkSize));
+  }
+  return btoa(binary);
+}
+
 export function isSupportedAttachmentType(
   value: unknown
 ): value is SupportedAttachmentMediaType {
   return (
     typeof value === "string" && SUPPORTED_ATTACHMENT_MIME_TYPE_SET.has(value)
   );
+}
+
+export function buildInlineAttachment({
+  contentType,
+  data,
+  filename,
+}: {
+  contentType: string;
+  data: Uint8Array;
+  filename: string;
+}) {
+  const pathname = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return {
+    contentType,
+    pathname,
+    url: `data:${contentType};base64,${toBase64(data)}`,
+  };
 }
 
 export function attachmentLabel(name: string, mediaType: string): string {

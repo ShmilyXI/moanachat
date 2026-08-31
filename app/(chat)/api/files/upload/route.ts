@@ -3,7 +3,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/app/(auth)/auth";
-import { isSupportedAttachmentType } from "@/lib/chat/attachments";
+import {
+  buildInlineAttachment,
+  isSupportedAttachmentType,
+} from "@/lib/chat/attachments";
 
 const FileSchema = z.object({
   file: z
@@ -48,6 +51,16 @@ export async function POST(request: Request) {
     const filename = (formData.get("file") as File).name;
     const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
     const fileBuffer = await file.arrayBuffer();
+
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      return NextResponse.json(
+        buildInlineAttachment({
+          contentType: file.type,
+          data: new Uint8Array(fileBuffer),
+          filename: safeName,
+        })
+      );
+    }
 
     try {
       const data = await put(`${safeName}`, fileBuffer, {

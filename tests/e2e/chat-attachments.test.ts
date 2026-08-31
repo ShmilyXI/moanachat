@@ -18,22 +18,6 @@ test("selects and sends image and PDF attachments", async ({ page }) => {
     });
   });
 
-  await page.route("**/api/files/upload", async (route) => {
-    const contentType = route.request().postData()?.includes("report.pdf")
-      ? "application/pdf"
-      : "image/png";
-    await route.fulfill({
-      body: JSON.stringify({
-        contentType,
-        pathname:
-          contentType === "application/pdf" ? "report.pdf" : "chart.png",
-        url: `https://test.public.blob.vercel-storage.com/${contentType === "application/pdf" ? "report.pdf" : "chart.png"}`,
-      }),
-      contentType: "application/json",
-      status: 200,
-    });
-  });
-
   await page.route("**/api/chat", async (route) => {
     requestBody = route.request().postDataJSON() as Record<string, unknown>;
     await route.fulfill({
