@@ -74,6 +74,28 @@ test.describe("Model Selector", () => {
     expect(Object.hasOwn(capabilities, "moonshotai/kimi-k2.5")).toBeTruthy();
   });
 
+  test("keeps attachments available when vision metadata is missing", async ({
+    page,
+  }) => {
+    await page.route("**/api/models", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          capabilities: {
+            "moonshotai/kimi-k2.5": {
+              reasoning: false,
+              tools: false,
+            },
+          },
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/");
+    await expect(page.getByTestId("attachments-button")).toBeEnabled();
+  });
+
   test("refreshes models after the runtime configuration changes", async ({
     page,
   }) => {

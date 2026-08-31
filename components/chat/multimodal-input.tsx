@@ -25,10 +25,8 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import useSWR from "swr";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useLocale } from "@/components/locale-provider";
-import type { ModelCapabilities } from "@/lib/ai/models";
 import { SUPPORTED_ATTACHMENT_MIME_TYPES } from "@/lib/chat/attachments";
 import type { ChatSettings } from "@/lib/chat/settings";
 import {
@@ -38,7 +36,7 @@ import {
   type SpeechRecognitionLike,
 } from "@/lib/chat/speech";
 import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn, fetcherNoStore } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   PromptInput,
   PromptInputFooter,
@@ -625,11 +623,7 @@ function PureMultimodalInput({
                 {t("chat.header.tools")}
               </TooltipContent>
             </Tooltip>
-            <AttachmentsButton
-              fileInputRef={fileInputRef}
-              selectedModelId={selectedModelId}
-              status={status}
-            />
+            <AttachmentsButton fileInputRef={fileInputRef} status={status} />
             <ModelSelectorCompact
               onModelChange={onModelChange}
               selectedModelId={selectedModelId}
@@ -782,21 +776,10 @@ const AttachmentPreviewItem = memo(PureAttachmentPreviewItem);
 function PureAttachmentsButton({
   fileInputRef,
   status,
-  selectedModelId,
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
   status: UseChatHelpers<ChatMessage>["status"];
-  selectedModelId: string;
 }) {
-  const { data: modelsResponse } = useSWR(
-    `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
-    fetcherNoStore,
-    { dedupingInterval: 3_600_000, revalidateOnFocus: false }
-  );
-
-  const caps: Record<string, ModelCapabilities> | undefined =
-    modelsResponse?.capabilities ?? modelsResponse;
-  const hasVision = caps?.[selectedModelId]?.vision ?? false;
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -809,12 +792,10 @@ function PureAttachmentsButton({
     <Button
       className={cn(
         "h-7 w-7 rounded-lg border border-border/40 p-1 transition-colors",
-        hasVision
-          ? "text-foreground hover:border-border hover:text-foreground"
-          : "text-muted-foreground/30 cursor-not-allowed"
+        "text-foreground hover:border-border hover:text-foreground"
       )}
       data-testid="attachments-button"
-      disabled={status !== "ready" || !hasVision}
+      disabled={status !== "ready"}
       onClick={handleClick}
       variant="ghost"
     >

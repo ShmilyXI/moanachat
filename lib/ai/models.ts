@@ -9,6 +9,7 @@ export const titleModel = {
 };
 
 export type ModelCapabilities = {
+  capabilitiesKnown?: boolean;
   tools: boolean;
   vision: boolean;
   reasoning: boolean;
@@ -18,6 +19,7 @@ export type ModelCapabilities = {
 };
 
 const NO_MODEL_CAPABILITIES: ModelCapabilities = {
+  capabilitiesKnown: false,
   reasoning: false,
   tools: false,
   vision: false,
@@ -89,7 +91,15 @@ export async function getCapabilities(): Promise<
           { next: { revalidate: 86_400 } }
         );
         if (!res.ok) {
-          return [model.id, { reasoning: false, tools: false, vision: false }];
+          return [
+            model.id,
+            {
+              capabilitiesKnown: false,
+              reasoning: false,
+              tools: false,
+              vision: false,
+            },
+          ];
         }
 
         const json = await res.json();
@@ -107,13 +117,22 @@ export async function getCapabilities(): Promise<
         return [
           model.id,
           {
+            capabilitiesKnown: true,
             reasoning: params.has("reasoning"),
             tools: params.has("tools"),
             vision: inputModalities.has("image"),
           },
         ];
       } catch {
-        return [model.id, { reasoning: false, tools: false, vision: false }];
+        return [
+          model.id,
+          {
+            capabilitiesKnown: false,
+            reasoning: false,
+            tools: false,
+            vision: false,
+          },
+        ];
       }
     })
   );
@@ -161,6 +180,7 @@ export async function getAllGatewayModels(): Promise<
       .filter((m: GatewayModel) => m.type === "language")
       .map((m: GatewayModel) => ({
         capabilities: {
+          capabilitiesKnown: true,
           reasoning: m.tags?.includes("reasoning") ?? false,
           tools: m.tags?.includes("tool-use") ?? false,
           vision: m.tags?.includes("vision") ?? false,
@@ -180,6 +200,19 @@ export function getActiveModels(): ChatModel[] {
 }
 
 export const allowedModelIds = new Set(chatModels.map((m) => m.id));
+
+export function getChatModelProviderOptions(modelId: string) {
+  const model = chatModels.find((candidate) => candidate.id === modelId);
+
+  return {
+    ...(model?.gatewayOrder
+      ? { gateway: { order: [...model.gatewayOrder] } }
+      : {}),
+    ...(model?.reasoningEffort
+      ? { openai: { reasoningEffort: model.reasoningEffort } }
+      : {}),
+  };
+}
 
 export type ChatModelSelectionInput = {
   availableModels?: readonly ChatModel[];

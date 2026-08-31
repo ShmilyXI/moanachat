@@ -2,7 +2,12 @@ import type { ChatModel } from "./models";
 import type { RuntimeConfig } from "./runtime-config";
 
 type OpenAIModelRecord = {
+  architecture?: {
+    input_modalities?: unknown;
+  };
+  capabilities?: Record<string, unknown>;
   id?: unknown;
+  input_modalities?: unknown;
   name?: unknown;
   description?: unknown;
   type?: unknown;
@@ -50,6 +55,10 @@ export function getRuntimeDefaultModel(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function includesModality(value: unknown, modality: string): boolean {
+  return Array.isArray(value) && value.includes(modality);
 }
 
 /** Convert the OpenAI `/v1/models` envelope into the model shape used by Moanachat. */
@@ -118,14 +127,19 @@ export function normalizeNewApiModels(payload: unknown): ChatModel[] {
         model.tags = tags;
       }
     }
-    if (spec?.capabilities) {
+    const capabilitySource = spec?.capabilities ?? record.capabilities;
+    const hasVisionModality =
+      includesModality(record.architecture?.input_modalities, "image") ||
+      includesModality(record.input_modalities, "image");
+    if (capabilitySource || hasVisionModality) {
       model.capabilities = {
-        audioInput: spec.capabilities.supportsAudioInput === true,
-        reasoning: spec.capabilities.supportsReasoning === true,
-        tools: spec.capabilities.supportsFunctionCalling === true,
-        videoInput: spec.capabilities.supportsVideoInput === true,
-        vision: spec.capabilities.supportsVision === true,
-        webSearch: spec.capabilities.supportsWebSearch === true,
+        audioInput: capabilitySource?.supportsAudioInput === true,
+        capabilitiesKnown: true,
+        reasoning: capabilitySource?.supportsReasoning === true,
+        tools: capabilitySource?.supportsFunctionCalling === true,
+        videoInput: capabilitySource?.supportsVideoInput === true,
+        vision: capabilitySource?.supportsVision === true || hasVisionModality,
+        webSearch: capabilitySource?.supportsWebSearch === true,
       };
     }
     return [model];

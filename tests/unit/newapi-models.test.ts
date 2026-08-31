@@ -1,5 +1,6 @@
 import { strict as assert } from "node:assert/strict";
 import { test } from "node:test";
+import { type ChatModel, getCapabilitiesForModels } from "@/lib/ai/models";
 import {
   fetchNewApiModels,
   getNewApiModelIds,
@@ -94,6 +95,7 @@ test("preserves Venice model metadata and capability flags", () => {
       {
         capabilities: {
           audioInput: true,
+          capabilitiesKnown: true,
           reasoning: true,
           tools: true,
           videoInput: false,
@@ -111,6 +113,42 @@ test("preserves Venice model metadata and capability flags", () => {
         type: "text",
       },
     ]
+  );
+});
+
+test("detects vision support from top-level input modalities", () => {
+  const [model] = normalizeNewApiModels({
+    data: [
+      {
+        architecture: { input_modalities: ["text", "image"] },
+        id: "gpt-vision",
+      },
+    ],
+  });
+
+  assert.deepEqual(model?.capabilities, {
+    audioInput: false,
+    capabilitiesKnown: true,
+    reasoning: false,
+    tools: false,
+    videoInput: false,
+    vision: true,
+    webSearch: false,
+  });
+});
+
+test("marks missing model capability metadata as unknown", () => {
+  const [model] = normalizeNewApiModels({ data: [{ id: "unknown-model" }] });
+  assert.equal(model?.capabilities, undefined);
+
+  assert.deepEqual(
+    getCapabilitiesForModels([model as ChatModel])["unknown-model"],
+    {
+      capabilitiesKnown: false,
+      reasoning: false,
+      tools: false,
+      vision: false,
+    }
   );
 });
 
