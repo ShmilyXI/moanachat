@@ -39,7 +39,6 @@ export function AuthForm({
         </Label>
         <Input
           autoComplete="email"
-          autoFocus
           className="auth-form__input"
           defaultValue={defaultEmail}
           id="email"
@@ -59,7 +58,7 @@ export function AuthForm({
             className="auth-form__input auth-form__input--password"
             id="password"
             name="password"
-            placeholder="••••••••"
+            placeholder={t("chat.auth.passwordPlaceholder")}
             required
             type={showPassword ? "text" : "password"}
           />

@@ -61,7 +61,7 @@ export function PricingSection() {
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Pricing
         </p>
-        <h2 className="mt-5 font-serif text-4xl tablet:text-5xl">
+        <h2 className="mt-5 font-serif text-2xl tablet:text-4xl">
           Simple pricing. No surprises.
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
@@ -87,7 +87,8 @@ export function PricingSection() {
             onClick={() => setYearly(true)}
             type="button"
           >
-            Yearly <span className="ml-1 text-[var(--color-accent)]">Save 10%</span>
+            Yearly{" "}
+            <span className="ml-1 text-[var(--color-accent)]">Save 10%</span>
           </button>
         </div>
         <div className="mt-10 grid gap-5 text-left desktop:grid-cols-3">
@@ -101,7 +102,7 @@ export function PricingSection() {
                   Most popular
                 </span>
               ) : null}
-              <h3 className="font-serif text-2xl">{plan.name}</h3>
+              <h3 className="font-serif text-xl">{plan.name}</h3>
               <div className="mt-5 flex items-baseline gap-2">
                 <span className="text-5xl font-semibold tracking-tight">
                   ${yearly ? plan.yearly : plan.monthly}

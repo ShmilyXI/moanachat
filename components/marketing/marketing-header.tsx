@@ -3,6 +3,7 @@
 import { ArrowUp, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { saveDemoPrompt } from "./composer";
+import { MoanaMark } from "./moana-mark";
 
 const links = [
   { href: "#models", label: "About" },
@@ -59,9 +60,7 @@ export function MarketingHeader() {
               data-mini-composer
               onSubmit={submitQuickPrompt}
             >
-              <span aria-hidden className="marketing-mini-composer__mark">
-                ⌘
-              </span>
+              <MoanaMark className="marketing-mini-composer__mark" />
               <input
                 aria-label="Quick chat input"
                 className="marketing-mini-composer__input"

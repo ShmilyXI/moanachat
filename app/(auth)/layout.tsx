@@ -1,8 +1,7 @@
 "use client";
 
-import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
-import { SparklesIcon } from "@/components/chat/icons";
+import { MoanaMark } from "@/components/marketing/moana-mark";
 import { useLocale } from "@/components/locale-provider";
 
 export default function AuthLayout({
@@ -13,30 +12,22 @@ export default function AuthLayout({
   const { t } = useLocale();
 
   return (
-    <main className="auth-shell" data-auth-shell data-theme="venice-dark">
-      <div
-        aria-hidden
-        className="auth-shell__lines"
-        data-auth-concentric-lines
-      />
+    <main className="auth-shell" data-auth-shell data-theme="venice-light">
       <div className="auth-shell__content">
-        <Link className="auth-shell__back" href="/">
-          <ArrowLeftIcon className="size-3.5" />
-          {t("chat.auth.back")}
-        </Link>
         <section className="auth-panel" data-auth-panel>
           <div className="auth-panel__brand">
-            <span className="auth-panel__mark">
-              <SparklesIcon size={14} />
-            </span>
-            <span className="auth-panel__wordmark">Moana</span>
+            <Link
+              aria-label="Moana"
+              className="auth-panel__mark-link"
+              data-auth-mark
+              href="/"
+            >
+              <MoanaMark />
+            </Link>
           </div>
           <div className="auth-panel__body">{children}</div>
-          <p className="auth-panel__caption">
-            {t("chat.auth.poweredBy")} Moana AI
-          </p>
         </section>
-        <p className="auth-shell__legal">Private by default</p>
+        <p className="auth-shell__legal">{t("chat.auth.privateByDefault")}</p>
       </div>
     </main>
   );

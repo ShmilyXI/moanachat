@@ -29,7 +29,7 @@ export function DeveloperSection() {
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Developer API
         </p>
-        <h2 className="mt-5 font-serif text-4xl tablet:text-5xl">
+        <h2 className="mt-5 font-serif text-2xl tablet:text-4xl">
           One API for Everything
         </h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">

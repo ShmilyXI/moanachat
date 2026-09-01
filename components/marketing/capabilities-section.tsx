@@ -189,7 +189,7 @@ function CapabilityCard({ item }: { item: (typeof capabilities)[number] }) {
   return (
     <article className="group grid items-center gap-8 tablet:grid-cols-[minmax(0,34fr)_minmax(0,66fr)] tablet:gap-12 desktop:gap-16">
       <div className="order-2 flex flex-col items-start tablet:order-1">
-        <h3 className="max-w-[450px] font-serif text-2xl leading-tight">
+        <h3 className="max-w-[450px] font-serif text-xl leading-tight tablet:text-2xl">
           {item.title}
         </h3>
         <p className="mt-2 max-w-[450px] text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
@@ -277,7 +277,7 @@ export function CapabilitiesSection() {
               <div className="flex min-w-0 flex-col items-start">
                 <motion.h3
                   animate={{ opacity: 1, y: 0 }}
-                  className="max-w-[450px] font-serif text-2xl leading-tight"
+                  className="max-w-[450px] font-serif text-xl leading-tight tablet:text-2xl"
                   initial={{ opacity: 0, y: 18 }}
                   key={capabilities[active].title}
                 >
@@ -333,7 +333,7 @@ function SectionIntro() {
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
         Capabilities
       </p>
-      <h2 className="font-serif text-4xl leading-tight tablet:text-5xl">
+      <h2 className="font-serif text-2xl leading-tight tablet:text-4xl">
         Uncensored AI chat, images, video, and more
       </h2>
       <p className="max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">

@@ -52,6 +52,23 @@ test.describe("marketing homepage", () => {
     ).toBeVisible();
   });
 
+  test("pauses and resumes the hero video on desktop", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/");
+
+    const pause = page.getByRole("button", { name: "Pause video" });
+    await expect(pause).toBeVisible();
+    await pause.click();
+    await expect(
+      page.getByRole("button", { name: "Play video" })
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Play video" }).click();
+    await expect(
+      page.getByRole("button", { name: "Pause video" })
+    ).toBeVisible();
+  });
+
   test("morphs into a compact Venice-style navigation after scrolling", async ({
     page,
   }) => {

@@ -47,7 +47,7 @@ export function MarketingHome() {
         <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-paper-3)]">
           Moana AI
         </p>
-        <h2 className="font-serif text-4xl leading-tight tablet:text-6xl">
+        <h2 className="font-serif text-3xl leading-tight tablet:text-5xl">
           Create freely. Stay private.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-base text-[var(--color-paper)]/65">

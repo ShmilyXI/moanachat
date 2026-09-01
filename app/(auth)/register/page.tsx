@@ -70,15 +70,17 @@ export default function Page() {
             {feedback}
           </p>
         ) : null}
-        <p className="text-center text-[13px] text-muted-foreground">
-          {`${t("chat.auth.haveAccount")} `}
-          <Link
-            className="text-foreground underline-offset-4 hover:underline"
-            href="/login"
-          >
-            {t("chat.auth.signIn")}
-          </Link>
-        </p>
+        <div className="auth-form__links">
+          <p>
+            {`${t("chat.auth.haveAccount")} `}
+            <Link href="/login">{t("chat.auth.signIn")}</Link>
+          </p>
+          <p className="auth-form__guest">
+            <Link href="/api/auth/guest?redirectUrl=%2F">
+              {t("chat.auth.tryWithoutAccount")}
+            </Link>
+          </p>
+        </div>
       </AuthForm>
     </>
   );

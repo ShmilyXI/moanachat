@@ -4,7 +4,7 @@ test.describe("Authentication Pages", () => {
   test("login page renders correctly", async ({ page }) => {
     await page.goto("/login");
     await expect(
-      page.getByRole("heading", { name: "Welcome back" })
+      page.getByRole("heading", { name: "Sign in to your Moana account" })
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
@@ -12,7 +12,7 @@ test.describe("Authentication Pages", () => {
     await expect(page.getByRole("link", { name: "Sign up" })).toBeVisible();
   });
 
-  test("uses the dark portal shell and supports password visibility", async ({
+  test("uses the Venice-style card and supports password visibility", async ({
     page,
   }) => {
     await page.addInitScript(() => {
@@ -22,10 +22,10 @@ test.describe("Authentication Pages", () => {
 
     await expect(page.locator("[data-auth-shell]")).toHaveAttribute(
       "data-theme",
-      "venice-dark"
+      "venice-light"
     );
     await expect(page.locator("[data-auth-panel]")).toBeVisible();
-    await expect(page.locator("[data-auth-concentric-lines]")).toBeVisible();
+    await expect(page.locator("[data-auth-mark]")).toBeVisible();
 
     const password = page.getByLabel("Password");
     await expect(password).toHaveAttribute("type", "password");
@@ -38,7 +38,7 @@ test.describe("Authentication Pages", () => {
   test("register page renders correctly", async ({ page }) => {
     await page.goto("/register");
     await expect(
-      page.getByRole("heading", { name: "Create account" })
+      page.getByRole("heading", { name: "Create your Moana account" })
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
@@ -88,10 +88,31 @@ test.describe("Authentication Pages", () => {
     });
     await page.goto("/login");
 
-    await expect(page.getByRole("heading", { name: "欢迎回来" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "登录 Moana 账户" })
+    ).toBeVisible();
     await expect(page.getByLabel("邮箱")).toBeVisible();
     await expect(page.getByLabel("密码")).toBeVisible();
     await expect(page.getByRole("button", { name: "登录" })).toBeVisible();
     await expect(page.getByRole("link", { name: "注册" })).toBeVisible();
+  });
+
+  test("keeps the Venice-style auth card within narrow viewports", async ({
+    page,
+  }) => {
+    for (const width of [320, 375, 414, 768]) {
+      await page.setViewportSize({ width, height: 812 });
+      await page.goto("/register");
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              document.documentElement.scrollWidth ===
+              document.documentElement.clientWidth
+          )
+        )
+        .toBe(true);
+      await expect(page.locator("[data-auth-mark]")).toBeVisible();
+    }
   });
 });

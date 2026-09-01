@@ -65,7 +65,7 @@ export function ModelMarquee() {
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Moana AI
         </p>
-        <h2 className="mt-5 font-serif text-4xl leading-tight tablet:text-6xl">
+        <h2 className="marketing-model-title mt-5 font-serif leading-tight">
           Access leading AI models with your privacy in mind
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/65 tablet:text-lg">
