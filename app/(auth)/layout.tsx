@@ -12,7 +12,7 @@ export default function AuthLayout({
   const { t } = useLocale();
 
   return (
-    <main className="auth-shell" data-auth-shell data-theme="venice-light">
+    <main className="auth-shell" data-auth-shell data-theme="venice-dark">
       <div className="auth-shell__content">
         <section className="auth-panel" data-auth-panel>
           <div className="auth-panel__brand">

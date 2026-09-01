@@ -54,7 +54,7 @@ export function saveDemoPrompt(prompt: string) {
   window.location.assign("/chat/agent");
 }
 
-export function Composer() {
+export function Composer({ showPresets = true }: { showPresets?: boolean }) {
   const [value, setValue] = useState("");
   const [preview, setPreview] = useState<string>();
 
@@ -120,24 +120,26 @@ export function Composer() {
           </button>
         </div>
       </form>
-      <div className="marketing-composer__presets no-scrollbar">
-        {prompts.map(({ icon: Icon, label, prompt }) => (
-          <button
-            aria-label={label}
-            className="marketing-composer__preset"
-            data-prompt-preset
-            key={label}
-            onClick={() => saveDemoPrompt(prompt)}
-            onFocus={() => setPreview(prompt)}
-            onMouseEnter={() => setPreview(prompt)}
-            onMouseLeave={() => setPreview(undefined)}
-            type="button"
-          >
-            <Icon className="size-4" />
-            {label}
-          </button>
-        ))}
-      </div>
+      {showPresets ? (
+        <div className="marketing-composer__presets no-scrollbar">
+          {prompts.map(({ icon: Icon, label, prompt }) => (
+            <button
+              aria-label={label}
+              className="marketing-composer__preset"
+              data-prompt-preset
+              key={label}
+              onClick={() => saveDemoPrompt(prompt)}
+              onFocus={() => setPreview(prompt)}
+              onMouseEnter={() => setPreview(prompt)}
+              onMouseLeave={() => setPreview(undefined)}
+              type="button"
+            >
+              <Icon className="size-4" />
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

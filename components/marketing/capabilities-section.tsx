@@ -1,6 +1,11 @@
 "use client";
 
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "framer-motion";
 import { ArrowRight, ArrowUp, MessageCircle, Music2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -213,6 +218,7 @@ function CapabilityCard({ item }: { item: (typeof capabilities)[number] }) {
 export function CapabilitiesSection() {
   const ref = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
+  const reducedMotion = useReducedMotion();
   const scrollYProgress = useMotionValue(0);
   const introOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const contentOpacity = useTransform(scrollYProgress, [0.08, 0.16], [0, 1]);
@@ -265,20 +271,23 @@ export function CapabilitiesSection() {
         <div className="sticky top-0 h-screen overflow-hidden">
           <motion.div
             className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-8"
-            style={{ opacity: introOpacity }}
+            style={{ opacity: reducedMotion ? 1 : introOpacity }}
           >
             <SectionIntro />
           </motion.div>
           <motion.div
             className="h-full w-full"
-            style={{ opacity: contentOpacity, y: contentY }}
+            style={{
+              opacity: reducedMotion ? 1 : contentOpacity,
+              y: reducedMotion ? 0 : contentY,
+            }}
           >
             <div className="mx-auto grid h-full w-full max-w-[1400px] grid-cols-[minmax(0,34fr)_minmax(0,66fr)] items-center gap-12 px-16 py-12 desktop:gap-16">
               <div className="flex min-w-0 flex-col items-start">
                 <motion.h3
                   animate={{ opacity: 1, y: 0 }}
                   className="max-w-[450px] font-serif text-xl leading-tight tablet:text-2xl"
-                  initial={{ opacity: 0, y: 18 }}
+                  initial={reducedMotion ? false : { opacity: 0, y: 18 }}
                   key={capabilities[active].title}
                 >
                   {capabilities[active].title}
@@ -297,9 +306,9 @@ export function CapabilitiesSection() {
               <motion.div
                 animate={{ opacity: 1, scale: 1 }}
                 className="aspect-[4/3] w-full min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/60 shadow-[var(--shadow-media)]"
-                initial={{ opacity: 0, scale: 0.97 }}
+                initial={reducedMotion ? false : { opacity: 0, scale: 0.97 }}
                 key={capabilities[active].icon}
-                transition={{ duration: 0.4 }}
+                transition={reducedMotion ? { duration: 0 } : { duration: 0.4 }}
               >
                 <CapabilityMedia icon={capabilities[active].icon} />
               </motion.div>
@@ -310,15 +319,15 @@ export function CapabilitiesSection() {
               <button
                 aria-label={`Show ${item.title}`}
                 aria-pressed={active === index}
-                className={`relative w-2 overflow-hidden rounded-full p-0 transition-[background-color,height] ${active === index ? "h-10 bg-[var(--color-sand)]/30" : "h-2 bg-[var(--color-ink)]/15"}`}
-                key={item.title}
-                onClick={() => setActive(index)}
-                type="button"
-              >
-                {active === index ? (
-                  <span className="absolute inset-x-0 top-0 h-1/2 rounded-full bg-[var(--color-sand)]" />
-                ) : null}
-              </button>
+                  className="marketing-capability-dot relative flex size-11 items-center justify-center rounded-full p-0"
+                  key={item.title}
+                  onClick={() => setActive(index)}
+                  type="button"
+                >
+                  <span
+                    className={`block size-2 rounded-full transition-[background-color,transform,opacity] ${active === index ? "scale-y-[5] bg-[var(--color-sand)]" : "bg-[var(--color-ink)]/15"}`}
+                  />
+                </button>
             ))}
           </div>
         </div>

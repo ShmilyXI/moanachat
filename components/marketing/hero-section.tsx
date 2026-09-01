@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowDown, Pause, Play } from "lucide-react";
-import { useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Composer } from "./composer";
 import { MarketingHeader } from "./marketing-header";
 import { MoanaMark } from "./moana-mark";
@@ -9,6 +10,13 @@ import { MoanaMark } from "./moana-mark";
 export function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setIsPlaying(false);
+    }
+  }, [reducedMotion]);
 
   const toggleVideo = () => {
     const video = videoRef.current;
@@ -30,7 +38,7 @@ export function HeroSection() {
     <section className="marketing-hero">
       <video
         aria-hidden
-        autoPlay
+        autoPlay={reducedMotion !== true}
         className="marketing-hero__video"
         loop
         muted

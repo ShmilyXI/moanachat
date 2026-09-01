@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("marketing homepage", () => {
   test("renders the Venice-inspired static homepage", async ({ page }) => {
     await page.goto("/");
+    const hero = page.locator(".marketing-hero");
     await expect(
       page.getByRole("heading", { name: "Ask anything" })
     ).toBeVisible();
@@ -10,7 +11,7 @@ test.describe("marketing homepage", () => {
       page.locator("header").getByRole("link", { name: "Sign up" })
     ).toHaveAttribute("href", "/sign-up");
     await expect(
-      page.getByPlaceholder("Ask anything privately...")
+      hero.getByPlaceholder("Ask anything privately...")
     ).toBeVisible();
   });
 
@@ -18,8 +19,9 @@ test.describe("marketing homepage", () => {
     page,
   }) => {
     await page.goto("/");
-    const input = page.getByPlaceholder("Ask anything privately...");
-    const send = page.getByRole("button", { name: "Send message" });
+    const hero = page.locator(".marketing-hero");
+    const input = hero.getByPlaceholder("Ask anything privately...");
+    const send = hero.getByRole("button", { name: "Send message" });
 
     await expect(send).toBeDisabled();
     await input.fill("Help me plan a quiet weekend");
@@ -119,5 +121,29 @@ test.describe("marketing homepage", () => {
     ).toBeVisible();
     await preset.press("Enter");
     await expect(page).toHaveURL(/\/chat\/agent/);
+  });
+
+  test("opens and closes the Venice-style mobile menu", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 812 });
+    await page.goto("/");
+
+    const menuButton = page.getByRole("button", { name: "Open menu" });
+    await expect(menuButton).toBeVisible();
+    await menuButton.click();
+    await expect(
+      page.getByRole("button", { name: "Close menu" })
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(page.locator("[data-mobile-menu]")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-mobile-menu]")).toHaveCount(0);
+  });
+
+  test("renders the closing composer and expanded footer", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".marketing-closing-cta__composer")).toBeVisible();
+    await expect(
+      page.locator(".marketing-footer__group").filter({ hasText: "Developers" })
+    ).toBeVisible();
   });
 });

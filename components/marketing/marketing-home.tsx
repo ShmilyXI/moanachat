@@ -3,6 +3,7 @@
 import Lenis from "lenis";
 import { useEffect, useRef } from "react";
 import { CapabilitiesSection } from "./capabilities-section";
+import { Composer } from "./composer";
 import { DeveloperSection } from "./developer-section";
 import { HeroSection } from "./hero-section";
 import { MarketingFooter } from "./marketing-footer";
@@ -44,19 +45,26 @@ export function MarketingHome() {
       <DeveloperSection />
       <PrivacySection />
       <section className="marketing-closing-cta">
-        <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-paper-3)]">
-          Moana AI
-        </p>
-        <h2 className="font-serif text-3xl leading-tight tablet:text-5xl">
-          Create freely. Stay private.
-        </h2>
-        <p className="mx-auto mt-5 max-w-xl text-base text-[var(--color-paper)]/65">
-          A calm, private space for your ideas, conversations, and creative
-          work.
-        </p>
-        <a className="marketing-closing-cta__link" href="/chat">
-          Start chatting
-        </a>
+        <div className="marketing-closing-cta__inner">
+          <h2>
+            Create freely. <span>Stay private.</span>
+          </h2>
+          <p>
+            A calm, private space for your ideas, conversations, and creative
+            work.
+          </p>
+          <div className="marketing-closing-cta__composer">
+            <Composer showPresets={false} />
+          </div>
+          <div className="marketing-closing-cta__actions">
+            <a className="marketing-closing-cta__link" href="/sign-up">
+              Sign up for free
+            </a>
+            <a className="marketing-closing-cta__secondary-link" href="#pricing">
+              View pricing
+            </a>
+          </div>
+        </div>
       </section>
       <MarketingFooter />
     </main>

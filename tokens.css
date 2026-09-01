@@ -14,20 +14,20 @@
   --color-auth-error: oklch(76% 0.14 25);
   --color-accent: oklch(48% 0.14 250);
   --color-accent-hover: oklch(42% 0.14 250);
-  --color-accent-ink: oklch(100% 0 0);
+  --color-accent-ink: oklch(98% 0.01 92);
   --color-focus: oklch(62% 0.14 225);
-  --color-auth-paper: oklch(96% 0.012 92);
-  --color-auth-panel: oklch(99.5% 0.004 92);
-  --color-auth-panel-2: oklch(96% 0.006 92);
-  --color-auth-ink: oklch(18% 0.025 250);
-  --color-auth-muted: oklch(43% 0.025 250);
-  --color-auth-rule: oklch(22% 0.025 250 / 0.12);
+  --color-auth-paper: oklch(15% 0.014 250);
+  --color-auth-panel: oklch(19% 0.012 250 / 0.96);
+  --color-auth-panel-2: oklch(22% 0.012 250);
+  --color-auth-ink: oklch(95% 0.012 92);
+  --color-auth-muted: oklch(70% 0.018 250);
+  --color-auth-rule: oklch(98% 0.01 92 / 0.12);
   --color-auth-accent: oklch(54% 0.14 250);
   --color-auth-accent-hover: oklch(48% 0.14 250);
   --auth-panel-padding: clamp(1.5rem, 5vw, 2rem);
   --shadow-auth-panel:
-    0 0.125rem 0.25rem oklch(22% 0.025 250 / 0.08),
-    0 1.5rem 3rem oklch(22% 0.025 250 / 0.08);
+    0 0.125rem 0.25rem oklch(4% 0.012 250 / 0.28),
+    0 1.5rem 3rem oklch(4% 0.012 250 / 0.32);
   --shadow-composer-marketing: 0 1.5rem 5rem oklch(27% 0.065 250 / 0.16);
   --shadow-media: 0 2.125rem 7.5rem oklch(27% 0.065 250 / 0.16);
   --shadow-card-soft: 0 1.125rem 4.0625rem oklch(27% 0.065 250 / 0.08);

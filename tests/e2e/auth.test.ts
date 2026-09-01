@@ -4,7 +4,7 @@ test.describe("Authentication Pages", () => {
   test("login page renders correctly", async ({ page }) => {
     await page.goto("/login");
     await expect(
-      page.getByRole("heading", { name: "Sign in to your Moana account" })
+      page.getByRole("heading", { name: "Sign in to Moana" })
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
@@ -22,10 +22,11 @@ test.describe("Authentication Pages", () => {
 
     await expect(page.locator("[data-auth-shell]")).toHaveAttribute(
       "data-theme",
-      "venice-light"
+      "venice-dark"
     );
     await expect(page.locator("[data-auth-panel]")).toBeVisible();
     await expect(page.locator("[data-auth-mark]")).toBeVisible();
+    await expect(page.locator(".auth-socials__button")).toHaveCount(5);
 
     const password = page.getByLabel("Password");
     await expect(password).toHaveAttribute("type", "password");
@@ -38,7 +39,7 @@ test.describe("Authentication Pages", () => {
   test("register page renders correctly", async ({ page }) => {
     await page.goto("/register");
     await expect(
-      page.getByRole("heading", { name: "Create your Moana account" })
+      page.getByRole("heading", { name: "Create a Moana account" })
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();

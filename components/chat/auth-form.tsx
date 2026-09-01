@@ -1,12 +1,52 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Apple,
+  Chrome,
+  CircleDollarSign,
+  Eye,
+  EyeOff,
+  MessageCircle,
+  WalletCards,
+} from "lucide-react";
 import Form from "next/form";
 import { useCallback, useState } from "react";
 
 import { useLocale } from "@/components/locale-provider";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+
+const socialProviders = [
+  { icon: Apple, label: "Continue with Apple" },
+  { icon: CircleDollarSign, label: "Continue with Coinbase" },
+  { icon: MessageCircle, label: "Continue with Discord" },
+  { icon: Chrome, label: "Continue with Google" },
+  { icon: WalletCards, label: "Continue with WalletConnect" },
+];
+
+function AuthSocialProviders() {
+  return (
+    <>
+      <div aria-label="Other sign-in options" className="auth-socials" role="group">
+        {socialProviders.map(({ icon: Icon, label }) => (
+          <button
+            aria-label={label}
+            className="auth-socials__button"
+            disabled
+            key={label}
+            title="第三方登录暂未开放"
+            type="button"
+          >
+            <Icon aria-hidden />
+          </button>
+        ))}
+      </div>
+      <div className="auth-divider" aria-hidden="true">
+        <span>or</span>
+      </div>
+    </>
+  );
+}
 
 export function AuthForm({
   action,
@@ -33,6 +73,7 @@ export function AuthForm({
 
   return (
     <Form action={action} className="flex flex-col gap-4" onSubmit={onSubmit}>
+      <AuthSocialProviders />
       <div className="flex flex-col gap-2">
         <Label className="font-normal text-muted-foreground" htmlFor="email">
           {t("chat.auth.email")}

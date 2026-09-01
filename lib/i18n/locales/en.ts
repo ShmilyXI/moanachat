@@ -134,7 +134,7 @@ export const en = {
   "chat.auth.loading": "Loading",
   "chat.auth.login": "Login to your account",
   "chat.auth.loginDescription": "Welcome back! Please sign in to continue",
-  "chat.auth.loginTitle": "Sign in to your Moana account",
+  "chat.auth.loginTitle": "Sign in to Moana",
   "chat.auth.noAccount": "No account?",
   "chat.auth.password": "Password",
   "chat.auth.passwordPlaceholder": "Enter your password",
@@ -142,7 +142,7 @@ export const en = {
   "chat.auth.privateByDefault": "Private by default",
   "chat.auth.registerDescription":
     "Welcome! Please fill in the details to get started",
-  "chat.auth.registerTitle": "Create your Moana account",
+  "chat.auth.registerTitle": "Create a Moana account",
   "chat.auth.signIn": "Sign in",
   "chat.auth.signOut": "Sign out",
   "chat.auth.signUp": "Sign up",

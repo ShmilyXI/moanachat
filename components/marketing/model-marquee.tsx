@@ -9,8 +9,11 @@ const textModels = [
   ["nvidia", "NVIDIA"],
   ["claude", "Claude"],
   ["google", "Google"],
+  ["deepseek", "DeepSeek"],
 ];
 const mediaModels = [
+  ["gemma", "Gemma"],
+  ["kling", "Kling"],
   ["arcee-ai", "Arcee"],
   ["pixversevideo", "PixVerse"],
   ["vidu", "Vidu"],
@@ -19,7 +22,7 @@ const mediaModels = [
   ["bytedance", "Bytedance"],
   ["minimax", "MiniMax"],
   ["inception", "Inception"],
-  ["kling", "Kling"],
+  ["glm", "GLM"],
 ];
 
 function ModelRow({
@@ -32,7 +35,7 @@ function ModelRow({
   const doubled = [...items, ...items];
   return (
     <div
-      className={`flex w-max items-center gap-10 ${reverse ? "animate-[marquee-reverse_42s_linear_infinite]" : "animate-[marquee_38s_linear_infinite]"}`}
+      className={`marketing-model-row flex w-max items-center gap-10 ${reverse ? "animate-[marquee-reverse_42s_linear_infinite]" : "animate-[marquee_38s_linear_infinite]"}`}
     >
       {doubled.map(([slug, name], index) => (
         <div
@@ -58,7 +61,7 @@ function ModelRow({
 export function ModelMarquee() {
   return (
     <section
-      className="relative overflow-hidden bg-[var(--color-paper)] px-6 py-24 text-[var(--color-ink)] tablet:px-10 tablet:py-24"
+      className="relative overflow-hidden bg-[var(--color-paper)] px-6 pb-[104px] pt-24 text-[var(--color-ink)] tablet:px-10 tablet:py-32"
       id="models"
     >
       <div className="mx-auto max-w-5xl text-center">
@@ -73,7 +76,7 @@ export function ModelMarquee() {
           private or anonymized models from leading AI providers.
         </p>
       </div>
-      <div className="relative mt-12 space-y-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="marketing-model-marquee relative mt-12 space-y-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <ModelRow items={textModels} />
         <ModelRow items={mediaModels} reverse />
       </div>

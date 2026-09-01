@@ -64,26 +64,28 @@ export function PricingSection() {
         <h2 className="mt-5 font-serif text-2xl tablet:text-4xl">
           Simple pricing. No surprises.
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-6 text-[var(--color-ink)]/70 tablet:text-lg">
           Start free, upgrade when you're ready. Every tier includes uncensored
           models and full privacy. Save 10% on annual subscriptions.
         </p>
         <a
-          className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)]"
+          className="mt-[22px] inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)]"
           href="/chat"
         >
           Try free today <ArrowRight className="size-4" />
         </a>
-        <div className="mx-auto mt-10 inline-flex rounded-full border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/65 p-1 shadow-sm">
+        <div className="marketing-pricing-toggle mx-auto mt-[42px] inline-flex rounded-full border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/65 shadow-sm">
           <button
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${yearly ? "text-[var(--color-ink)]/60" : "bg-[var(--color-accent-ink)] shadow"}`}
+            aria-pressed={!yearly}
+            className={`rounded-full text-sm font-medium transition-[background-color,color,box-shadow] ${yearly ? "text-[var(--color-ink)]/60" : "bg-[var(--color-accent-ink)] shadow"}`}
             onClick={() => setYearly(false)}
             type="button"
           >
             Monthly
           </button>
           <button
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${yearly ? "bg-[var(--color-accent-ink)] shadow" : "text-[var(--color-ink)]/60"}`}
+            aria-pressed={yearly}
+            className={`rounded-full text-sm font-medium transition-[background-color,color,box-shadow] ${yearly ? "bg-[var(--color-accent-ink)] shadow" : "text-[var(--color-ink)]/60"}`}
             onClick={() => setYearly(true)}
             type="button"
           >
@@ -91,10 +93,10 @@ export function PricingSection() {
             <span className="ml-1 text-[var(--color-accent)]">Save 10%</span>
           </button>
         </div>
-        <div className="mt-10 grid gap-5 text-left desktop:grid-cols-3">
+        <div className="mt-10 grid gap-[18px] text-left desktop:grid-cols-3">
           {plans.map((plan) => (
             <article
-              className="relative flex min-h-[470px] flex-col rounded-[var(--radius-card)] border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/75 p-6 shadow-[var(--shadow-card-soft)] tablet:p-7"
+              className="marketing-pricing-card relative flex flex-col rounded-[var(--radius-card)] border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/75 p-6 shadow-[var(--shadow-card-soft)] tablet:p-7"
               key={plan.name}
             >
               {plan.popular ? (
@@ -102,7 +104,7 @@ export function PricingSection() {
                   Most popular
                 </span>
               ) : null}
-              <h3 className="font-serif text-xl">{plan.name}</h3>
+              <h3 className="font-serif text-base leading-5">{plan.name}</h3>
               <div className="mt-5 flex items-baseline gap-2">
                 <span className="text-5xl font-semibold tracking-tight">
                   ${yearly ? plan.yearly : plan.monthly}
@@ -113,12 +115,12 @@ export function PricingSection() {
                 {plan.body}
               </p>
               <a
-                className="mt-7 flex items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-hover)]"
+                className="mt-[22px] flex items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--color-accent-ink)] transition-[background-color,transform] hover:bg-[var(--color-accent-hover)]"
                 href="/sign-up"
               >
                 Get {plan.name}
               </a>
-              <div className="mt-6 space-y-3 border-t border-[var(--color-ink)]/10 pt-6">
+              <div className="mt-[22px] space-y-2.5">
                 {plan.features.map((feature) => (
                   <p
                     className="flex items-start gap-3 text-sm text-[var(--color-ink)]/80"

@@ -1,17 +1,59 @@
+import { MoanaMark } from "./moana-mark";
+
+const footerGroups = [
+  {
+    links: [
+      { href: "#models", label: "About" },
+      { href: "#capabilities", label: "Features" },
+      { href: "#pricing", label: "Pricing" },
+      { href: "#developers", label: "Blog" },
+    ],
+    title: "Product",
+  },
+  {
+    links: [
+      { href: "#developers", label: "API Docs" },
+      { href: "#developers", label: "Guides" },
+      { href: "#developers", label: "API Reference" },
+      { href: "#developers", label: "Status" },
+    ],
+    title: "Developers",
+  },
+  {
+    links: [
+      { href: "#privacy", label: "Privacy Policy" },
+      { href: "#privacy", label: "Terms of Service" },
+      { href: "#developers", label: "Contact" },
+    ],
+    title: "Legal",
+  },
+];
+
 export function MarketingFooter() {
   return (
-    <footer className="bg-[var(--color-paper)] px-6 py-10 text-[var(--color-ink)]/65 tablet:px-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 border-t border-[var(--color-ink)]/10 pt-8 text-sm tablet:flex-row tablet:items-center tablet:justify-between">
-        <a className="font-serif text-2xl text-[var(--color-ink)]" href="/">
-          Moana
+    <footer className="marketing-footer">
+      <div className="marketing-footer__inner">
+        <a aria-label="Moana" className="marketing-footer__mark" href="/">
+          <MoanaMark />
         </a>
-        <div className="flex flex-wrap gap-x-5 gap-y-2">
-          <a href="/chat">Chat</a>
-          <a href="/sign-up">Sign up</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#developers">API</a>
+        <p className="marketing-footer__tagline">Private, unrestricted AI for everyone.</p>
+        <div className="marketing-footer__groups">
+          {footerGroups.map((group) => (
+            <div className="marketing-footer__group" key={group.title}>
+              <h2>{group.title}</h2>
+              <div>
+                {group.links.map((link) => (
+                  <a href={link.href} key={link.label}>
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-        <span>© 2026 Moana AI</span>
+        <div className="marketing-footer__bottom">
+          <span>© 2026 Moana AI. All rights reserved.</span>
+        </div>
       </div>
     </footer>
   );
