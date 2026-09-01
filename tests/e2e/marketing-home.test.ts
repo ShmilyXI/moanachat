@@ -51,4 +51,56 @@ test.describe("marketing homepage", () => {
       )
     ).toBeVisible();
   });
+
+  test("morphs into a compact Venice-style navigation after scrolling", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const marketingHome = page.locator(".marketing-home");
+
+    await marketingHome.evaluate((element) => {
+      element.scrollTo({ top: window.innerHeight, behavior: "instant" });
+    });
+
+    const navigation = page.locator("[data-marketing-nav]");
+    await expect(navigation).toHaveAttribute("data-state", "scrolled");
+    await expect(navigation.locator("[data-mini-composer]")).toBeVisible();
+    await expect(navigation.locator("nav")).toBeVisible();
+  });
+
+  test("keeps the marketing page within the viewport at supported phone widths", async ({
+    page,
+  }) => {
+    for (const width of [320, 375, 414, 768]) {
+      await page.setViewportSize({ width, height: 812 });
+      await page.goto("/");
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              document.documentElement.scrollWidth ===
+              document.documentElement.clientWidth
+          )
+        )
+        .toBe(true);
+    }
+  });
+
+  test("supports keyboard preview and activation for prompt presets", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    const preset = page.locator("[data-prompt-preset]").first();
+
+    await preset.focus();
+    await expect(
+      page.getByText(
+        "I need help writing something. If you need more details about the tone, audience, or format, ask me a couple quick questions first."
+      )
+    ).toBeVisible();
+    await preset.press("Enter");
+    await expect(page).toHaveURL(/\/chat\/agent/);
+  });
 });

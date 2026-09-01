@@ -46,7 +46,7 @@ const prompts = [
   },
 ];
 
-function saveDemoPrompt(prompt: string) {
+export function saveDemoPrompt(prompt: string) {
   window.localStorage.setItem(
     "moanaDemoPrompt",
     JSON.stringify({ value: prompt })
@@ -68,22 +68,22 @@ export function Composer() {
   return (
     <div className="w-full">
       <form
-        className="mx-auto w-full max-w-[820px] overflow-hidden rounded-[32px] border border-[#0e2942]/15 bg-white/80 p-2 shadow-[0_24px_80px_rgba(14,41,66,0.16)] backdrop-blur-md"
+        className="marketing-composer"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
         }}
       >
-        <div className="flex items-center gap-1">
+        <div className="marketing-composer__row">
           <button
             aria-label="Attach file or image"
-            className="flex size-10 shrink-0 cursor-not-allowed items-center justify-center rounded-full text-[#0e2942]/40"
+            className="marketing-composer__icon"
             disabled
             type="button"
           >
             <Paperclip className="size-[18px]" />
           </button>
-          <div className="relative flex min-h-10 flex-1 items-center">
+          <div className="marketing-composer__field">
             {preview && !value ? (
               <span className="pointer-events-none absolute inset-0 flex items-center truncate text-base text-[#0e2942]/55">
                 {preview}
@@ -91,7 +91,7 @@ export function Composer() {
             ) : null}
             <textarea
               aria-label="Chat message input"
-              className={`min-h-10 w-full resize-none bg-transparent px-0 py-2.5 text-base leading-5 text-[#0e2942] outline-none placeholder:text-[#0e2942]/40 ${preview && !value ? "opacity-0" : ""}`}
+              className={`marketing-composer__input ${preview && !value ? "marketing-composer__input--hidden" : ""}`}
               onChange={(event) => {
                 setValue(event.target.value);
                 if (event.target.value.trim()) {
@@ -112,7 +112,7 @@ export function Composer() {
           </div>
           <button
             aria-label="Send message"
-            className={`flex size-10 shrink-0 items-center justify-center rounded-full transition-colors disabled:cursor-not-allowed ${value.trim() ? "bg-[#0e2942]/60 text-white" : "bg-[#0e2942]/5 text-[#0e2942]/45"}`}
+            className="marketing-composer__send"
             disabled={!value.trim()}
             type="submit"
           >
@@ -120,13 +120,15 @@ export function Composer() {
           </button>
         </div>
       </form>
-      <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
+      <div className="marketing-composer__presets no-scrollbar">
         {prompts.map(({ icon: Icon, label, prompt }) => (
           <button
             aria-label={label}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-[#0e2942]/10 bg-white/40 px-3 py-1.5 text-sm font-medium leading-none text-[#0e2942]/80 backdrop-blur transition hover:bg-white/70"
+            className="marketing-composer__preset"
+            data-prompt-preset
             key={label}
             onClick={() => saveDemoPrompt(prompt)}
+            onFocus={() => setPreview(prompt)}
             onMouseEnter={() => setPreview(prompt)}
             onMouseLeave={() => setPreview(undefined)}
             type="button"

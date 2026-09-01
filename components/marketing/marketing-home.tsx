@@ -33,13 +33,13 @@ export function MarketingHome() {
 
   return (
     <main
-      className="marketing-home fixed inset-0 z-[100] min-h-screen overflow-x-clip overflow-y-auto bg-[#eeede4] text-[#0e2942] md:left-[-16rem] md:right-auto md:w-screen"
+      className="marketing-home fixed inset-0 z-[100] min-h-dvh overflow-x-clip overflow-y-auto bg-[var(--color-paper)] text-[var(--color-ink)]"
       ref={scrollRef}
     >
       <HeroSection />
       <ModelMarquee />
       <div
-        className="h-[54px] w-full border-y border-[#bea989]/25 bg-[#eeede4]"
+        className="marketing-divider"
         style={{
           backgroundImage: "url(https://venice.ai/images/divider.svg)",
           backgroundPosition: "center",
@@ -51,7 +51,7 @@ export function MarketingHome() {
       <PricingSection />
       <DeveloperSection />
       <PrivacySection />
-      <section className="bg-[#0e2942] px-6 py-28 text-center text-[#eeede4] tablet:py-36">
+      <section className="marketing-closing-cta">
         <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-[#9bbbd1]">
           Moana AI
         </p>
@@ -62,10 +62,7 @@ export function MarketingHome() {
           A calm, private space for your ideas, conversations, and creative
           work.
         </p>
-        <a
-          className="mt-8 inline-flex rounded-full bg-[#eeede4] px-6 py-3 text-sm font-medium text-[#0e2942] transition hover:bg-white"
-          href="/chat"
-        >
+        <a className="marketing-closing-cta__link" href="/chat">
           Start chatting
         </a>
       </section>

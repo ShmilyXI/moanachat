@@ -12,6 +12,29 @@ test.describe("Authentication Pages", () => {
     await expect(page.getByRole("link", { name: "Sign up" })).toBeVisible();
   });
 
+  test("uses the dark portal shell and supports password visibility", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem("moanachat-locale", "en");
+    });
+    await page.goto("/login");
+
+    await expect(page.locator("[data-auth-shell]")).toHaveAttribute(
+      "data-theme",
+      "venice-dark"
+    );
+    await expect(page.locator("[data-auth-panel]")).toBeVisible();
+    await expect(page.locator("[data-auth-concentric-lines]")).toBeVisible();
+
+    const password = page.getByLabel("Password");
+    await expect(password).toHaveAttribute("type", "password");
+    await page.getByRole("button", { name: "Show password" }).click();
+    await expect(password).toHaveAttribute("type", "text");
+    await page.getByRole("button", { name: "Hide password" }).click();
+    await expect(password).toHaveAttribute("type", "password");
+  });
+
   test("register page renders correctly", async ({ page }) => {
     await page.goto("/register");
     await expect(

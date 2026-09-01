@@ -1,6 +1,8 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import Form from "next/form";
+import { useCallback, useState } from "react";
 
 import { useLocale } from "@/components/locale-provider";
 import { Input } from "../ui/input";
@@ -20,6 +22,14 @@ export function AuthForm({
   onSubmit?: React.FormEventHandler<HTMLFormElement>;
 }) {
   const { t } = useLocale();
+  const [showPassword, setShowPassword] = useState(false);
+  const passwordToggleLabel = showPassword
+    ? t("chat.auth.hidePassword")
+    : t("chat.auth.showPassword");
+  const togglePassword = useCallback(
+    () => setShowPassword((visible) => !visible),
+    []
+  );
 
   return (
     <Form action={action} className="flex flex-col gap-4" onSubmit={onSubmit}>
@@ -30,7 +40,7 @@ export function AuthForm({
         <Input
           autoComplete="email"
           autoFocus
-          className="h-10 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"
+          className="auth-form__input"
           defaultValue={defaultEmail}
           id="email"
           name="email"
@@ -44,14 +54,26 @@ export function AuthForm({
         <Label className="font-normal text-muted-foreground" htmlFor="password">
           {t("chat.auth.password")}
         </Label>
-        <Input
-          className="h-10 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"
-          id="password"
-          name="password"
-          placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-          required
-          type="password"
-        />
+        <div className="auth-form__password">
+          <Input
+            className="auth-form__input auth-form__input--password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            type={showPassword ? "text" : "password"}
+          />
+          <button
+            aria-pressed={showPassword}
+            className="auth-form__password-toggle"
+            onClick={togglePassword}
+            title={passwordToggleLabel}
+            type="button"
+          >
+            {showPassword ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+            <span className="sr-only">{passwordToggleLabel}</span>
+          </button>
+        </div>
       </div>
 
       {children}
