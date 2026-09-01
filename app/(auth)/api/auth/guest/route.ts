@@ -21,5 +21,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`${base}/`, request.url));
   }
 
-  return signIn("guest", { redirect: true, redirectTo: redirectUrl });
+  await signIn("guest", { redirect: false, redirectTo: redirectUrl });
+
+  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  return NextResponse.redirect(new URL(`${base}${redirectUrl}`, request.url));
 }
