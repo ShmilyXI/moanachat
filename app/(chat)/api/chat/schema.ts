@@ -32,9 +32,7 @@ const toolApprovalMessageSchema = z.object({
 const chatModeSchema = z.enum(["normal", "temporary"]).default("normal");
 const chatSettingsSchema = z
   .object({
-    contextUsage: z.boolean().optional(),
     disableSystemPrompt: z.boolean().optional(),
-    largeContext: z.boolean().optional(),
     reasoning: z.boolean().optional(),
     temperature: z.number().min(0).max(1.5).optional(),
     topP: z.number().min(0).max(1).optional(),

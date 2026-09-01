@@ -30,6 +30,7 @@ export default function AgentChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedModelId, setSelectedModelId] = useState(DEFAULT_CHAT_MODEL);
   const chatIdRef = useRef(generateUUID());
+  const demoPromptSentRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: modelsData } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
@@ -93,6 +94,35 @@ export default function AgentChatPage() {
       },
     }),
   });
+
+  useEffect(() => {
+    if (demoPromptSentRef.current || modelSelectionUnavailable) {
+      return;
+    }
+
+    const stored = window.localStorage.getItem("moanaDemoPrompt");
+    if (!stored) {
+      return;
+    }
+
+    let value = "";
+    try {
+      value = JSON.parse(stored)?.value?.trim() ?? "";
+    } catch {
+      value = "";
+    }
+    window.localStorage.removeItem("moanaDemoPrompt");
+    if (!value) {
+      return;
+    }
+
+    demoPromptSentRef.current = true;
+    setError(null);
+    sendMessage({
+      parts: [{ text: value, type: "text" }],
+      role: "user",
+    }).catch(() => undefined);
+  }, [modelSelectionUnavailable, sendMessage]);
 
   const messageCount = messages.length;
 

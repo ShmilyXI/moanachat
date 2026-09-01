@@ -124,6 +124,7 @@ export async function POST(request: Request) {
           messages: modelMessages,
           model: await getLanguageModel(selectedModel, chatSettings),
           providerOptions: getChatModelProviderOptions(selectedModel),
+          reasoning: chatSettings.reasoning ? "provider-default" : "none",
           stopWhen: isStepCount(8),
           temperature:
             runtimeConfig.mode === "embedded"

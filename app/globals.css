@@ -9,6 +9,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme inline {
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -44,6 +46,27 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@font-face {
+  font-family: "Canela";
+  src: url("https://cdn.venice.ai/_next/static/immutable/media/Canela_Regular_Trial-s.p.0r3ab121bzra_.otf")
+    format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Aeonik";
+  src: url("https://cdn.venice.ai/_next/static/immutable/media/regular-s.p.2h63rgy9p_gs6.otf")
+    format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Aeonik Fono";
+  src: url("https://cdn.venice.ai/_next/static/immutable/media/aeonikfono_regular-s.p.0w511h46lrqak.otf")
+    format("opentype");
+  font-display: swap;
 }
 
 :root {
@@ -151,6 +174,53 @@
     text-rendering: optimizeLegibility;
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marketing-home ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+.marketing-home,
+.marketing-home * {
+  font-family: "Aeonik", ui-sans-serif, system-ui, sans-serif;
+}
+
+.marketing-home .font-serif,
+.marketing-home h1,
+.marketing-home h2,
+.marketing-home h3 {
+  font-family: "Canela", Georgia, serif;
+  letter-spacing: 0;
+}
+
+.marketing-home .font-mono,
+.marketing-home code,
+.marketing-home pre {
+  font-family: "Aeonik Fono", ui-monospace, monospace;
+}
+
+body:has(.marketing-home) [data-sidebar="sidebar"],
+body:has(.marketing-home) [data-sidebar="rail"] {
+  display: none !important;
 }
 
 @layer base {

@@ -9,7 +9,6 @@ import {
   MicIcon,
   MicOffIcon,
   SlidersHorizontalIcon,
-  WrenchIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -50,7 +49,6 @@ import {
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ChatSettingsDialog } from "./chat-settings-dialog";
-import { ChatToolsDialog } from "./chat-tools-dialog";
 import { PaperclipIcon, StopIcon } from "./icons";
 import { ModelSelectorCompact } from "./model-selector-compact";
 import { PreviewAttachment } from "./preview-attachment";
@@ -141,7 +139,6 @@ function PureMultimodalInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadQueue, setUploadQueue] = useState<string[]>([]);
   const [slashOpen, setSlashOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [slashQuery, setSlashQuery] = useState("");
   const [slashIndex, setSlashIndex] = useState(0);
@@ -609,23 +606,6 @@ function PureMultimodalInput({
         />
         <PromptInputFooter className="px-3 pb-3">
           <PromptInputTools>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  aria-label={t("chat.header.tools")}
-                  className="h-7 w-7 rounded-lg border border-border/40 p-1 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
-                  onClick={() => setToolsOpen(true)}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                >
-                  <WrenchIcon className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                {t("chat.header.tools")}
-              </TooltipContent>
-            </Tooltip>
             <AttachmentsButton fileInputRef={fileInputRef} status={status} />
             <ModelSelectorCompact
               onModelChange={onModelChange}
@@ -706,11 +686,6 @@ function PureMultimodalInput({
         </PromptInputFooter>
       </PromptInput>
 
-      <ChatToolsDialog
-        onAddMedia={() => fileInputRef.current?.click()}
-        onOpenChange={setToolsOpen}
-        open={toolsOpen}
-      />
       <ChatSettingsDialog
         onOpenChange={setSettingsOpen}
         onSettingsChange={onSettingsChange}

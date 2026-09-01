@@ -75,6 +75,33 @@ test.describe("Chat Page", () => {
     await expect(suggestions).toBeVisible();
   });
 
+  test("does not show the unused composer tools control", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("button", { exact: true, name: "Tools" })
+    ).toHaveCount(0);
+    await expect(page.getByText("操作", { exact: true })).toHaveCount(0);
+  });
+
+  test("shows only settings that are wired to chat requests", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.getByRole("button", { exact: true, name: "Settings" }).click();
+
+    await expect(page.getByTestId("setting-reasoning")).toBeEnabled();
+    await expect(
+      page.getByText("Large context chat", { exact: true })
+    ).toHaveCount(0);
+    await expect(page.getByText("Context usage", { exact: true })).toHaveCount(
+      0
+    );
+    await expect(
+      page.getByRole("button", { exact: true, name: "Reset" })
+    ).toHaveCount(0);
+  });
+
   test("can stop generation with stop button", async ({ page }) => {
     await page.goto("/");
 

@@ -1,7 +1,6 @@
 // biome-ignore-all lint/performance/noJsxPropsBind: setting callbacks are local to this dialog
 "use client";
 
-import { RotateCcwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
@@ -89,15 +88,6 @@ export function ChatSettingsDialog({
       <DialogContent className="max-w-lg rounded-2xl p-0">
         <DialogHeader className="flex-row items-center justify-between border-b border-border/50 px-5 py-4">
           <DialogTitle>{t("chat.settings.title")}</DialogTitle>
-          <Button
-            aria-label={t("chat.settings.reset")}
-            className="size-8 rounded-lg text-muted-foreground"
-            onClick={() => setDraft(settings)}
-            size="icon"
-            variant="ghost"
-          >
-            <RotateCcwIcon className="size-3.5" />
-          </Button>
         </DialogHeader>
         <div className="max-h-[70vh] overflow-y-auto px-3 py-3">
           <SettingToggle
@@ -117,19 +107,10 @@ export function ChatSettingsDialog({
           <SettingToggle
             checked={draft.reasoning}
             description={t("chat.settings.reasoningDescription")}
-            disabled
             label={t("chat.settings.reasoning")}
             onChange={(checked) => update("reasoning", checked)}
             testId="setting-reasoning"
           />
-          <SettingToggle
-            checked={draft.largeContext}
-            description={t("chat.settings.contextDescription")}
-            label={t("chat.settings.context")}
-            onChange={(checked) => update("largeContext", checked)}
-            testId="setting-large-context"
-          />
-
           <div className="mt-3 border-t border-border/50 pt-3">
             <p className="px-2 pb-1 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
               {t("chat.settings.advanced")}
@@ -139,12 +120,6 @@ export function ChatSettingsDialog({
               label={t("chat.settings.disableSystemPrompt")}
               onChange={(checked) => update("disableSystemPrompt", checked)}
               testId="setting-disable-system-prompt"
-            />
-            <SettingToggle
-              checked={draft.contextUsage}
-              label={t("chat.settings.contextUsage")}
-              onChange={(checked) => update("contextUsage", checked)}
-              testId="setting-context-usage"
             />
             <div className="grid grid-cols-2 gap-3 px-2 py-3">
               <label className="flex flex-col gap-2 text-sm">

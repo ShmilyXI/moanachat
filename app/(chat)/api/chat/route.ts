@@ -365,6 +365,7 @@ export async function POST(request: Request) {
             stopWaitingStatus();
           },
           providerOptions: getChatModelProviderOptions(chatModel),
+          reasoning: chatSettings.reasoning ? "provider-default" : "none",
           stopWhen: isStepCount(5),
           telemetry: {
             functionId: "stream-text",

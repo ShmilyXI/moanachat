@@ -254,13 +254,10 @@ export const en = {
   "chat.rename.unavailable": "Rename is available from the sidebar chat menu.",
   "chat.scrollToBottom": "Scroll to bottom",
   "chat.settings.advanced": "Advanced settings",
-  "chat.settings.context": "Large context chat",
-  "chat.settings.contextDescription":
-    "Use all available context and compact long chats.",
-  "chat.settings.contextUsage": "Context usage",
   "chat.settings.disableSystemPrompt": "Disable Moana system prompt",
   "chat.settings.reasoning": "Reasoning",
-  "chat.settings.reasoningDescription": "This model cannot disable reasoning.",
+  "chat.settings.reasoningDescription":
+    "Allow the model to include its reasoning output when supported.",
   "chat.settings.reset": "Reset",
   "chat.settings.systemPrompt": "System prompt",
   "chat.settings.temperature": "Temperature",
