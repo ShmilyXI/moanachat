@@ -58,6 +58,14 @@ test.describe("Authentication Pages", () => {
     await expect(page).toHaveURL("/login");
   });
 
+  test("can enter Moana without an account", async ({ page }) => {
+    await page.goto("/login");
+    await page
+      .locator("a[href=\"/api/auth/guest?redirectUrl=%2F\"]")
+      .evaluate((element) => (element as HTMLAnchorElement).click());
+    await expect(page).toHaveURL("/");
+  });
+
   test("shows a visible error after invalid login", async ({ page }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem("moanachat-locale", "en");

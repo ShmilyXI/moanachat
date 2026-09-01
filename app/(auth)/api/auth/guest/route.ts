@@ -16,14 +16,15 @@ export async function GET(request: Request) {
     secureCookie: new URL(request.url).protocol === "https:",
   });
 
+  const origin = process.env.AUTH_URL ?? request.url;
+
   if (token) {
     const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-    return NextResponse.redirect(new URL(`${base}/`, request.url));
+    return NextResponse.redirect(new URL(`${base}/`, origin));
   }
 
   await signIn("guest", { redirect: false, redirectTo: redirectUrl });
 
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-  const origin = process.env.AUTH_URL ?? request.url;
   return NextResponse.redirect(new URL(`${base}${redirectUrl}`, origin));
 }
