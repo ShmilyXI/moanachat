@@ -76,9 +76,9 @@ export default function Page() {
             <Link href="/login">{t("chat.auth.signIn")}</Link>
           </p>
           <p className="auth-form__guest">
-            <Link href="/api/auth/guest?redirectUrl=%2F">
+            <a href="/api/auth/guest?redirectUrl=%2F">
               {t("chat.auth.tryWithoutAccount")}
-            </Link>
+            </a>
           </p>
         </div>
       </AuthForm>
