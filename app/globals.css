@@ -1,4 +1,4 @@
-/* Hallmark · genre: atmospheric · macrostructure: Marquee Hero + Feature Stack · design-system: design.md */
+/* Hallmark · macrostructure: Marquee Hero · tone: atmospheric · anchor hue: deep sea blue */
 @import "tailwindcss";
 @import "../tokens.css";
 @import "katex/dist/katex.min.css";
@@ -244,7 +244,7 @@
   width: fit-content;
   min-height: 2.75rem;
   padding-inline: 0.25rem;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   color: var(--color-auth-muted);
   transition: color var(--dur-short) var(--ease-out);
 }
@@ -283,7 +283,7 @@
 .auth-panel__wordmark {
   font-family: var(--font-display);
   font-size: 1.75rem;
-  font-style: italic;
+  font-style: normal;
   color: var(--color-auth-ink);
   letter-spacing: -0.05em;
 }
@@ -321,13 +321,13 @@
 }
 
 .auth-panel__body label {
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   color: var(--color-auth-muted);
 }
 
 .auth-form__input {
   height: var(--control-height-lg) !important;
-  font-size: var(--text-sm) !important;
+  font-size: var(--moana-text-sm) !important;
   color: var(--color-auth-ink) !important;
   background: var(--color-auth-panel-2) !important;
   border: 1px solid var(--color-auth-rule) !important;
@@ -407,12 +407,12 @@
 
 .auth-panel__body form > p {
   margin: 0;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   color: var(--color-auth-muted);
 }
 
 .auth-panel__body form > p[role="alert"] {
-  color: oklch(76% 0.14 25);
+  color: var(--color-auth-error);
 }
 
 .auth-panel__body form > p a {
@@ -424,7 +424,7 @@
 .auth-panel__caption,
 .auth-shell__legal {
   font-family: var(--font-label);
-  font-size: var(--text-xs);
+  font-size: var(--moana-text-xs);
   color: color-mix(in oklab, var(--color-auth-muted) 74%, transparent);
   text-align: center;
   letter-spacing: 0.04em;
@@ -453,6 +453,12 @@
   z-index: 1;
 }
 
+body:has(.marketing-home) [data-slot="sidebar"],
+body:has(.marketing-home) [data-slot="sidebar-gap"],
+body:has(.marketing-home) [data-slot="sidebar-rail"] {
+  display: none !important;
+}
+
 .marketing-home {
   width: 100%;
   color: var(--color-ink);
@@ -464,6 +470,44 @@
 .marketing-home input,
 .marketing-home textarea {
   font-family: var(--font-body);
+}
+
+.marketing-home a,
+.marketing-home button {
+  white-space: nowrap;
+}
+
+.marketing-home h1,
+.marketing-home h2,
+.marketing-home h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.marketing-home [id] {
+  scroll-margin-top: 5rem;
+}
+
+.marketing-privacy-copy h3 {
+  font-size: var(--moana-text-xl);
+  line-height: 1.08;
+}
+
+@media (min-width: 40rem) {
+  .marketing-privacy-copy h3 {
+    font-size: var(--moana-text-2xl);
+  }
+}
+
+@media (max-width: 30rem) {
+  .marketing-privacy-item {
+    gap: var(--space-xs);
+  }
+
+  .marketing-privacy-icon {
+    width: 3rem;
+    height: 3rem;
+  }
 }
 
 .marketing-header {
@@ -522,7 +566,7 @@
 .marketing-wordmark {
   font-family: var(--font-display) !important;
   font-size: 1.75rem;
-  font-style: italic;
+  font-style: normal;
   line-height: 1;
   color: var(--color-ink);
   letter-spacing: -0.06em;
@@ -555,7 +599,7 @@
 .marketing-mini-composer__input {
   flex: 1;
   min-width: 0;
-  font-size: var(--text-xs);
+  font-size: var(--moana-text-xs);
   color: var(--color-ink);
   outline: 2px solid transparent;
   outline-offset: 1px;
@@ -602,7 +646,7 @@
 .marketing-header__nav {
   display: none;
   gap: 0.125rem;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   color: var(--color-ink-muted);
 }
 
@@ -632,7 +676,7 @@
   display: none;
   align-items: center;
   padding-inline: 0.75rem;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   color: var(--color-ink);
 }
 
@@ -640,7 +684,7 @@
   display: inline-flex;
   align-items: center;
   padding-inline: 1rem;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   font-weight: 500;
   color: var(--color-ink);
   background: color-mix(in oklab, var(--color-paper-2) 78%, transparent);
@@ -762,7 +806,7 @@
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   font-weight: 500;
   color: var(--color-accent);
   white-space: nowrap;
@@ -820,7 +864,7 @@
   min-height: var(--control-height-lg);
   padding-inline: var(--space-md);
   margin-top: var(--space-lg);
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   font-weight: 500;
   color: var(--color-ink);
   background: var(--color-paper);
@@ -842,7 +886,7 @@
   background: color-mix(in oklab, var(--color-paper-2) 82%, transparent);
   border: 1px solid var(--color-rule-strong);
   border-radius: 2rem;
-  box-shadow: 0 1.5rem 5rem oklch(27% 0.065 250 / 0.16);
+  box-shadow: var(--shadow-composer-marketing);
   backdrop-filter: blur(1rem);
 }
 
@@ -881,8 +925,10 @@
   width: 100%;
   min-height: 2.5rem;
   padding-block: 0.625rem;
-  font-size: var(--text-md);
+  font-size: var(--moana-text-md);
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
   color: var(--color-ink);
   resize: none;
   outline: 2px solid transparent;
@@ -937,7 +983,7 @@
   align-items: center;
   min-height: 2.75rem;
   padding-inline: 0.75rem;
-  font-size: var(--text-sm);
+  font-size: var(--moana-text-sm);
   font-weight: 500;
   line-height: 1;
   color: var(--color-ink);

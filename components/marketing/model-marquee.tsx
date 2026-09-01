@@ -36,7 +36,7 @@ function ModelRow({
     >
       {doubled.map(([slug, name], index) => (
         <div
-          className="flex items-center gap-3 whitespace-nowrap text-sm text-[#0e2942]/65"
+          className="flex items-center gap-3 whitespace-nowrap text-sm text-[var(--color-ink)]/65"
           key={`${slug}-${index}`}
         >
           <span
@@ -58,17 +58,17 @@ function ModelRow({
 export function ModelMarquee() {
   return (
     <section
-      className="relative overflow-hidden bg-[#eeede4] px-6 py-24 tablet:px-10 tablet:py-24"
+      className="relative overflow-hidden bg-[var(--color-paper)] px-6 py-24 text-[var(--color-ink)] tablet:px-10 tablet:py-24"
       id="models"
     >
       <div className="mx-auto max-w-5xl text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#1260a2]">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Moana AI
         </p>
         <h2 className="mt-5 font-serif text-4xl leading-tight tablet:text-6xl">
           Access leading AI models with your privacy in mind
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#0e2942]/65 tablet:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/65 tablet:text-lg">
           Create text, image, video, code, build agents, and more using fully
           private or anonymized models from leading AI providers.
         </p>
@@ -78,7 +78,7 @@ export function ModelMarquee() {
         <ModelRow items={mediaModels} reverse />
       </div>
       <a
-        className="mx-auto mt-10 flex w-fit items-center gap-2 rounded-lg bg-[#1260a2] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#0d4982]"
+        className="mx-auto mt-10 flex w-fit items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-hover)]"
         href="#capabilities"
       >
         View all models <span aria-hidden>→</span>

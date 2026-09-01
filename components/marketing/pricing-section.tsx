@@ -54,50 +54,50 @@ export function PricingSection() {
   const [yearly, setYearly] = useState(false);
   return (
     <section
-      className="relative bg-[#eeede4] px-6 py-24 text-[#0e2942] tablet:px-8 tablet:py-32"
+      className="relative bg-[var(--color-paper)] px-6 py-24 text-[var(--color-ink)] tablet:px-8 tablet:py-32"
       id="pricing"
     >
       <div className="mx-auto max-w-[1200px] text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#1260a2]">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Pricing
         </p>
         <h2 className="mt-5 font-serif text-4xl tablet:text-5xl">
           Simple pricing. No surprises.
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#0e2942]/70 tablet:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
           Start free, upgrade when you're ready. Every tier includes uncensored
           models and full privacy. Save 10% on annual subscriptions.
         </p>
         <a
-          className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#1260a2]"
+          className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)]"
           href="/chat"
         >
           Try free today <ArrowRight className="size-4" />
         </a>
-        <div className="mx-auto mt-10 inline-flex rounded-full border border-[#0e2942]/10 bg-white/65 p-1 shadow-sm">
+        <div className="mx-auto mt-10 inline-flex rounded-full border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/65 p-1 shadow-sm">
           <button
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${yearly ? "text-[#0e2942]/60" : "bg-white shadow"}`}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition ${yearly ? "text-[var(--color-ink)]/60" : "bg-[var(--color-accent-ink)] shadow"}`}
             onClick={() => setYearly(false)}
             type="button"
           >
             Monthly
           </button>
           <button
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${yearly ? "bg-white shadow" : "text-[#0e2942]/60"}`}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition ${yearly ? "bg-[var(--color-accent-ink)] shadow" : "text-[var(--color-ink)]/60"}`}
             onClick={() => setYearly(true)}
             type="button"
           >
-            Yearly <span className="ml-1 text-[#1260a2]">Save 10%</span>
+            Yearly <span className="ml-1 text-[var(--color-accent)]">Save 10%</span>
           </button>
         </div>
         <div className="mt-10 grid gap-5 text-left desktop:grid-cols-3">
           {plans.map((plan) => (
             <article
-              className="relative flex min-h-[470px] flex-col rounded-[24px] border border-[#0e2942]/10 bg-white/75 p-6 shadow-[0_18px_65px_rgba(14,41,66,0.08)] tablet:p-7"
+              className="relative flex min-h-[470px] flex-col rounded-[var(--radius-card)] border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/75 p-6 shadow-[var(--shadow-card-soft)] tablet:p-7"
               key={plan.name}
             >
               {plan.popular ? (
-                <span className="absolute right-6 top-6 rounded-full bg-[#1260a2] px-3 py-1 text-[10px] font-medium uppercase tracking-wide text-white">
+                <span className="absolute right-6 top-6 rounded-full bg-[var(--color-accent)] px-3 py-1 text-[10px] font-medium uppercase tracking-wide text-[var(--color-accent-ink)]">
                   Most popular
                 </span>
               ) : null}
@@ -106,24 +106,24 @@ export function PricingSection() {
                 <span className="text-5xl font-semibold tracking-tight">
                   ${yearly ? plan.yearly : plan.monthly}
                 </span>
-                <span className="text-sm text-[#0e2942]/55">/mo</span>
+                <span className="text-sm text-[var(--color-ink)]/55">/mo</span>
               </div>
-              <p className="mt-3 min-h-10 text-sm text-[#0e2942]/65">
+              <p className="mt-3 min-h-10 text-sm text-[var(--color-ink)]/65">
                 {plan.body}
               </p>
               <a
-                className="mt-7 flex items-center justify-center rounded-lg bg-[#1260a2] px-4 py-3 text-xs font-medium uppercase tracking-wide text-white transition hover:bg-[#0d4982]"
+                className="mt-7 flex items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-hover)]"
                 href="/sign-up"
               >
                 Get {plan.name}
               </a>
-              <div className="mt-6 space-y-3 border-t border-[#0e2942]/10 pt-6">
+              <div className="mt-6 space-y-3 border-t border-[var(--color-ink)]/10 pt-6">
                 {plan.features.map((feature) => (
                   <p
-                    className="flex items-start gap-3 text-sm text-[#0e2942]/80"
+                    className="flex items-start gap-3 text-sm text-[var(--color-ink)]/80"
                     key={feature}
                   >
-                    <Check className="mt-0.5 size-4 shrink-0 text-[#1260a2]" />
+                    <Check className="mt-0.5 size-4 shrink-0 text-[var(--color-accent)]" />
                     {feature}
                   </p>
                 ))}

@@ -29,7 +29,7 @@ const layers = [
 
 export function PrivacySection() {
   return (
-    <section className="relative overflow-hidden bg-[#f7f6ee] px-6 py-24 text-[#0e2942] tablet:px-8 tablet:py-32">
+    <section className="relative overflow-hidden bg-[var(--color-paper-2)] px-6 py-24 text-[var(--color-ink)] tablet:px-8 tablet:py-32">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.18]"
         style={{
@@ -40,13 +40,13 @@ export function PrivacySection() {
       />
       <div className="relative z-10 mx-auto max-w-[1000px]">
         <div className="flex flex-col items-center text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#1260a2]">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
             Privacy Architecture
           </p>
           <h2 className="mt-5 font-serif text-4xl tablet:text-5xl">
             AI that respects your privacy
           </h2>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#0e2942]/70 tablet:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
             While others log and analyze your prompts, Moana ensures your
             conversations remain yours alone.
           </p>
@@ -54,21 +54,21 @@ export function PrivacySection() {
         <div className="relative mx-auto mt-16 max-w-[720px]">
           {layers.map(([tier, title, body, Icon], index) => (
             <article
-              className="relative flex gap-6 pb-12 last:pb-0 tablet:gap-7"
+              className="marketing-privacy-item relative flex gap-6 pb-12 last:pb-0 tablet:gap-7"
               key={title}
             >
-              <div className="relative flex size-16 shrink-0 items-center justify-center rounded-full border border-[#0e2942]/10 bg-[#f7f6ee] text-[#bea989] shadow-[0_8px_30px_rgba(14,41,66,0.07)]">
+              <div className="marketing-privacy-icon relative flex size-16 shrink-0 items-center justify-center rounded-full border border-[var(--color-ink)]/10 bg-[var(--color-paper-2)] text-[var(--color-sand)] shadow-[var(--shadow-icon)]">
                 <Icon className="size-6" />
                 {index < layers.length - 1 ? (
-                  <span className="absolute left-1/2 top-full h-12 w-px -translate-x-1/2 bg-[#0e2942]/15" />
+                  <span className="absolute left-1/2 top-full h-12 w-px -translate-x-1/2 bg-[var(--color-ink)]/15" />
                 ) : null}
               </div>
-              <div className="pt-1">
-                <p className="font-mono text-xs uppercase tracking-wide text-[#1260a2]">
+              <div className="marketing-privacy-copy min-w-0 pt-1">
+                <p className="font-mono text-xs uppercase tracking-wide text-[var(--color-accent)]">
                   {tier}
                 </p>
                 <h3 className="mt-2 font-serif text-2xl">{title}</h3>
-                <p className="mt-2 max-w-xl text-base leading-relaxed text-[#0e2942]/65">
+                <p className="mt-2 max-w-xl text-base leading-relaxed text-[var(--color-ink)]/65">
                   {body}
                 </p>
               </div>

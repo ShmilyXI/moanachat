@@ -38,27 +38,19 @@ export function MarketingHome() {
     >
       <HeroSection />
       <ModelMarquee />
-      <div
-        className="marketing-divider"
-        style={{
-          backgroundImage: "url(https://venice.ai/images/divider.svg)",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "auto 54px",
-        }}
-      />
+      <div className="marketing-divider" />
       <CapabilitiesSection />
       <PricingSection />
       <DeveloperSection />
       <PrivacySection />
       <section className="marketing-closing-cta">
-        <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-[#9bbbd1]">
+        <p className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-paper-3)]">
           Moana AI
         </p>
         <h2 className="font-serif text-4xl leading-tight tablet:text-6xl">
           Create freely. Stay private.
         </h2>
-        <p className="mx-auto mt-5 max-w-xl text-base text-[#eeede4]/65">
+        <p className="mx-auto mt-5 max-w-xl text-base text-[var(--color-paper)]/65">
           A calm, private space for your ideas, conversations, and creative
           work.
         </p>

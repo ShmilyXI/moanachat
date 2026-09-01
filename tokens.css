@@ -1,4 +1,4 @@
-/* Hallmark · genre: atmospheric · macrostructure: Marquee Hero + Feature Stack · design-system: design.md */
+/* Hallmark · macrostructure: Marquee Hero · tone: atmospheric · anchor hue: deep sea blue */
 
 :root {
   --color-paper: oklch(94.5% 0.014 92);
@@ -8,6 +8,10 @@
   --color-ink-muted: oklch(43% 0.04 250);
   --color-rule: oklch(27% 0.065 250 / 0.14);
   --color-rule-strong: oklch(27% 0.065 250 / 0.24);
+  --color-sand: oklch(72% 0.07 78);
+  --color-signal: oklch(48% 0.16 32);
+  --color-signal-ink: oklch(98% 0.01 90);
+  --color-auth-error: oklch(76% 0.14 25);
   --color-accent: oklch(48% 0.14 250);
   --color-accent-hover: oklch(42% 0.14 250);
   --color-accent-ink: oklch(100% 0 0);
@@ -20,6 +24,11 @@
   --color-auth-rule: oklch(96% 0.01 92 / 0.12);
   --color-auth-accent: oklch(58% 0.14 250);
   --color-auth-accent-hover: oklch(64% 0.14 250);
+  --shadow-composer-marketing: 0 1.5rem 5rem oklch(27% 0.065 250 / 0.16);
+  --shadow-media: 0 2.125rem 7.5rem oklch(27% 0.065 250 / 0.16);
+  --shadow-card-soft: 0 1.125rem 4.0625rem oklch(27% 0.065 250 / 0.08);
+  --shadow-code: 0 1.375rem 4.375rem oklch(27% 0.065 250 / 0.1);
+  --shadow-icon: 0 0.5rem 1.875rem oklch(27% 0.065 250 / 0.07);
   --font-display: "Canela", Georgia, serif;
   --font-body: "Aeonik", ui-sans-serif, system-ui, sans-serif;
   --font-label: "Aeonik Fono", ui-monospace, monospace;
@@ -32,13 +41,13 @@
   --space-xl: 3rem;
   --space-2xl: 4.5rem;
   --space-3xl: 7rem;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1.125rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.75rem;
-  --text-display: clamp(2.5rem, 4vw + 1rem, 5.5rem);
+  --moana-text-xs: 0.75rem;
+  --moana-text-sm: 0.875rem;
+  --moana-text-md: 1.125rem;
+  --moana-text-lg: 1.375rem;
+  --moana-text-xl: 1.75rem;
+  --moana-text-2xl: 2.75rem;
+  --moana-text-display: clamp(2.5rem, 4vw + 1rem, 5.5rem);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);

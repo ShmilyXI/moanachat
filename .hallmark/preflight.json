@@ -1,0 +1,21 @@
+{
+  "lastScan": "2026-09-02",
+  "framework": "Next.js 16.2.10 App Router",
+  "fonts": {
+    "display": "Canela",
+    "body": "Aeonik",
+    "label": "Aeonik Fono"
+  },
+  "palette": "tokens.css semantic warm paper, deep sea ink, blue accent",
+  "motion": {
+    "mode": "motion-on",
+    "libraries": ["framer-motion", "lenis"]
+  },
+  "spacing": "tokens.css four-point scale",
+  "preserved": [
+    "Next.js App Router",
+    "Tailwind CSS v4",
+    "credentials authentication",
+    "existing marketing routes and copy intent"
+  ]
+}

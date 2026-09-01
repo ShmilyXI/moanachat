@@ -85,7 +85,7 @@ export function Composer() {
           </button>
           <div className="marketing-composer__field">
             {preview && !value ? (
-              <span className="pointer-events-none absolute inset-0 flex items-center truncate text-base text-[#0e2942]/55">
+              <span className="pointer-events-none absolute inset-0 flex items-center truncate text-base text-[var(--color-ink)]/55">
                 {preview}
               </span>
             ) : null}

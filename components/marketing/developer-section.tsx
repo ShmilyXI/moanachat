@@ -14,7 +14,7 @@ export function DeveloperSection() {
   const [tab, setTab] = useState<keyof typeof snippets>("Text");
   return (
     <section
-      className="relative overflow-hidden bg-[#eeede4] px-6 py-24 text-[#0e2942] tablet:px-8 tablet:py-32"
+      className="relative overflow-hidden bg-[var(--color-paper)] px-6 py-24 text-[var(--color-ink)] tablet:px-8 tablet:py-32"
       id="developers"
     >
       <div
@@ -26,24 +26,21 @@ export function DeveloperSection() {
         }}
       />
       <div className="relative z-10 mx-auto flex max-w-[1000px] flex-col items-center text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#1260a2]">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Developer API
         </p>
         <h2 className="mt-5 font-serif text-4xl tablet:text-5xl">
           One API for Everything
         </h2>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#0e2942]/70 tablet:text-lg">
+        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
           Text, images, video, music, speech, embeddings, and web tools through
           a single industry-standard API. One key. Zero data retention.
         </p>
-        <div className="mt-12 flex h-[420px] w-full max-w-[700px] flex-col overflow-hidden rounded-[14px] border border-[#0e2942]/10 bg-[#f7f6ee] text-left shadow-[0_22px_70px_rgba(14,41,66,0.1)] tablet:h-[480px]">
-          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#0e2942]/10 bg-[#0e2942]/[0.035] px-5 py-4">
+        <div className="mt-12 flex h-[420px] w-full max-w-[700px] flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-ink)]/10 bg-[var(--color-paper-2)] text-left shadow-[var(--shadow-code)] tablet:h-[480px]">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--color-ink)]/10 bg-[var(--color-ink)]/[0.035] px-5 py-4">
             <div className="flex items-center gap-2">
-              <span className="size-3 rounded-full bg-[#0e2942]/10" />
-              <span className="size-3 rounded-full bg-[#0e2942]/10" />
-              <span className="size-3 rounded-full bg-[#0e2942]/10" />
-              <Terminal className="ml-3 hidden size-4 text-[#0e2942]/50 tablet:block" />
-              <span className="hidden font-mono text-xs text-[#0e2942]/60 tablet:block">
+              <Terminal className="size-4 text-[var(--color-ink)]/50" />
+              <span className="font-mono text-xs text-[var(--color-ink)]/60">
                 {tab.toLowerCase()}.ts
               </span>
             </div>
@@ -52,7 +49,7 @@ export function DeveloperSection() {
                 (name) => (
                   <button
                     aria-pressed={tab === name}
-                    className={`rounded-lg px-2 py-1 text-[11px] font-medium ${tab === name ? "bg-[#0e2942]/10" : "text-[#0e2942]/60"}`}
+                    className={`rounded-[var(--radius-control)] px-2 py-1 text-[11px] font-medium ${tab === name ? "bg-[var(--color-ink)]/10" : "text-[var(--color-ink)]/60"}`}
                     key={name}
                     onClick={() => setTab(name)}
                     type="button"
@@ -63,15 +60,15 @@ export function DeveloperSection() {
               )}
             </div>
           </div>
-          <pre className="m-0 flex-1 overflow-auto p-5 font-mono text-xs leading-[1.8] text-[#0e2942]/80 tablet:p-6 tablet:text-sm">
+          <pre className="m-0 flex-1 overflow-auto p-5 font-mono text-xs leading-[1.8] text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
             <code>{snippets[tab]}</code>
-            <span className="ml-1 inline-block animate-pulse text-[#1260a2]">
+            <span className="ml-1 inline-block animate-pulse text-[var(--color-accent)]">
               ▎
             </span>
           </pre>
         </div>
         <a
-          className="mt-10 inline-flex items-center gap-2 rounded-lg bg-[#1260a2] px-5 py-3 text-sm font-medium text-white"
+          className="mt-10 inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-[var(--color-accent-ink)]"
           href="/chat"
         >
           Explore API Docs <ArrowRight className="size-4" />
