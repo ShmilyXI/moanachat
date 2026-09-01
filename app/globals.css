@@ -571,6 +571,50 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 
 .marketing-model-title {
   font-size: var(--moana-text-model-mobile) !important;
+  line-height: 1.05;
+}
+
+.marketing-model-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.marketing-model-intro > p:first-child {
+  line-height: 1.5;
+}
+
+.marketing-model-description {
+  margin: 0;
+  max-width: 37.5rem;
+  line-height: 1.45;
+}
+
+.marketing-model-marquee {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 4rem;
+}
+
+.marketing-model-row {
+  min-height: 2.75rem;
+}
+
+.marketing-model-item {
+  min-height: 2.75rem;
+}
+
+.marketing-model-cta {
+  margin-top: 3rem;
+}
+
+@media (min-width: 22.01rem) and (max-width: 24.99rem) {
+  .marketing-model-title {
+    font-size: 1.96875rem !important;
+    line-height: 1.07;
+  }
 }
 
 .marketing-model-marquee:hover .marketing-model-row,
@@ -620,6 +664,10 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 @media (min-width: 40rem) {
   .marketing-model-title {
     font-size: var(--moana-text-model) !important;
+  }
+
+  .marketing-model-description {
+    max-width: 37.5rem;
   }
 }
 
@@ -1085,6 +1133,39 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 }
 
 @media (max-width: 40rem) {
+  .marketing-capabilities-intro {
+    padding-top: 5rem;
+  }
+
+  .marketing-capabilities-list {
+    gap: 6rem;
+    padding-bottom: 5rem;
+  }
+
+  .marketing-capability-card {
+    gap: 1.5rem;
+  }
+
+  .marketing-capability-card__copy {
+    width: calc(10 / 12 * 100%);
+    align-items: center;
+    text-align: center;
+  }
+
+  .marketing-capability-card__copy h3 {
+    line-height: 1.2;
+  }
+
+  .marketing-capability-card__copy p {
+    line-height: 1.5;
+  }
+
+  .marketing-capability-card__copy a {
+    padding-block: 0.875rem;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
   .marketing-hero {
     min-height: 100svh;
   }
@@ -1101,6 +1182,43 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
   .marketing-hero__learn,
   .marketing-hero__pause {
     display: none;
+  }
+}
+
+@media (min-width: 40.01rem) and (max-width: 63.99rem) {
+  .marketing-capabilities-intro > div > h2 {
+    line-height: 1.2;
+  }
+
+  .marketing-capabilities-intro > div > p:last-child {
+    max-width: 37.5rem;
+    line-height: 1.5;
+  }
+
+  .marketing-capability-card {
+    gap: 1.5rem;
+  }
+
+  .marketing-capability-card__copy {
+    width: calc(10 / 12 * 100%);
+    max-width: 31.25rem;
+    margin-inline: auto;
+    align-items: center;
+    text-align: center;
+  }
+
+  .marketing-capability-card__copy h3 {
+    line-height: 1.2;
+  }
+
+  .marketing-capability-card__copy p {
+    line-height: 1.5;
+  }
+
+  .marketing-capability-card__copy a {
+    padding-block: 0.875rem;
+    font-size: 1rem;
+    line-height: 1;
   }
 }
 
@@ -1165,11 +1283,12 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 .marketing-closing-cta__link {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-height-lg);
+  min-height: 2.625rem;
   padding-inline: var(--space-md);
-  margin-top: var(--space-lg);
+  padding-block: 0.875rem;
   font-size: var(--moana-text-sm);
   font-weight: 500;
+  line-height: 1;
   color: var(--color-accent-ink);
   background: var(--color-accent);
   border-radius: var(--radius-control);
@@ -1181,8 +1300,10 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 .marketing-closing-cta__secondary-link {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-height-lg);
+  min-height: 2.625rem;
   padding-inline: var(--space-md);
+  padding-block: 0.875rem;
+  line-height: 1;
   color: var(--color-accent);
   background: var(--color-paper-2);
   border-radius: var(--radius-control);
@@ -1300,6 +1421,122 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 
   .marketing-closing-cta__secondary-link:hover {
     background: var(--color-paper-2);
+  }
+}
+
+@media (max-width: 40rem) {
+  .marketing-closing-cta h2 {
+    line-height: 1.2;
+  }
+
+  .marketing-closing-cta p {
+    font-size: 1rem;
+  }
+
+  .marketing-closing-cta__link,
+  .marketing-closing-cta__secondary-link {
+    min-height: 2.625rem;
+  }
+}
+
+@media (max-width: 20rem) {
+  .marketing-closing-cta p {
+    max-width: 15rem;
+  }
+}
+
+@media (min-width: 40.01rem) and (max-width: 63.99rem) {
+  #pricing,
+  #developers,
+  #privacy {
+    padding-block: 8.5rem;
+  }
+
+  .marketing-pricing-eyebrow,
+  .marketing-developer-eyebrow,
+  #privacy > div > div:first-child > p:first-child {
+    font-size: 1rem;
+    line-height: 1.15;
+  }
+
+  .marketing-pricing-title,
+  #privacy > div > div:first-child > h2 {
+    line-height: 1.2;
+  }
+
+  .marketing-pricing-title {
+    margin-top: 1rem;
+  }
+
+  .marketing-pricing-description,
+  .marketing-developer-description,
+  #privacy > div > div:first-child > p:last-child {
+    max-width: 37.5rem;
+    margin-top: 0;
+    line-height: 1.5;
+  }
+
+  .marketing-pricing-toggle button {
+    min-height: 1.875rem;
+    padding-inline: 1.375rem;
+  }
+
+  .marketing-pricing-card {
+    padding: 1.5rem;
+  }
+
+  .marketing-pricing-card > div:first-of-type {
+    margin-top: 1.125rem;
+  }
+
+  .marketing-pricing-card > p {
+    min-height: 2.625rem;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+  }
+
+  .marketing-pricing-card > a {
+    padding-block: 0.8125rem;
+    font-size: 0.8125rem;
+    line-height: 1;
+  }
+
+  .marketing-developer-inner {
+    gap: 0;
+  }
+
+  .marketing-developer-title {
+    margin-top: 1.0625rem;
+  }
+
+  .marketing-developer-description {
+    margin-top: 1rem;
+  }
+
+  .marketing-developer-code {
+    margin-top: 3.5rem;
+    line-height: 1.7;
+  }
+
+  .marketing-developer-inner > a {
+    margin-top: 3.5rem;
+    padding-block: 0.875rem;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .marketing-closing-cta {
+    padding-block: 11.25rem;
+  }
+
+  .marketing-closing-cta h2 {
+    font-size: 3rem;
+    line-height: 1.25;
+  }
+
+  .marketing-closing-cta p {
+    font-size: 1.125rem;
+    line-height: 1.5;
   }
 }
 

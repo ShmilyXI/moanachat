@@ -192,8 +192,8 @@ function CapabilityMedia({
 
 function CapabilityCard({ item }: { item: (typeof capabilities)[number] }) {
   return (
-    <article className="group grid items-center gap-8 tablet:grid-cols-[minmax(0,34fr)_minmax(0,66fr)] tablet:gap-12 desktop:gap-16">
-      <div className="order-2 flex flex-col items-start tablet:order-1">
+    <article className="marketing-capability-card group grid items-center gap-8 desktop:grid-cols-[minmax(0,34fr)_minmax(0,66fr)] desktop:gap-16">
+      <div className="marketing-capability-card__copy order-2 flex flex-col items-start tablet:order-1">
         <h3 className="max-w-[450px] font-serif text-xl leading-tight tablet:text-2xl">
           {item.title}
         </h3>
@@ -256,10 +256,10 @@ export function CapabilitiesSection() {
       id="capabilities"
       ref={ref}
     >
-      <div className="px-6 pb-16 pt-24 tablet:px-8 tablet:pb-20 tablet:pt-32 desktop:hidden">
+      <div className="marketing-capabilities-intro px-6 pb-16 pt-24 tablet:px-8 tablet:pb-20 tablet:pt-24 desktop:hidden">
         <SectionIntro />
       </div>
-      <div className="mx-auto flex max-w-[1000px] flex-col gap-24 px-6 pb-24 desktop:hidden">
+      <div className="marketing-capabilities-list mx-auto flex max-w-[1000px] flex-col gap-24 px-6 pb-24 tablet:gap-28 tablet:px-8 desktop:hidden">
         {capabilities.map((item) => (
           <CapabilityCard item={item} key={item.title} />
         ))}

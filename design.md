@@ -11,7 +11,7 @@ Atmospheric editorial product surface.
 ## Macrostructure family
 
 - Marketing pages: Marquee Hero with Feature Stack pacing.
-- Authentication pages: Single-focus portal with a centred Venice-style form card.
+- Authentication pages: Single-focus portal with a centred dark Venice-style form card.
 - Chat and studio pages: Workbench layouts remain functional and are not
   decorated with marketing enrichment.
 
@@ -24,9 +24,9 @@ Atmospheric editorial product surface.
 - Rule: `#0e29421a`.
 - Accent: `#125da3`, used for primary actions and active indicators.
 - Accent ink: `#ffffff`.
-- Auth paper: warm off-white, matching the marketing surface.
-- Auth panel: near-white card with a thin ink rule and quiet shadow.
-- Auth rule: low-contrast deep-sea ink at 12% opacity.
+- Auth paper: deep sea blue-black portal background with a subtle radial rule field.
+- Auth panel: near-black blue card with a thin light rule and quiet deep shadow.
+- Auth rule: low-contrast warm-white ink at 12% opacity.
 
 ## Typography
 
@@ -61,10 +61,10 @@ stay on one line at every supported width.
 
 ## Authentication
 
-Login and registration share the same light Venice-style card, centred mark,
-visible labels, and 48px fields. The existing server actions, validation states,
-and routes remain unchanged. Third-party provider buttons are omitted until
-their backend providers exist.
+Login and registration share the same dark Venice-style card, centred mark,
+visible labels, and 40px fields. The existing server actions, validation states,
+and routes remain unchanged. Third-party provider buttons are shown as disabled
+visual affordances until their backend providers exist.
 
 ## Responsive contract
 

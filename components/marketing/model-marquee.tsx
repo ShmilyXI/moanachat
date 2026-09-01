@@ -35,15 +35,15 @@ function ModelRow({
   const doubled = [...items, ...items];
   return (
     <div
-      className={`marketing-model-row flex w-max items-center gap-10 ${reverse ? "animate-[marquee-reverse_42s_linear_infinite]" : "animate-[marquee_38s_linear_infinite]"}`}
+      className={`marketing-model-row flex w-max items-center gap-4 ${reverse ? "animate-[marquee-reverse_42s_linear_infinite]" : "animate-[marquee_38s_linear_infinite]"}`}
     >
-      {doubled.map(([slug, name], index) => (
+      {doubled.map(([slug, name]) => (
         <div
-          className="flex items-center gap-3 whitespace-nowrap text-sm text-[var(--color-ink)]/65"
-          key={`${slug}-${index}`}
+          className="marketing-model-item flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-5 py-2.5 text-sm text-[var(--color-ink)]/65"
+          key={`${slug}-${name}`}
         >
           <span
-            className="flex size-7 items-center justify-center opacity-50"
+            className="flex size-6 items-center justify-center opacity-50"
             style={{
               backgroundImage: `url(https://venice.ai/images/icons/models/${slug}.svg)`,
               backgroundPosition: "center",
@@ -61,31 +61,33 @@ function ModelRow({
 export function ModelMarquee() {
   return (
     <section
-      className="relative overflow-hidden bg-[var(--color-paper)] px-6 pb-[104px] pt-24 text-[var(--color-ink)] tablet:px-10 tablet:py-32"
+      className="relative overflow-hidden bg-[var(--color-paper)] px-0 py-24 text-[var(--color-ink)] tablet:py-32"
       id="models"
     >
-      <div className="mx-auto max-w-5xl text-center">
+      <div className="marketing-model-intro mx-auto max-w-5xl px-6 text-center tablet:px-8">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Moana AI
         </p>
-        <h2 className="marketing-model-title mt-5 font-serif leading-tight">
+        <h2 className="marketing-model-title font-serif">
           Access leading AI models with your privacy in mind
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/65 tablet:text-lg">
+        <p className="marketing-model-description mx-auto max-w-2xl text-base text-[var(--color-ink)]/65 tablet:text-lg">
           Create text, image, video, code, build agents, and more using fully
           private or anonymized models from leading AI providers.
         </p>
       </div>
-      <div className="marketing-model-marquee relative mt-12 space-y-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="marketing-model-marquee relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <ModelRow items={textModels} />
         <ModelRow items={mediaModels} reverse />
       </div>
-      <a
-        className="mx-auto mt-10 flex w-fit items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-hover)]"
-        href="#capabilities"
-      >
-        View all models <span aria-hidden>→</span>
-      </a>
+      <div className="marketing-model-cta flex justify-center">
+        <a
+          className="flex items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-6 py-3.5 text-base font-medium leading-none text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-hover)]"
+          href="#capabilities"
+        >
+          View All Models <span aria-hidden>→</span>
+        </a>
+      </div>
     </section>
   );
 }

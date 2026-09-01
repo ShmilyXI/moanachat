@@ -25,14 +25,14 @@ export function DeveloperSection() {
           backgroundSize: "150px 150px",
         }}
       />
-      <div className="relative z-10 mx-auto flex max-w-[1000px] flex-col items-center text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
+      <div className="marketing-developer-inner relative z-10 mx-auto flex max-w-[1000px] flex-col items-center text-center">
+        <p className="marketing-developer-eyebrow font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Developer API
         </p>
-        <h2 className="mt-5 font-serif text-2xl tablet:text-4xl">
+        <h2 className="marketing-developer-title mt-5 font-serif text-2xl tablet:text-4xl">
           One API for Everything
         </h2>
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
+        <p className="marketing-developer-description mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
           Text, images, video, music, speech, embeddings, and web tools through
           a single industry-standard API. One key. Zero data retention.
         </p>
@@ -60,7 +60,7 @@ export function DeveloperSection() {
               )}
             </div>
           </div>
-          <pre className="m-0 flex-1 overflow-auto p-5 font-mono text-xs leading-[1.8] text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
+          <pre className="marketing-developer-code m-0 flex-1 overflow-auto p-5 font-mono text-xs leading-[1.8] text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
             <code>{snippets[tab]}</code>
             <span className="ml-1 inline-block animate-pulse text-[var(--color-accent)]">
               ▎

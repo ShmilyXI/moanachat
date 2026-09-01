@@ -58,13 +58,13 @@ export function PricingSection() {
       id="pricing"
     >
       <div className="mx-auto max-w-[1200px] text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
+        <p className="marketing-pricing-eyebrow font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Pricing
         </p>
-        <h2 className="mt-5 font-serif text-2xl tablet:text-4xl">
+        <h2 className="marketing-pricing-title mt-5 font-serif text-2xl tablet:text-4xl">
           Simple pricing. No surprises.
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-6 text-[var(--color-ink)]/70 tablet:text-lg">
+        <p className="marketing-pricing-description mx-auto mt-4 max-w-2xl text-base leading-6 text-[var(--color-ink)]/70 tablet:text-lg">
           Start free, upgrade when you're ready. Every tier includes uncensored
           models and full privacy. Save 10% on annual subscriptions.
         </p>
