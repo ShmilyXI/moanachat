@@ -57,7 +57,7 @@ export function PricingSection() {
       className="relative bg-[var(--color-paper)] px-6 py-24 text-[var(--color-ink)] tablet:px-8 tablet:py-32"
       id="pricing"
     >
-      <div className="mx-auto max-w-[1200px] text-center">
+      <div className="marketing-pricing-content mx-auto text-center">
         <p className="marketing-pricing-eyebrow font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
           Pricing
         </p>
@@ -68,30 +68,32 @@ export function PricingSection() {
           Start free, upgrade when you're ready. Every tier includes uncensored
           models and full privacy. Save 10% on annual subscriptions.
         </p>
-        <a
-          className="mt-[22px] inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)]"
-          href="/chat"
-        >
-          Try free today <ArrowRight className="size-4" />
-        </a>
-        <div className="marketing-pricing-toggle mx-auto mt-[42px] inline-flex rounded-full border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/65 shadow-sm">
-          <button
-            aria-pressed={!yearly}
-            className={`rounded-full text-sm font-medium transition-[background-color,color,box-shadow] ${yearly ? "text-[var(--color-ink)]/60" : "bg-[var(--color-accent-ink)] shadow"}`}
-            onClick={() => setYearly(false)}
-            type="button"
+        <div className="marketing-pricing-controls">
+          <a
+            className="marketing-pricing-trial inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)]"
+            href="/chat"
           >
-            Monthly
-          </button>
-          <button
-            aria-pressed={yearly}
-            className={`rounded-full text-sm font-medium transition-[background-color,color,box-shadow] ${yearly ? "bg-[var(--color-accent-ink)] shadow" : "text-[var(--color-ink)]/60"}`}
-            onClick={() => setYearly(true)}
-            type="button"
-          >
-            Yearly{" "}
-            <span className="ml-1 text-[var(--color-accent)]">Save 10%</span>
-          </button>
+            Try free today <ArrowRight className="size-4" />
+          </a>
+          <div className="marketing-pricing-toggle inline-flex rounded-full border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/65 shadow-sm">
+            <button
+              aria-pressed={!yearly}
+              className={`rounded-full text-sm font-medium transition-[background-color,color,box-shadow] ${yearly ? "text-[var(--color-ink)]/60" : "bg-[var(--color-accent-ink)] shadow"}`}
+              onClick={() => setYearly(false)}
+              type="button"
+            >
+              Monthly
+            </button>
+            <button
+              aria-pressed={yearly}
+              className={`rounded-full text-sm font-medium transition-[background-color,color,box-shadow] ${yearly ? "bg-[var(--color-accent-ink)] shadow" : "text-[var(--color-ink)]/60"}`}
+              onClick={() => setYearly(true)}
+              type="button"
+            >
+              Yearly{" "}
+              <span className="ml-1 text-[var(--color-accent)]">Save 10%</span>
+            </button>
+          </div>
         </div>
         <div className="mt-10 grid gap-[18px] text-left desktop:grid-cols-3">
           {plans.map((plan) => (

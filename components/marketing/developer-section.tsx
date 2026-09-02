@@ -4,10 +4,10 @@ import { ArrowRight, Terminal } from "lucide-react";
 import { useState } from "react";
 
 const snippets = {
-  Image: `const image = await moana.images.generate({\n  model: "image-ultra",\n  prompt: "A Venetian sunset",\n  width: 1024,\n  height: 1024,\n});`,
-  Music: `const track = await moana.music.generate({\n  model: "music-pro",\n  prompt: "A cinematic score with sweeping strings",\n});`,
   Text: `const response = await fetch("https://api.moana.ai/api/v1/chat/completions", {\n  method: "POST",\n  headers: {\n    Authorization: \`Bearer \${key}\`,\n    "Content-Type": "application/json",\n  },\n  body: JSON.stringify({\n    model: "private-large",\n    messages: [{ role: "user", content: "Latest AI news" }],\n  }),\n});`,
+  Image: `const image = await moana.images.generate({\n  model: "image-ultra",\n  prompt: "A Venetian sunset",\n  width: 1024,\n  height: 1024,\n});`,
   Video: `const video = await moana.video.generate({\n  model: "video-pro",\n  prompt: "A hummingbird hovering in slow motion",\n  duration: 5,\n});`,
+  Music: `const track = await moana.music.generate({\n  model: "music-pro",\n  prompt: "A cinematic score with sweeping strings",\n});`,
 };
 
 export function DeveloperSection() {
@@ -36,7 +36,7 @@ export function DeveloperSection() {
           Text, images, video, music, speech, embeddings, and web tools through
           a single industry-standard API. One key. Zero data retention.
         </p>
-        <div className="mt-12 flex h-[420px] w-full max-w-[700px] flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-ink)]/10 bg-[var(--color-paper-2)] text-left shadow-[var(--shadow-code)] tablet:h-[480px]">
+        <div className="marketing-developer-shell mt-12 flex w-full max-w-[700px] flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-ink)]/10 bg-[var(--color-paper-2)] text-left shadow-[var(--shadow-code)]">
           <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--color-ink)]/10 bg-[var(--color-ink)]/[0.035] px-5 py-4">
             <div className="flex items-center gap-2">
               <Terminal className="size-4 text-[var(--color-ink)]/50" />
@@ -60,7 +60,7 @@ export function DeveloperSection() {
               )}
             </div>
           </div>
-          <pre className="marketing-developer-code m-0 flex-1 overflow-auto p-5 font-mono text-xs leading-[1.8] text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
+          <pre className="marketing-developer-code m-0 flex-1 overflow-auto p-5 font-mono text-xs text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
             <code>{snippets[tab]}</code>
             <span className="ml-1 inline-block animate-pulse text-[var(--color-accent)]">
               ▎
@@ -68,7 +68,7 @@ export function DeveloperSection() {
           </pre>
         </div>
         <a
-          className="mt-10 inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-[var(--color-accent-ink)]"
+          className="marketing-developer-cta mt-10 inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-[var(--color-accent-ink)]"
           href="/chat"
         >
           Explore API Docs <ArrowRight className="size-4" />

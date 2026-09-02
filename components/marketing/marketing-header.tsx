@@ -8,24 +8,40 @@ import { MoanaMark } from "./moana-mark";
 const links = [
   { href: "#models", label: "About" },
   { href: "#capabilities", label: "Features" },
-  { href: "#models", label: "Token", menu: ["VVV", "DIEM"] },
+  {
+    href: "#models",
+    label: "Token",
+    menu: [
+      { href: "#models", label: "VVV" },
+      { href: "#models", label: "DIEM" },
+    ],
+  },
   { href: "#pricing", label: "Pricing" },
   {
     href: "#developers",
     label: "Resources",
-    menu: ["API + Docs", "FAQs", "Privacy", "Blog", "Media", "Careers"],
+    menu: [
+      { href: "#developers", label: "API + Docs" },
+      { href: "#developers", label: "FAQs" },
+      { href: "#privacy", label: "Privacy" },
+      { href: "#developers", label: "Blog" },
+      { href: "#developers", label: "Media" },
+      { href: "#developers", label: "Careers" },
+    ],
   },
   { href: "#developers", label: "Store" },
 ];
 
 const mobileGroups = [
   {
+    id: "primary",
     links: [
       { href: "#models", label: "About" },
       { href: "#capabilities", label: "Features" },
     ],
   },
   {
+    id: "token",
     label: "Token",
     links: [
       { href: "#models", label: "VVV" },
@@ -33,9 +49,11 @@ const mobileGroups = [
     ],
   },
   {
+    id: "pricing",
     links: [{ href: "#pricing", label: "Pricing" }],
   },
   {
+    id: "resources",
     label: "Resources",
     links: [
       { href: "#developers", label: "API + Docs" },
@@ -56,6 +74,7 @@ const mobileGroups = [
 export function MarketingHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [quickPrompt, setQuickPrompt] = useState("");
 
   useEffect(() => {
@@ -79,6 +98,33 @@ export function MarketingHeader() {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!openDropdown) {
+      return;
+    }
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element) || !target.closest("[data-marketing-nav]")) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [openDropdown]);
+
+  useEffect(() => {
+    if (!openDropdown) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [openDropdown]);
 
   const submitQuickPrompt = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -135,14 +181,42 @@ export function MarketingHeader() {
           ) : null}
         </div>
         <nav className="marketing-header__nav">
-          {links.map((link) => (
-            <a href={link.href} key={link.label}>
-              {link.label}
-              {link.menu ? (
-                <ChevronDown aria-hidden className="size-3" />
-              ) : null}
-            </a>
-          ))}
+          {links.map((link) =>
+            link.menu ? (
+              <div className="marketing-header__nav-item" key={link.label}>
+                <button
+                  aria-expanded={openDropdown === link.label}
+                  className="marketing-header__nav-button"
+                  onClick={() =>
+                    setOpenDropdown((current) =>
+                      current === link.label ? null : link.label
+                    )
+                  }
+                  type="button"
+                >
+                  {link.label}
+                  <ChevronDown aria-hidden className="size-3" />
+                </button>
+                {openDropdown === link.label ? (
+                  <div className="marketing-header__dropdown" data-nav-dropdown>
+                    {link.menu.map((item) => (
+                      <a
+                        href={item.href}
+                        key={item.label}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        {item.label}
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <a href={link.href} key={link.label}>
+                {link.label}
+              </a>
+            )
+          )}
         </nav>
         <div className="marketing-header__actions">
           <a className="marketing-header__login" href="/login">
@@ -166,7 +240,7 @@ export function MarketingHeader() {
         {menuOpen ? (
           <div className="marketing-header__mobile-menu" data-mobile-menu>
             {mobileGroups.map((group) => (
-              <div className="marketing-header__mobile-group" key={group.label ?? "primary"}>
+              <div className="marketing-header__mobile-group" key={group.id}>
                 {group.label ? (
                   <p className="marketing-header__mobile-label">{group.label}</p>
                 ) : null}

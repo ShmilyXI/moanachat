@@ -42,19 +42,19 @@ export function PrivacySection() {
         }}
       />
       <div className="relative z-10 mx-auto max-w-[1000px]">
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="marketing-privacy-intro flex flex-col items-center gap-4 text-center">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--color-accent)]">
             Privacy Architecture
           </p>
           <h2 className="font-serif text-2xl leading-[1.33] tablet:text-4xl">
             AI that respects your privacy
           </h2>
-          <p className="max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
+          <p className="marketing-privacy-description max-w-2xl text-base leading-relaxed text-[var(--color-ink)]/70 tablet:text-lg">
             While others log and analyze your prompts, Moana ensures your
             conversations remain yours alone.
           </p>
         </div>
-        <div className="relative mx-auto mt-[72px] flex max-w-[720px] flex-col gap-7">
+        <div className="marketing-privacy-list relative mx-auto mt-[72px] flex max-w-[720px] flex-col gap-7">
           {layers.map(([tier, title, body, Icon]) => (
             <article
               className="marketing-privacy-item relative flex items-start gap-6"

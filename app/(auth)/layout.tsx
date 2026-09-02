@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { MoanaMark } from "@/components/marketing/moana-mark";
 import { useLocale } from "@/components/locale-provider";
+import { MoanaMark } from "@/components/marketing/moana-mark";
 
 export default function AuthLayout({
   children,
@@ -12,7 +12,7 @@ export default function AuthLayout({
   const { t } = useLocale();
 
   return (
-    <main className="auth-shell" data-auth-shell data-theme="venice-dark">
+    <main className="auth-shell" data-auth-shell data-theme="venice-light">
       <div className="auth-shell__content">
         <section className="auth-panel" data-auth-panel>
           <div className="auth-panel__brand">

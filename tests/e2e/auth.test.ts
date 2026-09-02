@@ -22,7 +22,7 @@ test.describe("Authentication Pages", () => {
 
     await expect(page.locator("[data-auth-shell]")).toHaveAttribute(
       "data-theme",
-      "venice-dark"
+      "venice-light"
     );
     await expect(page.locator("[data-auth-panel]")).toBeVisible();
     await expect(page.locator("[data-auth-mark]")).toBeVisible();

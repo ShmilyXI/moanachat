@@ -88,6 +88,24 @@ test.describe("marketing homepage", () => {
     await expect(navigation.locator("nav")).toBeVisible();
   });
 
+  test("opens and dismisses desktop navigation dropdowns", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const marketingHome = page.locator(".marketing-home");
+    await marketingHome.evaluate((element) => {
+      element.scrollTo({ top: window.innerHeight, behavior: "instant" });
+    });
+
+    const token = page.getByRole("button", { name: "Token" });
+    await expect(token).toHaveAttribute("aria-expanded", "false");
+    await token.click();
+    await expect(token).toHaveAttribute("aria-expanded", "true");
+    await expect(page.locator("[data-nav-dropdown]")).toContainText("VVV");
+
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-nav-dropdown]")).toHaveCount(0);
+  });
+
   test("keeps the marketing page within the viewport at supported phone widths", async ({
     page,
   }) => {

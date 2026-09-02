@@ -33,10 +33,14 @@ export function MarketingFooter() {
   return (
     <footer className="marketing-footer">
       <div className="marketing-footer__inner">
-        <a aria-label="Moana" className="marketing-footer__mark" href="/">
-          <MoanaMark />
-        </a>
-        <p className="marketing-footer__tagline">Private, unrestricted AI for everyone.</p>
+        <div className="marketing-footer__brand">
+          <a aria-label="Moana" className="marketing-footer__mark" href="/">
+            <MoanaMark />
+          </a>
+          <p className="marketing-footer__tagline">
+            Private, unrestricted AI for everyone.
+          </p>
+        </div>
         <div className="marketing-footer__groups">
           {footerGroups.map((group) => (
             <div className="marketing-footer__group" key={group.title}>
