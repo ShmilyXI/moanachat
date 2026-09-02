@@ -6,8 +6,17 @@ import {
   useReducedMotion,
   useTransform,
 } from "framer-motion";
-import { ArrowRight, ArrowUp, MessageCircle, Music2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  ArrowRight,
+  ArrowUp,
+  MessageCircle,
+  Music2,
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const capabilities = [
   {
@@ -113,38 +122,88 @@ function VideoDemo() {
   );
 }
 function AudioDemo() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const toggleTrack = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    if (audio.paused) {
+      audio.play().then(
+        () => setIsPlaying(true),
+        () => setIsPlaying(false)
+      );
+      return;
+    }
+
+    audio.pause();
+    setIsPlaying(false);
+  }, []);
+
+  const resetTrack = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    audio.currentTime = 0;
+    setIsPlaying(false);
+  }, []);
+
+  const handleTrackStarted = useCallback(() => setIsPlaying(true), []);
+  const handleTrackStopped = useCallback(() => setIsPlaying(false), []);
+
   return (
-    <div className="flex size-full flex-col justify-between bg-[var(--color-signal)] p-8 text-[var(--color-signal-ink)]">
+    <div
+      className="marketing-audio-demo flex size-full flex-col justify-between bg-[var(--color-signal)] p-8 text-[var(--color-signal-ink)]"
+      data-audio-demo
+    >
       <div className="flex justify-end">
         <Music2 className="size-5" />
       </div>
       <div className="flex items-center justify-center gap-8">
         <button
           aria-label="Previous track"
-          className="rounded-full border border-[var(--color-signal-ink)]/25 p-3"
+          className="grid size-12 place-items-center rounded-full border border-[var(--color-signal-ink)]/25 transition-colors hover:bg-[var(--color-signal-ink)]/10"
+          onClick={resetTrack}
           type="button"
         >
-          ‹
+          <SkipBack className="size-5" />
         </button>
         <button
-          aria-label="Play track"
-          className="rounded-full border border-[var(--color-signal-ink)]/30 p-5"
+          aria-label={isPlaying ? "Pause track" : "Play track"}
+          className="grid size-20 place-items-center rounded-full border border-[var(--color-signal-ink)]/30 transition-colors hover:bg-[var(--color-signal-ink)]/10"
+          onClick={toggleTrack}
           type="button"
         >
-          ▶
+          {isPlaying ? (
+            <Pause className="size-7" />
+          ) : (
+            <Play className="ml-1 size-7" />
+          )}
         </button>
         <button
           aria-label="Next track"
-          className="rounded-full border border-[var(--color-signal-ink)]/25 p-3"
+          className="grid size-12 place-items-center rounded-full border border-[var(--color-signal-ink)]/25 transition-colors hover:bg-[var(--color-signal-ink)]/10"
+          onClick={resetTrack}
           type="button"
         >
-          ›
+          <SkipForward className="size-5" />
         </button>
       </div>
       <div>
+        {/* The visible prompt and controls describe this decorative audio demo. */}
+        {/* biome-ignore lint/a11y/useMediaCaption: Decorative demo audio has no spoken content. */}
         <audio
-          className="w-full"
-          controls
+          className="absolute size-px opacity-0"
+          onEnded={handleTrackStopped}
+          onPause={handleTrackStopped}
+          onPlay={handleTrackStarted}
+          ref={audioRef}
           src="https://media.venice.ai/assets/lp/audio/01-opera.mp3"
         />
         <div className="mt-3 flex items-center rounded-[var(--radius-panel)] border border-[var(--color-signal-ink)]/25 bg-[var(--color-ink)]/10 px-4 py-3 text-sm">

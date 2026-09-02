@@ -8,14 +8,6 @@ import { MoanaMark } from "./moana-mark";
 const links = [
   { href: "#models", label: "About" },
   { href: "#capabilities", label: "Features" },
-  {
-    href: "#models",
-    label: "Token",
-    menu: [
-      { href: "#models", label: "VVV" },
-      { href: "#models", label: "DIEM" },
-    ],
-  },
   { href: "#pricing", label: "Pricing" },
   {
     href: "#developers",
@@ -29,7 +21,6 @@ const links = [
       { href: "#developers", label: "Careers" },
     ],
   },
-  { href: "#developers", label: "Store" },
 ];
 
 const mobileGroups = [
@@ -38,14 +29,6 @@ const mobileGroups = [
     links: [
       { href: "#models", label: "About" },
       { href: "#capabilities", label: "Features" },
-    ],
-  },
-  {
-    id: "token",
-    label: "Token",
-    links: [
-      { href: "#models", label: "VVV" },
-      { href: "#models", label: "DIEM" },
     ],
   },
   {
@@ -66,7 +49,6 @@ const mobileGroups = [
       { href: "#developers", label: "Changelog" },
       { href: "#developers", label: "Download" },
       { href: "#developers", label: "Status Page" },
-      { href: "#developers", label: "Store" },
     ],
   },
 ];

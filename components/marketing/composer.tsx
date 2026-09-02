@@ -121,7 +121,11 @@ export function Composer({ showPresets = true }: { showPresets?: boolean }) {
         </div>
       </form>
       {showPresets ? (
-        <div className="marketing-composer__presets no-scrollbar">
+        <div
+          aria-hidden={Boolean(value.trim())}
+          className="marketing-composer__presets no-scrollbar"
+          data-hidden={Boolean(value.trim()) || undefined}
+        >
           {prompts.map(({ icon: Icon, label, prompt }) => (
             <button
               aria-label={label}

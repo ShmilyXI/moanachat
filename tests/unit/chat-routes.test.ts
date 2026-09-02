@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   extractChatId,
   isChatSurfacePath,
+  isPublicAuthPath,
   isPublicAssetPath,
 } from "@/lib/chat/routes";
 
@@ -25,4 +26,11 @@ test("allows local visual assets through the auth proxy", () => {
   assert.equal(isPublicAssetPath("/images/demo-thumbnail.png"), true);
   assert.equal(isPublicAssetPath("/preview.png"), true);
   assert.equal(isPublicAssetPath("/api/chat"), false);
+});
+
+test("keeps authentication pages reachable for every session state", () => {
+  assert.equal(isPublicAuthPath("/login"), true);
+  assert.equal(isPublicAuthPath("/register"), true);
+  assert.equal(isPublicAuthPath("/sign-up"), true);
+  assert.equal(isPublicAuthPath("/"), false);
 });

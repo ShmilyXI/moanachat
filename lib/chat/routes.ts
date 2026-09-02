@@ -1,4 +1,9 @@
 const PRODUCT_CHAT_PATHS = new Set(["/chat/agent", "/chat/classic"]);
+const PUBLIC_AUTH_PATHS = new Set(["/login", "/register", "/sign-up"]);
+
+export function isPublicAuthPath(pathname: string): boolean {
+  return PUBLIC_AUTH_PATHS.has(pathname);
+}
 
 export function isChatSurfacePath(pathname: string): boolean {
   return (

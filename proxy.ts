@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { isPublicAssetPath } from "./lib/chat/routes";
-import { guestRegex } from "./lib/constants";
+import { isPublicAssetPath, isPublicAuthPath } from "./lib/chat/routes";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,6 +10,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isPublicAssetPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (isPublicAuthPath(pathname)) {
     return NextResponse.next();
   }
 
@@ -34,12 +37,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(
       new URL(`${base}/api/auth/guest?redirectUrl=${redirectUrl}`, request.url)
     );
-  }
-
-  const isGuest = guestRegex.test(token?.email ?? "");
-
-  if (token && !isGuest && ["/login", "/register"].includes(pathname)) {
-    return NextResponse.redirect(new URL(`${base}/`, request.url));
   }
 
   return NextResponse.next();
