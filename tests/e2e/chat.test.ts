@@ -4,20 +4,23 @@ test.describe("Chat Page", () => {
   test("opens the sidebar from a narrow embedded viewport", async ({
     page,
   }) => {
-    const directUrl = new URL(
-      test.info().project.use.baseURL ?? "http://localhost:3000/"
-    );
-    directUrl.hostname = "127.0.0.1";
     await page.setViewportSize({ height: 960, width: 652 });
-    await page.goto(directUrl.toString());
+    await page.goto("/chat/sidebar-regression");
 
     const sidebarToggle = page.getByTestId("sidebar-toggle-button");
     await expect(sidebarToggle).toBeVisible({ timeout: 10_000 });
 
     await sidebarToggle.click();
-    await expect(page.getByText("New chat")).toBeVisible({
+    const sidebar = page.locator('[data-sidebar="sidebar"]').first();
+    await expect(sidebar.getByText("Search", { exact: true })).toBeVisible({
       timeout: 10_000,
     });
+    await expect(
+      sidebar.getByRole("button", { exact: true, name: "New chat" })
+    ).toHaveCount(0);
+    await expect(
+      sidebar.getByRole("button", { exact: true, name: "Delete all" })
+    ).toHaveCount(0);
   });
 
   test("keeps the current chat route when clicking the sidebar logo", async ({

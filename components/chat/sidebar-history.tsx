@@ -372,7 +372,7 @@ export function SidebarHistory({
           <button
             aria-expanded={folder.isExpanded}
             aria-label={`${t("chat.folder.toggle")} ${folder.name}`}
-            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-left text-[13px] text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-left text-[13px] text-sidebar-foreground transition-colors hover:bg-sidebar-accent/60"
             data-testid={`chat-folder-toggle-${folder.id}`}
             onClick={() => toggleFolder(folder.id)}
             type="button"
@@ -407,7 +407,7 @@ export function SidebarHistory({
               <>
                 <button
                   aria-label={t("chat.folder.confirm")}
-                  className="rounded-md p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  className="rounded-md p-1 text-sidebar-foreground hover:bg-sidebar-accent"
                   data-testid={`chat-folder-confirm-${folder.id}`}
                   onClick={handleConfirmFolderDraft}
                   type="button"
@@ -416,7 +416,7 @@ export function SidebarHistory({
                 </button>
                 <button
                   aria-label={t("chat.folder.cancel")}
-                  className="rounded-md p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  className="rounded-md p-1 text-sidebar-foreground hover:bg-sidebar-accent"
                   data-testid={`chat-folder-cancel-${folder.id}`}
                   onClick={handleCancelFolderDraft}
                   type="button"
@@ -428,7 +428,7 @@ export function SidebarHistory({
               <>
                 <button
                   aria-label={`${t("chat.folder.rename")} ${folder.name}`}
-                  className="rounded-md p-1 text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  className="rounded-md p-1 text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                   data-testid={`chat-folder-rename-${folder.id}`}
                   onClick={() => handleRenameFolder(folder)}
                   type="button"
@@ -437,7 +437,7 @@ export function SidebarHistory({
                 </button>
                 <button
                   aria-label={`${t("chat.folder.delete")} ${folder.name}`}
-                  className="rounded-md p-1 text-sidebar-foreground/45 transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  className="rounded-md p-1 text-sidebar-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                   data-testid={`chat-folder-delete-${folder.id}`}
                   onClick={() => handleShowFolderDeleteDialog(folder.id)}
                   type="button"
@@ -465,7 +465,7 @@ export function SidebarHistory({
               ))
             ) : (
               <div
-                className="px-3 py-1.5 text-[11px] text-sidebar-foreground/40"
+                className="px-3 py-1.5 text-[11px] text-sidebar-foreground"
                 data-testid={`chat-folder-empty-${folder.id}`}
               >
                 {t("chat.folder.empty")}
@@ -480,7 +480,7 @@ export function SidebarHistory({
   const renderDateGroup = (label: string, chats: Chat[]) =>
     chats.length > 0 ? (
       <div key={label}>
-        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+        <div className="px-2 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground">
           {label}
         </div>
         {chats.map((chat) => renderChatItem(chat, `chat-unfiled-${chat.id}`))}
@@ -489,7 +489,7 @@ export function SidebarHistory({
 
   const folderSection = (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden pt-0">
-      <div className="flex items-center justify-between px-2 pb-1 pt-2 text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground/45">
+      <div className="flex items-center justify-between px-2 pb-1 pt-2 text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground">
         <span>{t("chat.sidebar.folders")}</span>
         <button
           aria-label={t("chat.sidebar.addFolder")}
@@ -504,7 +504,7 @@ export function SidebarHistory({
       <SidebarGroupContent>
         {folderDraft?.mode === "create" ? (
           <div className="mb-1 flex min-h-8 items-center gap-1 rounded-lg bg-sidebar-accent/50 px-1">
-            <FolderIcon className="ml-1 size-3.5 shrink-0 text-sidebar-foreground/60" />
+            <FolderIcon className="ml-1 size-3.5 shrink-0 text-sidebar-foreground" />
             <input
               aria-label={t("chat.folder.name")}
               autoFocus
@@ -520,7 +520,7 @@ export function SidebarHistory({
             />
             <button
               aria-label={t("chat.folder.confirm")}
-              className="rounded-md p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              className="rounded-md p-1 text-sidebar-foreground hover:bg-sidebar-accent"
               data-testid="chat-folder-confirm"
               onClick={handleConfirmFolderDraft}
               type="button"
@@ -529,7 +529,7 @@ export function SidebarHistory({
             </button>
             <button
               aria-label={t("chat.folder.cancel")}
-              className="rounded-md p-1 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              className="rounded-md p-1 text-sidebar-foreground hover:bg-sidebar-accent"
               data-testid="chat-folder-cancel"
               onClick={handleCancelFolderDraft}
               type="button"
@@ -562,8 +562,8 @@ export function SidebarHistory({
       <>
         {folderSection}
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
-            {t("chat.history")}
+          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground">
+            {t("chat.sidebar.chats")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="flex flex-col gap-0.5 px-1">
@@ -594,8 +594,8 @@ export function SidebarHistory({
       <>
         {folderSection}
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
-            {t("chat.history")}
+          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground">
+            {t("chat.sidebar.chats")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="flex w-full flex-row items-center justify-center gap-2 px-2 text-[13px] text-sidebar-foreground/60">
@@ -611,13 +611,13 @@ export function SidebarHistory({
     <>
       {folderSection}
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
-          {t("chat.history")}
+        <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground">
+          {t("chat.sidebar.chats")}
         </SidebarGroupLabel>
         <SidebarGroupContent>
           <section
             aria-label={t("chat.folder.unfiledDropTarget")}
-            className={`mb-2 rounded-md px-2 py-1 text-[11px] text-sidebar-foreground/45 transition-colors ${
+            className={`mb-2 rounded-md px-2 py-1 text-[11px] text-sidebar-foreground transition-colors ${
               dragOverFolderId === "__unfiled__" ? "bg-sidebar-accent" : ""
             }`}
             data-testid="chat-unfiled-dropzone"
@@ -648,7 +648,7 @@ export function SidebarHistory({
           <motion.div onViewportEnter={handleViewportEnter} />
 
           {hasReachedEnd ? null : (
-            <div className="mt-1 flex flex-row items-center gap-2 px-4 py-2 text-sidebar-foreground/50">
+            <div className="mt-1 flex flex-row items-center gap-2 px-4 py-2 text-sidebar-foreground">
               <div className="animate-spin">
                 <LoaderIcon />
               </div>
