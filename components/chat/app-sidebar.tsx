@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  FolderPlusIcon,
   Grid2X2Icon,
   MessageSquareIcon,
   PanelLeftIcon,
@@ -10,9 +9,9 @@ import {
   TrashIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { User } from "next-auth";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
@@ -37,6 +36,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useChatFolders } from "@/hooks/use-chat-folders";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,27 +51,20 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const { t } = useLocale();
+  const pathname = usePathname();
   const router = useRouter();
   const { setOpenMobile, toggleSidebar } = useSidebar();
   const { mutate } = useSWRConfig();
+  const {
+    createFolder,
+    deleteFolder,
+    folders,
+    moveChatToFolder,
+    renameFolder,
+    toggleFolder,
+    unfileChat,
+  } = useChatFolders();
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
-  const [folders, setFolders] = useState<string[]>([]);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("moanachat-folders");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setFolders(
-            parsed.filter((value): value is string => typeof value === "string")
-          );
-        }
-      }
-    } catch {
-      // Folder labels are optional local preferences.
-    }
-  }, []);
 
   const closeMobile = useCallback(() => {
     setOpenMobile(false);
@@ -86,6 +79,8 @@ export function AppSidebar({ user }: { user: User | undefined }) {
     router.push("/");
   }, [router, setOpenMobile]);
 
+  const logoHref = pathname && pathname !== "/" ? pathname : "/";
+
   const handleShowDeleteAllDialog = useCallback(() => {
     setShowDeleteAllDialog(true);
   }, []);
@@ -93,20 +88,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const handleSearch = useCallback(() => {
     router.push("/search");
   }, [router]);
-
-  const handleAddFolder = useCallback(() => {
-    const nextLabel = `${t("chat.sidebar.newFolder")} ${folders.length + 1}`;
-    const nextFolders = [...folders, nextLabel];
-    setFolders(nextFolders);
-    try {
-      window.localStorage.setItem(
-        "moanachat-folders",
-        JSON.stringify(nextFolders)
-      );
-    } catch {
-      // Folder labels remain usable for the current session.
-    }
-  }, [folders, t]);
 
   const handleDeleteAll = useCallback(() => {
     setShowDeleteAllDialog(false);
@@ -134,7 +115,11 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   className="h-9 min-w-0 flex-1 justify-start gap-2 px-2 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:group-hover/logo:opacity-0"
                   tooltip={t("chat.brand")}
                 >
-                  <Link href="/" onClick={closeMobile}>
+                  <Link
+                    data-testid="chat-brand"
+                    href={logoHref}
+                    onClick={closeMobile}
+                  >
                     <MessageSquareIcon className="size-4 text-sidebar-foreground/50" />
                     <span className="font-serif text-base italic tracking-tight group-data-[collapsible=icon]:hidden">
                       Moana
@@ -204,33 +189,16 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <SidebarGroup className="pt-0">
-            <SidebarGroupContent>
-              <div className="flex items-center justify-between px-2 pb-1 pt-2 text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground/45 group-data-[collapsible=icon]:hidden">
-                <span>{t("chat.sidebar.folders")}</span>
-                <button
-                  aria-label={t("chat.sidebar.addFolder")}
-                  className="rounded p-1 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  onClick={handleAddFolder}
-                  type="button"
-                >
-                  <FolderPlusIcon className="size-3.5" />
-                </button>
-              </div>
-              {folders.length > 0 ? (
-                <SidebarMenu className="group-data-[collapsible=icon]:hidden">
-                  {folders.map((folder) => (
-                    <SidebarMenuItem key={folder}>
-                      <SidebarMenuButton className="h-8 rounded-lg text-[13px] text-sidebar-foreground/60">
-                        <FolderPlusIcon className="size-3.5" />
-                        <span className="truncate">{folder}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              ) : null}
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <SidebarHistory
+            createFolder={createFolder}
+            deleteFolder={deleteFolder}
+            folders={folders}
+            moveChatToFolder={moveChatToFolder}
+            renameFolder={renameFolder}
+            toggleFolder={toggleFolder}
+            unfileChat={unfileChat}
+            user={user}
+          />
           <SidebarGroup className="pt-0">
             <div className="flex items-center justify-between px-2 pb-1 text-[11px] font-medium uppercase tracking-[0.12em] text-sidebar-foreground/45 group-data-[collapsible=icon]:hidden">
               <span>{t("chat.sidebar.chats")}</span>
@@ -263,7 +231,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <SidebarHistory user={user} />
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
           <LanguageSwitcher />

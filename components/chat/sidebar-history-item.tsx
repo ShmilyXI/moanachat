@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { memo, useCallback } from "react";
+import { type DragEvent, memo, useCallback } from "react";
 import { useLocale } from "@/components/locale-provider";
 import { useChatVisibility } from "@/hooks/use-chat-visibility";
 import type { Chat } from "@/lib/db/schema";
@@ -29,14 +29,18 @@ import {
 
 const PureChatItem = ({
   chat,
+  containerTestId,
   isActive,
   onDelete,
   setOpenMobile,
+  testId,
 }: {
   chat: Chat;
+  containerTestId?: string;
   isActive: boolean;
   onDelete: (chatId: string) => void;
   setOpenMobile: (open: boolean) => void;
+  testId?: string;
 }) => {
   const { t } = useLocale();
   const { visibilityType, setVisibilityType } = useChatVisibility({
@@ -59,14 +63,34 @@ const PureChatItem = ({
     onDelete(chat.id);
   }, [chat.id, onDelete]);
 
+  const handleDragStart = useCallback(
+    (event: DragEvent<HTMLAnchorElement>) => {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", chat.id);
+      event.dataTransfer.setData("text/chat-id", chat.id);
+    },
+    [chat.id]
+  );
+
+  const handleDragEnd = useCallback((event: DragEvent<HTMLAnchorElement>) => {
+    event.dataTransfer.clearData();
+  }, []);
+
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem data-testid={containerTestId}>
       <SidebarMenuButton
         asChild
         className="h-8 rounded-none text-[13px] text-sidebar-foreground/50 transition-all duration-150 hover:bg-transparent hover:text-sidebar-foreground data-active:bg-transparent data-active:font-normal data-active:text-sidebar-foreground/50 data-[active=true]:text-sidebar-foreground data-[active=true]:font-medium data-[active=true]:border-b data-[active=true]:border-dashed data-[active=true]:border-sidebar-foreground/50"
         isActive={isActive}
       >
-        <Link href={`/chat/${chat.id}`} onClick={closeMobile}>
+        <Link
+          data-testid={testId}
+          draggable
+          href={`/chat/${chat.id}`}
+          onClick={closeMobile}
+          onDragEnd={handleDragEnd}
+          onDragStart={handleDragStart}
+        >
           <span className="truncate">{chat.title}</span>
         </Link>
       </SidebarMenuButton>
@@ -75,6 +99,7 @@ const PureChatItem = ({
         <DropdownMenuTrigger asChild>
           <SidebarMenuAction
             className="mr-0.5 rounded-md text-sidebar-foreground/50 ring-0 transition-colors duration-150 focus-visible:ring-0 hover:text-sidebar-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            data-testid={chat.id ? `chat-action-${chat.id}` : undefined}
             showOnHover={!isActive}
           >
             <MoreHorizontalIcon />
@@ -130,5 +155,8 @@ export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {
   if (prevProps.isActive !== nextProps.isActive) {
     return false;
   }
-  return true;
+  return (
+    prevProps.containerTestId === nextProps.containerTestId &&
+    prevProps.testId === nextProps.testId
+  );
 });

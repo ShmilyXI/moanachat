@@ -20,6 +20,286 @@ test.describe("Chat Page", () => {
     });
   });
 
+  test("keeps the current chat route when clicking the sidebar logo", async ({
+    page,
+  }) => {
+    await page.goto("/chat/agent");
+
+    const logo = page.getByTestId("chat-brand");
+    await expect(logo).toHaveAttribute("href", "/chat/agent");
+    await logo.click();
+    await expect(page).toHaveURL(/\/chat\/agent$/);
+  });
+
+  test("renders filed and unfiled chats in their matching sidebar sections", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "moanachat-folders",
+        JSON.stringify({
+          folders: [
+            {
+              chatIds: ["chat-filed"],
+              id: "folder-ideas",
+              isExpanded: true,
+              name: "Ideas",
+            },
+          ],
+          version: 1,
+        })
+      );
+    });
+    await page.route("**/api/history*", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          chats: [
+            {
+              createdAt: new Date().toISOString(),
+              id: "chat-filed",
+              title: "Filed chat",
+              userId: "user-1",
+              visibility: "private",
+            },
+            {
+              createdAt: new Date().toISOString(),
+              id: "chat-unfiled",
+              title: "Unfiled chat",
+              userId: "user-1",
+              visibility: "private",
+            },
+          ],
+          hasMore: false,
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/chat/agent");
+
+    await expect(page.getByTestId("chat-folder-folder-ideas")).toBeVisible();
+    await expect(
+      page.getByTestId("chat-folder-item-folder-ideas-chat-filed")
+    ).toBeVisible();
+    await expect(page.getByTestId("chat-unfiled-chat-unfiled")).toBeVisible();
+  });
+
+  test("moves a chat into a folder with drag and drop", async ({ page }) => {
+    await page.route("**/api/history*", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          chats: [
+            {
+              createdAt: new Date().toISOString(),
+              id: "chat-to-file",
+              title: "Chat to file",
+              userId: "user-1",
+              visibility: "private",
+            },
+          ],
+          hasMore: false,
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "moanachat-folders",
+        JSON.stringify({ folders: [], version: 1 })
+      );
+    });
+
+    await page.goto("/chat/agent");
+    await page.getByTestId("chat-create-folder").click();
+    await page.getByTestId("chat-folder-name-input").fill("Ideas");
+    await page.getByTestId("chat-folder-confirm").click();
+
+    const chat = page.getByTestId("chat-unfiled-chat-to-file");
+    const folder = page
+      .getByTestId("chat-folders")
+      .locator('[data-testid^="chat-folder-"]')
+      .first();
+    await chat.dragTo(folder);
+
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const stored = window.localStorage.getItem("moanachat-folders");
+          return stored ? JSON.parse(stored).folders[0]?.chatIds : undefined;
+        })
+      )
+      .toEqual(["chat-to-file"]);
+  });
+
+  test("deletes a folder without deleting its filed chats", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "moanachat-folders",
+        JSON.stringify({
+          folders: [
+            {
+              chatIds: ["chat-filed"],
+              id: "folder-ideas",
+              isExpanded: true,
+              name: "Ideas",
+            },
+          ],
+          version: 1,
+        })
+      );
+    });
+    await page.route("**/api/history*", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          chats: [
+            {
+              createdAt: new Date().toISOString(),
+              id: "chat-filed",
+              title: "Filed chat",
+              userId: "user-1",
+              visibility: "private",
+            },
+          ],
+          hasMore: false,
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/chat/agent");
+    await page.getByTestId("chat-folder-delete-folder-ideas").click();
+    await expect(page.getByRole("alertdialog")).toContainText(
+      "Delete this folder?"
+    );
+    await page.getByRole("button", { exact: true, name: "Continue" }).click();
+
+    await expect(page.getByTestId("chat-folder-folder-ideas")).toHaveCount(0);
+    await expect(page.getByTestId("chat-unfiled-chat-filed")).toBeVisible();
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          JSON.parse(window.localStorage.getItem("moanachat-folders") ?? "{}")
+        )
+      )
+      .toEqual({ folders: [], version: 1 });
+  });
+
+  test("removes filed chat membership after deleting the chat", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "moanachat-folders",
+        JSON.stringify({
+          folders: [
+            {
+              chatIds: ["chat-filed"],
+              id: "folder-ideas",
+              isExpanded: true,
+              name: "Ideas",
+            },
+          ],
+          version: 1,
+        })
+      );
+    });
+    await page.route("**/api/history*", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({
+          chats: [
+            {
+              createdAt: new Date().toISOString(),
+              id: "chat-filed",
+              title: "Filed chat",
+              userId: "user-1",
+              visibility: "private",
+            },
+          ],
+          hasMore: false,
+        }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+    await page.route("**/api/chat?id=chat-filed", async (route) => {
+      await route.fulfill({
+        body: "{}",
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/chat/agent");
+    await page.getByTestId("chat-action-chat-filed").click();
+    await page.getByRole("menuitem", { name: "Delete" }).click();
+    await page.getByRole("button", { exact: true, name: "Continue" }).click();
+
+    await expect(
+      page.getByTestId("chat-folder-item-folder-ideas-chat-filed")
+    ).toHaveCount(0);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            JSON.parse(window.localStorage.getItem("moanachat-folders") ?? "{}")
+              .folders[0]?.chatIds
+        )
+      )
+      .toEqual([]);
+  });
+
+  test("renames a folder inline and persists the new name", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem(
+        "moanachat-folders",
+        JSON.stringify({
+          folders: [
+            {
+              chatIds: [],
+              id: "folder-ideas",
+              isExpanded: true,
+              name: "Ideas",
+            },
+          ],
+          version: 1,
+        })
+      );
+    });
+    await page.route("**/api/history*", async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({ chats: [], hasMore: false }),
+        contentType: "application/json",
+        status: 200,
+      });
+    });
+
+    await page.goto("/chat/agent");
+    await page.getByTestId("chat-folder-rename-folder-ideas").click();
+    const input = page.getByTestId("chat-folder-name-input-folder-ideas");
+    await input.fill("Projects");
+    await page.getByTestId("chat-folder-confirm-folder-ideas").click();
+
+    await expect(page.getByTestId("chat-folder-folder-ideas")).toContainText(
+      "Projects"
+    );
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            JSON.parse(window.localStorage.getItem("moanachat-folders") ?? "{}")
+              .folders[0]?.name
+        )
+      )
+      .toBe("Projects");
+  });
+
   test("home page loads with input field", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("multimodal-input")).toBeVisible();
