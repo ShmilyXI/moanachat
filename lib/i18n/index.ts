@@ -15,17 +15,13 @@ export function isLocale(value: unknown): value is Locale {
 
 export function detectLocale(
   saved: unknown,
-  browserLanguages: readonly string[]
+  _browserLanguages: readonly string[]
 ): Locale {
   if (isLocale(saved)) {
     return saved;
   }
 
-  return browserLanguages.some((language) =>
-    language.toLowerCase().startsWith("zh")
-  )
-    ? "zh"
-    : "en";
+  return "en";
 }
 
 export function createTranslator(locale: Locale) {

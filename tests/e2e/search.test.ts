@@ -21,7 +21,7 @@ test.describe("Search page", () => {
       });
     });
 
-    await page.goto("/");
+    await page.goto("/chat");
     await page.getByRole("button", { name: "Search" }).click();
 
     await expect(page.getByPlaceholder("Search chats...")).toBeVisible({

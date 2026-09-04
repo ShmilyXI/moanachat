@@ -7,6 +7,7 @@ import { useLocale } from "@/components/locale-provider";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import type { ChatMode } from "@/lib/chat/modes";
+import { NEW_CHAT_PATH } from "@/lib/chat/routes";
 import { ChatModeSelector } from "./chat-mode-selector";
 import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
 
@@ -54,7 +55,7 @@ function PureChatHeader({
           className="h-9 gap-1.5 rounded-lg border-border/50 bg-background/60 px-2.5 text-xs shadow-none hover:bg-background"
           variant="outline"
         >
-          <Link href="/">
+          <Link href={NEW_CHAT_PATH}>
             <PenSquareIcon className="size-3.5" />
             {isMobile ? null : <span>{t("chat.header.newChat")}</span>}
           </Link>

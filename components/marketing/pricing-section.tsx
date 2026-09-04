@@ -2,53 +2,7 @@
 
 import { ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
-
-const plans = [
-  {
-    body: "Full access to all AI models and features",
-    features: [
-      "All AI models (Pro & Advanced)",
-      "Unlimited text prompts",
-      "1,000 images per day",
-      "$1 in credits per month",
-      "Hi-res upscaling and watermark removal",
-      "Character creation",
-      "API access",
-    ],
-    monthly: 18,
-    name: "Pro",
-    yearly: 16,
-  },
-  {
-    body: "Everything in Pro, plus massive credit allocation",
-    features: [
-      "Everything in Pro",
-      "$75 in credits per month",
-      "10% credit bonus vs. retail",
-      "2-month credit banking",
-      "Video generation via credits",
-      "Higher API limits",
-    ],
-    monthly: 68,
-    name: "Pro+",
-    popular: true,
-    yearly: 61,
-  },
-  {
-    body: "Maximum power for creators and enterprises",
-    features: [
-      "Everything in Pro+",
-      "$225 in credits per month",
-      "12.5% credit bonus vs. retail",
-      "3-month credit banking",
-      "Highest API limits",
-      "Priority support",
-    ],
-    monthly: 200,
-    name: "Max",
-    yearly: 180,
-  },
-];
+import { checkoutHref, marketingPlans } from "@/lib/marketing/pricing";
 
 export function PricingSection() {
   const [yearly, setYearly] = useState(false);
@@ -96,7 +50,7 @@ export function PricingSection() {
           </div>
         </div>
         <div className="mt-10 grid gap-[18px] text-left desktop:grid-cols-3">
-          {plans.map((plan) => (
+          {marketingPlans.map((plan) => (
             <article
               className="marketing-pricing-card relative flex flex-col rounded-[var(--radius-card)] border border-[var(--color-ink)]/10 bg-[var(--color-accent-ink)]/75 p-6 shadow-[var(--shadow-card-soft)] tablet:p-7"
               key={plan.name}
@@ -118,7 +72,7 @@ export function PricingSection() {
               </p>
               <a
                 className="mt-[22px] flex items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-3 text-xs font-medium uppercase tracking-wide text-[var(--color-accent-ink)] transition-[background-color,transform] hover:bg-[var(--color-accent-hover)]"
-                href="/sign-up"
+                href={checkoutHref(plan.slug, yearly ? "yearly" : "monthly")}
               >
                 Get {plan.name}
               </a>

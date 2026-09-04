@@ -55,6 +55,13 @@ function getResponseError(payload: unknown, fallback: string): string {
   return fallback;
 }
 
+function getDisplayedBaseUrl(baseUrl: string): string {
+  const trimmedBaseUrl = baseUrl.replace(/\/+$/, "");
+  return trimmedBaseUrl.endsWith("/v1")
+    ? trimmedBaseUrl
+    : `${trimmedBaseUrl}/v1`;
+}
+
 export function RuntimeConfigForm() {
   const { t } = useLocale();
   const { data, error, isLoading, mutate } =
@@ -73,10 +80,13 @@ export function RuntimeConfigForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const displayedBaseUrl = data?.baseUrl
+    ? getDisplayedBaseUrl(data.baseUrl)
+    : "";
 
   useEffect(() => {
-    if (data?.configured && data.baseUrl) {
-      setBaseUrl(data.baseUrl);
+    if (data?.configured && displayedBaseUrl) {
+      setBaseUrl(displayedBaseUrl);
     }
     if (!data) {
       return;
@@ -85,7 +95,7 @@ export function RuntimeConfigForm() {
     const enabledModelIds = data.enabledModelIds ?? [];
     setSelectedModelIds(enabledModelIds);
     setDefaultModelId(data.defaultModelId ?? enabledModelIds[0] ?? "");
-  }, [data]);
+  }, [data, displayedBaseUrl]);
 
   const save = async () => {
     const trimmedBaseUrl = baseUrl.trim();
@@ -425,7 +435,7 @@ export function RuntimeConfigForm() {
             </div>
             {isConfigured && data.baseUrl ? (
               <p className="text-xs text-muted-foreground md:col-span-2">
-                {t("api.connection.current", { baseUrl: data.baseUrl })}
+                {t("api.connection.current", { baseUrl: displayedBaseUrl })}
               </p>
             ) : null}
             {modelCount === null ? null : (

@@ -29,6 +29,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useChatFolders } from "@/hooks/use-chat-folders";
+import { NEW_CHAT_PATH } from "@/lib/chat/routes";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
@@ -124,7 +125,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   className="h-9 rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   tooltip={t("chat.nav.chat")}
                 >
-                  <Link href="/" onClick={closeMobile}>
+                  <Link href={NEW_CHAT_PATH} onClick={closeMobile}>
                     <MessageSquareIcon className="size-4" />
                     <span className="text-[13px]">{t("chat.nav.chat")}</span>
                   </Link>

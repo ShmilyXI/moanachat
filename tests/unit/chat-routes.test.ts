@@ -3,12 +3,13 @@ import test from "node:test";
 import {
   extractChatId,
   isChatSurfacePath,
-  isPublicAuthPath,
   isPublicAssetPath,
+  isPublicAuthPath,
 } from "@/lib/chat/routes";
 
 test("does not treat product pages as chat surfaces", () => {
-  assert.equal(isChatSurfacePath("/"), true);
+  assert.equal(isChatSurfacePath("/"), false);
+  assert.equal(isChatSurfacePath("/chat"), true);
   assert.equal(isChatSurfacePath("/chat/123"), true);
   assert.equal(isChatSurfacePath("/chat/agent"), false);
   assert.equal(isChatSurfacePath("/chat/classic"), false);
@@ -16,6 +17,7 @@ test("does not treat product pages as chat surfaces", () => {
 });
 
 test("extracts ids only from persisted chat URLs", () => {
+  assert.equal(extractChatId("/chat"), null);
   assert.equal(extractChatId("/chat/123"), "123");
   assert.equal(extractChatId("/chat/agent"), null);
   assert.equal(extractChatId("/chat/classic"), null);

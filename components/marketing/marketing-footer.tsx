@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { MoanaMark } from "./moana-mark";
 
 const footerGroups = [
@@ -30,6 +33,11 @@ const footerGroups = [
 ];
 
 export function MarketingFooter() {
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+  const linkHref = (href: string) =>
+    href.startsWith("#") && !onHome ? `/${href}` : href;
+
   return (
     <footer className="marketing-footer">
       <div className="marketing-footer__inner">
@@ -47,7 +55,7 @@ export function MarketingFooter() {
               <h2>{group.title}</h2>
               <div>
                 {group.links.map((link) => (
-                  <a href={link.href} key={link.label}>
+                  <a href={linkHref(link.href)} key={link.label}>
                     {link.label}
                   </a>
                 ))}

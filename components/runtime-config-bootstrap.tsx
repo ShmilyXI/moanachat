@@ -32,17 +32,9 @@ export function RuntimeConfigBootstrap() {
           return;
         }
 
-        url.searchParams.delete("baseUrl");
-        url.searchParams.delete("apiBase");
-        url.searchParams.delete("apiKey");
-        window.history.replaceState(
-          window.history.state,
-          "",
-          `${url.pathname}${url.search}${url.hash}`
-        );
-        window.setTimeout(() => {
-          window.dispatchEvent(new Event("moana-runtime-config-ready"));
-        }, 0);
+        // The landing page is now the marketing site, so an embedded New API
+        // launch continues into the chat app once its credentials are stored.
+        window.location.replace(`${basePath}/chat`);
       })
       .catch(() => {
         // Keep the bootstrap parameters visible for a later page load.

@@ -26,7 +26,10 @@ test.describe("Authentication Pages", () => {
     );
     await expect(page.locator("[data-auth-panel]")).toBeVisible();
     await expect(page.locator("[data-auth-mark]")).toBeVisible();
-    await expect(page.locator(".auth-socials__button")).toHaveCount(5);
+
+    const google = page.getByRole("button", { name: "Continue with Google" });
+    await expect(google).toBeVisible();
+    await expect(google.locator("svg")).toBeVisible();
 
     const password = page.getByLabel("Password");
     await expect(password).toHaveAttribute("type", "password");
@@ -36,6 +39,15 @@ test.describe("Authentication Pages", () => {
     await expect(password).toHaveAttribute("type", "password");
   });
 
+  test("kicks off the Google OAuth redirect when clicked", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: "Continue with Google" }).click();
+
+    await expect(page).toHaveURL(/accounts\.google\.com/, {
+      timeout: 20_000,
+    });
+  });
+
   test("register page renders correctly", async ({ page }) => {
     await page.goto("/register");
     await expect(
@@ -43,7 +55,12 @@ test.describe("Authentication Pages", () => {
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Sign up" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { exact: true, name: "Sign up" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Sign up with Google" })
+    ).toBeVisible();
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
   });
 
@@ -62,7 +79,7 @@ test.describe("Authentication Pages", () => {
   test("can enter Moana without an account", async ({ page }) => {
     await page.goto("/login");
     await page
-      .locator("a[href=\"/api/auth/guest?redirectUrl=%2F\"]")
+      .locator('a[href="/api/auth/guest?redirectUrl=%2F"]')
       .evaluate((element) => (element as HTMLAnchorElement).click());
     await expect(page).toHaveURL("/");
   });
@@ -81,19 +98,11 @@ test.describe("Authentication Pages", () => {
     );
   });
 
-  test("follows Chinese browser language on authentication pages", async ({
+  test("renders Chinese on authentication pages with a saved locale", async ({
     page,
   }) => {
     await page.addInitScript(() => {
-      window.localStorage.removeItem("moanachat-locale");
-      Object.defineProperty(navigator, "language", {
-        configurable: true,
-        value: "zh-CN",
-      });
-      Object.defineProperty(navigator, "languages", {
-        configurable: true,
-        value: ["zh-CN", "zh"],
-      });
+      window.localStorage.setItem("moanachat-locale", "zh");
     });
     await page.goto("/login");
 
@@ -102,6 +111,9 @@ test.describe("Authentication Pages", () => {
     ).toBeVisible();
     await expect(page.getByLabel("邮箱")).toBeVisible();
     await expect(page.getByLabel("密码")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "使用 Google 继续" })
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: "登录" })).toBeVisible();
     await expect(page.getByRole("link", { name: "注册" })).toBeVisible();
   });
@@ -110,7 +122,7 @@ test.describe("Authentication Pages", () => {
     page,
   }) => {
     for (const width of [320, 375, 414, 768]) {
-      await page.setViewportSize({ width, height: 812 });
+      await page.setViewportSize({ height: 812, width });
       await page.goto("/register");
       await expect
         .poll(() =>

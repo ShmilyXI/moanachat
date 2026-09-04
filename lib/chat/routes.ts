@@ -1,13 +1,15 @@
 const PRODUCT_CHAT_PATHS = new Set(["/chat/agent", "/chat/classic"]);
 const PUBLIC_AUTH_PATHS = new Set(["/login", "/register", "/sign-up"]);
 
+export const NEW_CHAT_PATH = "/chat";
+
 export function isPublicAuthPath(pathname: string): boolean {
   return PUBLIC_AUTH_PATHS.has(pathname);
 }
 
 export function isChatSurfacePath(pathname: string): boolean {
   return (
-    pathname === "/" ||
+    pathname === NEW_CHAT_PATH ||
     (/^\/chat\/[^/]+$/.test(pathname) && !PRODUCT_CHAT_PATHS.has(pathname))
   );
 }

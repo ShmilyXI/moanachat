@@ -72,24 +72,29 @@ test.describe("Runtime provider configuration", () => {
       });
     });
 
-    await page.goto("/", { timeout: 10_000 });
-    await page.getByRole("link", { name: "API" }).click({ timeout: 10_000 });
+    await page.goto("/api-dashboard", { timeout: 10_000 });
 
     await expect(page.getByLabel("New API base URL")).toBeVisible({
       timeout: 10_000,
     });
     await page
       .getByLabel("New API base URL")
-      .fill("https://newapi.example.com");
+      .fill("https://newapi.example.com/v1");
     await page.getByLabel("New API key").fill("sk-account-secret");
     await page.getByRole("button", { name: "Save connection" }).click();
 
     await expect(page.getByText("1 models available")).toBeVisible();
-    await expect(page.getByText("https://newapi.example.com")).toBeVisible();
+    await expect(page.getByLabel("New API base URL")).toHaveValue(
+      "https://newapi.example.com/v1",
+      { timeout: 5000 }
+    );
+    await expect(page.getByText("https://newapi.example.com/v1")).toBeVisible({
+      timeout: 5000,
+    });
     await expect(page.getByLabel("New API key")).toHaveValue("");
     expect(savedBody).toEqual({
       apiKey: "sk-account-secret",
-      baseUrl: "https://newapi.example.com",
+      baseUrl: "https://newapi.example.com/v1",
     });
 
     const bodyText = await page.locator("body").innerText();
@@ -119,8 +124,8 @@ test.describe("Runtime provider configuration", () => {
       await pageA.goto("/register");
       await pageA.getByLabel("Email").fill(userA.email);
       await pageA.getByLabel("Password").fill(userA.password);
-      await pageA.getByRole("button", { name: "Sign up" }).click();
-      await pageA.waitForURL("**/", { timeout: 10_000 });
+      await pageA.getByRole("button", { name: "Sign up", exact: true }).click();
+      await pageA.waitForURL("**/chat", { timeout: 15_000 });
       await pageA.route("**/api/models", async (route) => {
         await route.fulfill({
           body: JSON.stringify({
@@ -157,15 +162,15 @@ test.describe("Runtime provider configuration", () => {
       await pageA.getByRole("button", { name: "Save connection" }).click();
       await expect(pageA.getByText("Connection saved.")).toBeVisible();
       await expect(
-        pageA.getByText("Connected to https://account.example")
+        pageA.getByText("Connected to https://account.example/v1")
       ).toBeVisible();
       expect(runtimeResponseBody).not.toContain(apiKey);
 
       await pageB.goto("/register");
       await pageB.getByLabel("Email").fill(userB.email);
       await pageB.getByLabel("Password").fill(userB.password);
-      await pageB.getByRole("button", { name: "Sign up" }).click();
-      await pageB.waitForURL("**/", { timeout: 10_000 });
+      await pageB.getByRole("button", { name: "Sign up", exact: true }).click();
+      await pageB.waitForURL("**/chat", { timeout: 15_000 });
       await pageB.goto("/api-dashboard");
       await expect(pageB.getByText("No connection configured")).toBeVisible();
     } finally {
@@ -268,10 +273,10 @@ test.describe("Runtime provider configuration", () => {
       });
     });
 
-    await page.goto("/");
+    await page.goto("/chat");
     await page.getByRole("link", { name: "API" }).click();
     await expect(page.getByLabel("New API base URL")).toHaveValue(
-      "https://newapi.example.com"
+      "https://newapi.example.com/v1"
     );
 
     await page.getByRole("button", { name: "Get models" }).click();
@@ -294,6 +299,8 @@ test.describe("Runtime provider configuration", () => {
         defaultModelId: "anthropic/claude-3.7",
         enabledModelIds: ["openai/gpt-4.1", "anthropic/claude-3.7"],
       });
-    expect(discoveryBody).toEqual({ baseUrl: "https://newapi.example.com" });
+    expect(discoveryBody).toEqual({
+      baseUrl: "https://newapi.example.com/v1",
+    });
   });
 });

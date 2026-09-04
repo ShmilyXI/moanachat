@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/sidebar";
 import type { ChatFolder } from "@/lib/chat/folders";
 import { removeChatFromHistory } from "@/lib/chat/history";
+import { NEW_CHAT_PATH } from "@/lib/chat/routes";
 import type { Chat } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
 import { LoaderIcon } from "./icons";
@@ -190,7 +191,7 @@ export function SidebarHistory({
     unfileChat(chatToDelete ?? "");
 
     if (isCurrentChat) {
-      router.replace("/");
+      router.replace(NEW_CHAT_PATH);
     }
 
     toast.success(t("chat.delete.success"));

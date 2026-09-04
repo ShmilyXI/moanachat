@@ -294,55 +294,47 @@
 }
 
 .auth-socials {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.625rem;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-height: 2.125rem;
+  margin-block: 0.25rem;
 }
 
-.auth-socials__button {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-width: 0;
-  min-height: 2.125rem;
-  height: 2.125rem;
-  color: var(--color-auth-muted);
-  background: var(--color-auth-panel-2);
+.auth-socials__google {
+  display: inline-flex;
+  gap: 0.625rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.5rem;
+  padding-inline: 1rem;
+  color: var(--color-auth-ink);
+  font-size: var(--moana-text-sm);
+  font-weight: 500;
+  background: var(--color-auth-panel);
   border: 1px solid var(--color-auth-rule);
   border-radius: 0.5rem;
   transition:
     background-color var(--dur-short) var(--ease-out),
-    color var(--dur-short) var(--ease-out),
-    transform 100ms var(--ease-out),
-    opacity var(--dur-short) var(--ease-out);
+    box-shadow var(--dur-short) var(--ease-out),
+    transform 100ms var(--ease-out);
 }
 
-.auth-socials__button::before {
-  position: absolute;
-  inset: -0.375rem;
-  content: "";
-}
-
-.auth-socials__button svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.auth-socials__button:disabled {
-  cursor: not-allowed;
-  opacity: 0.78;
+.auth-socials__google svg {
+  flex: 0 0 auto;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .auth-socials__button:not(:disabled):hover {
-    color: var(--color-auth-ink);
-    background: var(--color-auth-panel);
+  .auth-socials__google:hover {
+    background: var(--color-auth-panel-2);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
   }
 }
 
-.auth-socials__button:not(:disabled):active {
+.auth-socials__google:active {
   transform: translateY(1px);
 }
 
@@ -969,6 +961,18 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
 
 @media (min-width: 48rem) {
   .marketing-header[data-state="scrolled"] .marketing-wordmark {
+    display: none;
+  }
+
+  .marketing-header[data-nav-visible="true"] .marketing-header__nav {
+    display: flex;
+  }
+
+  .marketing-header[data-nav-visible="true"] .marketing-header__login {
+    display: inline-flex;
+  }
+
+  .marketing-header[data-nav-visible="true"] .marketing-header__menu-button {
     display: none;
   }
 

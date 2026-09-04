@@ -7,8 +7,8 @@ test("saved locale has priority over browser language", () => {
   assert.equal(detectLocale("zh", ["en-US"]), "zh");
 });
 
-test("browser Chinese locale is detected", () => {
-  assert.equal(detectLocale(null, ["zh-CN", "en-US"]), "zh");
+test("English is the default even for a Chinese browser locale", () => {
+  assert.equal(detectLocale(null, ["zh-CN", "en-US"]), "en");
 });
 
 test("unknown browser locale falls back to English", () => {

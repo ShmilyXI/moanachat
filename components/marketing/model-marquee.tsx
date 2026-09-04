@@ -32,15 +32,18 @@ function ModelRow({
   items: string[][];
   reverse?: boolean;
 }) {
-  const doubled = [...items, ...items];
+  const doubled = [
+    ...items.map(([slug, name]) => ({ copy: "primary", name, slug })),
+    ...items.map(([slug, name]) => ({ copy: "duplicate", name, slug })),
+  ];
   return (
     <div
       className={`marketing-model-row flex w-max items-center gap-4 ${reverse ? "animate-[marquee-reverse_42s_linear_infinite]" : "animate-[marquee_38s_linear_infinite]"}`}
     >
-      {doubled.map(([slug, name]) => (
+      {doubled.map(({ copy, name, slug }) => (
         <div
           className="marketing-model-item flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full px-5 py-2.5 text-sm text-[var(--color-ink)]/65"
-          key={`${slug}-${name}`}
+          key={`${slug}-${name}-${copy}`}
         >
           <span
             className="flex size-6 items-center justify-center opacity-50"
@@ -83,7 +86,7 @@ export function ModelMarquee() {
       <div className="marketing-model-cta flex justify-center">
         <a
           className="flex items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-6 py-3.5 text-base font-medium leading-none text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-hover)]"
-          href="#capabilities"
+          href="/models"
         >
           View All Models <span aria-hidden>→</span>
         </a>

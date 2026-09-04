@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Model Selector", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
   });
 
   test("displays a model button", async ({ page }) => {
@@ -92,7 +92,7 @@ test.describe("Model Selector", () => {
       });
     });
 
-    await page.goto("/");
+    await page.goto("/chat");
     await expect(page.getByTestId("attachments-button")).toBeEnabled();
   });
 
@@ -166,7 +166,7 @@ test.describe("Model Selector", () => {
       });
     });
 
-    await page.goto("/");
+    await page.goto("/chat");
     const modelButton = page.getByTestId("model-selector");
     await expect.poll(() => modelRequestCount).toBeGreaterThan(0);
     await page.waitForTimeout(2000);

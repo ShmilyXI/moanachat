@@ -2,11 +2,16 @@ import { compare } from "bcrypt-ts";
 import NextAuth, { type DefaultSession } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { DUMMY_PASSWORD } from "@/lib/constants";
-import { createGuestUser, getUser } from "@/lib/db/queries";
+import { createGuestUser, createOAuthUser, getUser } from "@/lib/db/queries";
 import { authConfig } from "./auth.config";
 
 export type UserType = "guest" | "regular";
+
+export const isGoogleAuthEnabled = Boolean(
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+);
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -54,8 +59,41 @@ export const {
 
       return session;
     },
+    // OAuth sign-ins skip the Credentials authorize() path, so persist the
+    // profile here and carry the local database id in the JWT.
+    async signIn({ user, profile }) {
+      if (!profile) {
+        return true;
+      }
+
+      const email = user.email ?? profile.email ?? "";
+      if (!email) {
+        return false;
+      }
+
+      const [existingUser] = await getUser(email);
+      const dbUser =
+        existingUser ??
+        (await createOAuthUser({
+          email,
+          image: typeof profile.image === "string" ? profile.image : null,
+          name: profile.name ?? null,
+        }));
+
+      user.id = dbUser.id;
+      user.type = "regular";
+      return true;
+    },
   },
   providers: [
+    ...(isGoogleAuthEnabled
+      ? [
+          Google({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
     Credentials({
       async authorize(credentials) {
         const email = String(credentials.email ?? "");

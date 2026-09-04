@@ -9,6 +9,8 @@ import {
 import {
   ArrowRight,
   ArrowUp,
+  Check,
+  Copy,
   MessageCircle,
   Music2,
   Pause,
@@ -106,13 +108,13 @@ function VideoDemo() {
       <video
         autoPlay
         className="size-full object-cover"
+        height={768}
         loop
         muted
         playsInline
         preload="metadata"
         src="https://media.venice.ai/assets/lp/video/01-cinematic-portrait.mp4"
         width={1024}
-        height={768}
       />
       <div className="absolute inset-x-4 bottom-4 flex items-center rounded-[var(--radius-panel)] border border-[var(--color-accent-ink)]/25 bg-[var(--color-ink)]/60 px-4 py-3 text-sm text-[var(--color-accent-ink)] backdrop-blur">
         A cinematic portrait turning toward camera
@@ -214,17 +216,192 @@ function AudioDemo() {
     </div>
   );
 }
+const agentSnippets = [
+  {
+    code: `from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.moana.ai/api/v1",
+    api_key="your-moana-api-key",
+)
+
+response = client.chat.completions.create(
+    model="kimi-k2.5",
+    messages=[{"role": "user", "content": "Research a topic"}],
+)`,
+    file: "agent.py",
+    label: "OpenAI SDK",
+  },
+  {
+    code: `from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(
+    base_url="https://api.moana.ai/api/v1",
+    api_key="your-moana-api-key",
+    model="kimi-k2.5",
+)
+
+for chunk in llm.stream("Research a topic"):
+    print(chunk.content, end="")`,
+    file: "agent.py",
+    label: "LangChain",
+  },
+  {
+    code: `import { createOpenAI } from "@ai-sdk/openai-compatible";
+import { streamText } from "ai";
+
+const moana = createOpenAI({
+  baseURL: "https://api.moana.ai/api/v1",
+  apiKey: "your-moana-api-key",
+});
+
+streamText({
+  model: moana("kimi-k2.5"),
+  prompt: "Research a topic",
+});`,
+    file: "agent.ts",
+    label: "Vercel AI",
+  },
+  {
+    code: `from crewai import LLM, Agent, Task, Crew
+
+llm = LLM(
+    model="openai/kimi-k2.5",
+    base_url="https://api.moana.ai/api/v1",
+    api_key="your-moana-api-key",
+)
+
+crew = Crew(
+    agents=[Agent(role="Researcher", llm=llm)],
+    tasks=[Task(description="Research a topic")],
+).kickoff()`,
+    file: "crew.py",
+    label: "CrewAI",
+  },
+  {
+    code: `export ANTHROPIC_BASE_URL="https://api.moana.ai/api/v1"
+export ANTHROPIC_AUTH_TOKEN="your-moana-api-key"
+
+claude "Research a topic privately"`,
+    file: "terminal",
+    label: "Claude Code",
+  },
+  {
+    code: `export OPENAI_BASE_URL="https://api.moana.ai/api/v1"
+export OPENAI_API_KEY="your-moana-api-key"
+
+codex "Research a topic privately"`,
+    file: "terminal",
+    label: "Codex CLI",
+  },
+  {
+    code: `const agent = new ElizaAgent({
+  modelProvider: "openai",
+  model: "kimi-k2.5",
+  modelEndpointOverride: "https://api.moana.ai/api/v1",
+  apiKey: "your-moana-api-key",
+});
+
+await agent.start();`,
+    file: "agent.ts",
+    label: "ElizaOS",
+  },
+  {
+    code: `npx openclaw@latest \\
+  --provider openai \\
+  --base-url https://api.moana.ai/api/v1 \\
+  --model kimi-k2.5 \\
+  "Research a topic privately"`,
+    file: "terminal",
+    label: "OpenClaw",
+  },
+];
+
+function useTypedCode(code: string) {
+  const reducedMotion = useReducedMotion();
+  const [typed, setTyped] = useState(() => (reducedMotion ? code : ""));
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setTyped(code);
+      return;
+    }
+    setTyped("");
+    let progress = 0;
+    const step = Math.max(1, Math.round(code.length / 160));
+    const timer = window.setInterval(() => {
+      progress += step;
+      setTyped(code.slice(0, progress));
+      if (progress >= code.length) {
+        window.clearInterval(timer);
+      }
+    }, 16);
+    return () => window.clearInterval(timer);
+  }, [code, reducedMotion]);
+
+  return typed;
+}
+
 function AgentDemo() {
+  const [tab, setTab] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const snippet = agentSnippets[tab];
+  const typed = useTypedCode(snippet.code);
+
+  const copySnippet = useCallback(() => {
+    const finish = () => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(snippet.code).then(finish, finish);
+      return;
+    }
+    finish();
+  }, [snippet.code]);
+
   return (
     <div className="flex size-full flex-col bg-[var(--color-paper-2)] text-left text-[var(--color-ink)]">
-      <div className="flex items-center gap-2 border-b border-[var(--color-ink)]/10 px-5 py-4">
-        <span className="font-mono text-xs text-[var(--color-ink)]/55">
-          agent.ts
-        </span>
+      <div
+        className="flex shrink-0 items-center gap-1 overflow-x-auto border-b border-[var(--color-ink)]/10 px-3 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        data-agent-tabs
+      >
+        {agentSnippets.map((item, index) => (
+          <button
+            aria-pressed={tab === index}
+            className={`shrink-0 rounded-[var(--radius-control)] px-2.5 py-1 text-[11px] font-medium transition-colors ${tab === index ? "bg-[var(--color-ink)]/10 text-[var(--color-ink)]" : "text-[var(--color-ink)]/55 hover:text-[var(--color-ink)]"}`}
+            key={item.label}
+            onClick={() => setTab(index)}
+            type="button"
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
-      <pre className="flex-1 overflow-auto p-6 font-mono text-xs leading-[1.8] text-[var(--color-ink)]/80 tablet:p-8 tablet:text-sm">
-        <code>{`const response = await moana.chat({\n  model: "private-large",\n  tools: [{ type: "web_search" }],\n  messages: [{\n    role: "user",\n    content: "Research a topic"\n  }]\n});`}</code>
+      <pre className="m-0 flex-1 overflow-auto p-5 font-mono text-xs leading-[1.8] text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
+        <code>{typed}</code>
+        <span className="ml-1 inline-block animate-pulse text-[var(--color-accent)]">
+          ▎
+        </span>
       </pre>
+      <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--color-ink)]/10 px-4 py-3">
+        <span className="font-mono text-[11px] text-[var(--color-ink)]/45">
+          {snippet.file}
+        </span>
+        <button
+          className="inline-flex items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-ink)]/15 px-3 py-1.5 text-[11px] font-medium transition-colors hover:bg-[var(--color-ink)]/5"
+          data-testid="agent-copy-snippet"
+          onClick={copySnippet}
+          type="button"
+        >
+          {copied ? (
+            <Check className="size-3.5 text-[var(--color-accent)]" />
+          ) : (
+            <Copy className="size-3.5" />
+          )}
+          {copied ? "Copied" : "Copy Snippet"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -378,15 +555,15 @@ export function CapabilitiesSection() {
               <button
                 aria-label={`Show ${item.title}`}
                 aria-pressed={active === index}
-                  className="marketing-capability-dot relative flex size-11 items-center justify-center rounded-full p-0"
-                  key={item.title}
-                  onClick={() => setActive(index)}
-                  type="button"
-                >
-                  <span
-                    className={`block size-2 rounded-full transition-[background-color,transform,opacity] ${active === index ? "scale-y-[5] bg-[var(--color-sand)]" : "bg-[var(--color-ink)]/15"}`}
-                  />
-                </button>
+                className="marketing-capability-dot relative flex size-11 items-center justify-center rounded-full p-0"
+                key={item.title}
+                onClick={() => setActive(index)}
+                type="button"
+              >
+                <span
+                  className={`block size-2 rounded-full transition-[background-color,transform,opacity] ${active === index ? "scale-y-[5] bg-[var(--color-sand)]" : "bg-[var(--color-ink)]/15"}`}
+                />
+              </button>
             ))}
           </div>
         </div>

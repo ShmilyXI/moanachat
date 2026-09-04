@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUp, ChevronDown } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { saveDemoPrompt } from "./composer";
 import { MoanaMark } from "./moana-mark";
@@ -53,7 +54,19 @@ const mobileGroups = [
   },
 ];
 
-export function MarketingHeader() {
+export function MarketingHeader({
+  navVisible = false,
+}: {
+  navVisible?: boolean;
+}) {
+  const pathname = usePathname();
+  const onHome = pathname === "/";
+  // Section anchors only resolve on the homepage; elsewhere send visitors back
+  // to the homepage section.
+  const linkHref = useCallback(
+    (href: string) => (href.startsWith("#") && !onHome ? `/${href}` : href),
+    [onHome]
+  );
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -87,7 +100,10 @@ export function MarketingHeader() {
     }
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target;
-      if (!(target instanceof Element) || !target.closest("[data-marketing-nav]")) {
+      if (
+        !(target instanceof Element) ||
+        !target.closest("[data-marketing-nav]")
+      ) {
         setOpenDropdown(null);
       }
     };
@@ -130,6 +146,7 @@ export function MarketingHeader() {
     <header
       className="marketing-header"
       data-marketing-nav
+      data-nav-visible={navVisible ? "true" : undefined}
       data-state={scrolled ? "scrolled" : "resting"}
     >
       <div className="marketing-header__inner">
@@ -183,7 +200,7 @@ export function MarketingHeader() {
                   <div className="marketing-header__dropdown" data-nav-dropdown>
                     {link.menu.map((item) => (
                       <a
-                        href={item.href}
+                        href={linkHref(item.href)}
                         key={item.label}
                         onClick={() => setOpenDropdown(null)}
                       >
@@ -194,7 +211,7 @@ export function MarketingHeader() {
                 ) : null}
               </div>
             ) : (
-              <a href={link.href} key={link.label}>
+              <a href={linkHref(link.href)} key={link.label}>
                 {link.label}
               </a>
             )
@@ -224,11 +241,13 @@ export function MarketingHeader() {
             {mobileGroups.map((group) => (
               <div className="marketing-header__mobile-group" key={group.id}>
                 {group.label ? (
-                  <p className="marketing-header__mobile-label">{group.label}</p>
+                  <p className="marketing-header__mobile-label">
+                    {group.label}
+                  </p>
                 ) : null}
                 {group.links.map((link) => (
                   <a
-                    href={link.href}
+                    href={linkHref(link.href)}
                     key={link.label}
                     onClick={() => setMenuOpen(false)}
                   >

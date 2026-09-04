@@ -75,6 +75,33 @@ export async function createGuestUser() {
   }
 }
 
+export async function createOAuthUser({
+  email,
+  image,
+  name,
+}: {
+  email: string;
+  image?: string | null;
+  name?: string | null;
+}) {
+  try {
+    return await db
+      .insert(user)
+      .values({
+        email,
+        emailVerified: true,
+        image: image ?? null,
+        name: name ?? null,
+      })
+      .returning({
+        email: user.email,
+        id: user.id,
+      });
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
 export async function getUserRuntimeConfigByUserId({
   userId,
 }: {

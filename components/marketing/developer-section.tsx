@@ -1,17 +1,31 @@
 "use client";
 
-import { ArrowRight, Terminal } from "lucide-react";
-import { useState } from "react";
+import { ArrowRight, Check, Copy, Terminal } from "lucide-react";
+import { useCallback, useState } from "react";
 
 const snippets = {
-  Text: `const response = await fetch("https://api.moana.ai/api/v1/chat/completions", {\n  method: "POST",\n  headers: {\n    Authorization: \`Bearer \${key}\`,\n    "Content-Type": "application/json",\n  },\n  body: JSON.stringify({\n    model: "private-large",\n    messages: [{ role: "user", content: "Latest AI news" }],\n  }),\n});`,
   Image: `const image = await moana.images.generate({\n  model: "image-ultra",\n  prompt: "A Venetian sunset",\n  width: 1024,\n  height: 1024,\n});`,
-  Video: `const video = await moana.video.generate({\n  model: "video-pro",\n  prompt: "A hummingbird hovering in slow motion",\n  duration: 5,\n});`,
   Music: `const track = await moana.music.generate({\n  model: "music-pro",\n  prompt: "A cinematic score with sweeping strings",\n});`,
+  Text: `const response = await fetch("https://api.moana.ai/api/v1/chat/completions", {\n  method: "POST",\n  headers: {\n    Authorization: \`Bearer \${key}\`,\n    "Content-Type": "application/json",\n  },\n  body: JSON.stringify({\n    model: "private-large",\n    messages: [{ role: "user", content: "Latest AI news" }],\n  }),\n});`,
+  Video: `const video = await moana.video.generate({\n  model: "video-pro",\n  prompt: "A hummingbird hovering in slow motion",\n  duration: 5,\n});`,
 };
 
 export function DeveloperSection() {
   const [tab, setTab] = useState<keyof typeof snippets>("Text");
+  const [copied, setCopied] = useState(false);
+
+  const copySnippet = useCallback(() => {
+    const finish = () => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(snippets[tab]).then(finish, finish);
+      return;
+    }
+    finish();
+  }, [tab]);
+
   return (
     <section
       className="relative overflow-hidden bg-[var(--color-paper)] px-6 py-24 text-[var(--color-ink)] tablet:px-8 tablet:py-32"
@@ -44,7 +58,7 @@ export function DeveloperSection() {
                 {tab.toLowerCase()}.ts
               </span>
             </div>
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
               {(Object.keys(snippets) as (keyof typeof snippets)[]).map(
                 (name) => (
                   <button
@@ -58,6 +72,19 @@ export function DeveloperSection() {
                   </button>
                 )
               )}
+              <button
+                className="ml-1 inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border border-[var(--color-ink)]/15 px-2.5 py-1 text-[11px] font-medium transition-colors hover:bg-[var(--color-ink)]/5"
+                data-testid="developer-copy-snippet"
+                onClick={copySnippet}
+                type="button"
+              >
+                {copied ? (
+                  <Check className="size-3.5 text-[var(--color-accent)]" />
+                ) : (
+                  <Copy className="size-3.5" />
+                )}
+                {copied ? "Copied" : "Copy Snippet"}
+              </button>
             </div>
           </div>
           <pre className="marketing-developer-code m-0 flex-1 overflow-auto p-5 font-mono text-xs text-[var(--color-ink)]/80 tablet:p-6 tablet:text-sm">
@@ -69,7 +96,7 @@ export function DeveloperSection() {
         </div>
         <a
           className="marketing-developer-cta mt-10 inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-3 text-sm font-medium text-[var(--color-accent-ink)]"
-          href="/chat"
+          href="/api-dashboard"
         >
           Explore API Docs <ArrowRight className="size-4" />
         </a>

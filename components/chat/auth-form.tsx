@@ -1,50 +1,33 @@
 "use client";
 
-import {
-  Apple,
-  Chrome,
-  CircleDollarSign,
-  Eye,
-  EyeOff,
-  MessageCircle,
-  WalletCards,
-} from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import Form from "next/form";
 import { useCallback, useState } from "react";
-
+import { signInWithGoogle } from "@/app/(auth)/actions";
 import { useLocale } from "@/components/locale-provider";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-const socialProviders = [
-  { icon: Apple, label: "Continue with Apple" },
-  { icon: CircleDollarSign, label: "Continue with Coinbase" },
-  { icon: MessageCircle, label: "Continue with Discord" },
-  { icon: Chrome, label: "Continue with Google" },
-  { icon: WalletCards, label: "Continue with WalletConnect" },
-];
-
-function AuthSocialProviders() {
+function GoogleIcon() {
   return (
-    <>
-      <div aria-label="Other sign-in options" className="auth-socials" role="group">
-        {socialProviders.map(({ icon: Icon, label }) => (
-          <button
-            aria-label={label}
-            className="auth-socials__button"
-            disabled
-            key={label}
-            title="第三方登录暂未开放"
-            type="button"
-          >
-            <Icon aria-hidden />
-          </button>
-        ))}
-      </div>
-      <div className="auth-divider" aria-hidden="true">
-        <span>or</span>
-      </div>
-    </>
+    <svg aria-hidden viewBox="0 0 24 24">
+      <path
+        d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.57 5.57 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+        fill="#4285F4"
+      />
+      <path
+        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24z"
+        fill="#34A853"
+      />
+      <path
+        d="M5.27 14.29A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.57.38-2.29V6.62H1.29a12 12 0 0 0 0 10.76l3.98-3.09z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"
+        fill="#EA4335"
+      />
+    </svg>
   );
 }
 
@@ -52,6 +35,8 @@ export function AuthForm({
   action,
   children,
   defaultEmail = "",
+  googleEnabled = false,
+  googleIntent = "login",
   onSubmit,
 }: {
   action: NonNullable<
@@ -59,6 +44,8 @@ export function AuthForm({
   >;
   children: React.ReactNode;
   defaultEmail?: string;
+  googleEnabled?: boolean;
+  googleIntent?: "login" | "register";
   onSubmit?: React.FormEventHandler<HTMLFormElement>;
 }) {
   const { t } = useLocale();
@@ -70,53 +57,79 @@ export function AuthForm({
     () => setShowPassword((visible) => !visible),
     []
   );
+  const googleLabel =
+    googleIntent === "register"
+      ? t("chat.auth.signUpGoogle")
+      : t("chat.auth.continueGoogle");
 
   return (
-    <Form action={action} className="flex flex-col gap-4" onSubmit={onSubmit}>
-      <AuthSocialProviders />
-      <div className="flex flex-col gap-2">
-        <Label className="font-normal text-muted-foreground" htmlFor="email">
-          {t("chat.auth.email")}
-        </Label>
-        <Input
-          autoComplete="email"
-          className="auth-form__input"
-          defaultValue={defaultEmail}
-          id="email"
-          name="email"
-          placeholder={t("chat.auth.emailPlaceholder")}
-          required
-          type="email"
-        />
-      </div>
+    <>
+      {googleEnabled ? (
+        <>
+          <form action={signInWithGoogle} className="auth-socials">
+            <button
+              className="auth-socials__google"
+              data-testid="google-signin"
+              type="submit"
+            >
+              <GoogleIcon />
+              {googleLabel}
+            </button>
+          </form>
+          <div aria-hidden="true" className="auth-divider">
+            <span>{t("chat.auth.orDivider")}</span>
+          </div>
+        </>
+      ) : null}
 
-      <div className="flex flex-col gap-2">
-        <Label className="font-normal text-muted-foreground" htmlFor="password">
-          {t("chat.auth.password")}
-        </Label>
-        <div className="auth-form__password">
+      <Form action={action} className="flex flex-col gap-4" onSubmit={onSubmit}>
+        <div className="flex flex-col gap-2">
+          <Label className="font-normal text-muted-foreground" htmlFor="email">
+            {t("chat.auth.email")}
+          </Label>
           <Input
-            className="auth-form__input auth-form__input--password"
-            id="password"
-            name="password"
-            placeholder={t("chat.auth.passwordPlaceholder")}
+            autoComplete="email"
+            className="auth-form__input"
+            defaultValue={defaultEmail}
+            id="email"
+            name="email"
+            placeholder={t("chat.auth.emailPlaceholder")}
             required
-            type={showPassword ? "text" : "password"}
+            type="email"
           />
-          <button
-            aria-pressed={showPassword}
-            className="auth-form__password-toggle"
-            onClick={togglePassword}
-            title={passwordToggleLabel}
-            type="button"
-          >
-            {showPassword ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
-            <span className="sr-only">{passwordToggleLabel}</span>
-          </button>
         </div>
-      </div>
 
-      {children}
-    </Form>
+        <div className="flex flex-col gap-2">
+          <Label
+            className="font-normal text-muted-foreground"
+            htmlFor="password"
+          >
+            {t("chat.auth.password")}
+          </Label>
+          <div className="auth-form__password">
+            <Input
+              className="auth-form__input auth-form__input--password"
+              id="password"
+              name="password"
+              placeholder={t("chat.auth.passwordPlaceholder")}
+              required
+              type={showPassword ? "text" : "password"}
+            />
+            <button
+              aria-pressed={showPassword}
+              className="auth-form__password-toggle"
+              onClick={togglePassword}
+              title={passwordToggleLabel}
+              type="button"
+            >
+              {showPassword ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+              <span className="sr-only">{passwordToggleLabel}</span>
+            </button>
+          </div>
+        </div>
+
+        {children}
+      </Form>
+    </>
   );
 }

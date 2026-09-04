@@ -1,15 +1,24 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { createUser, getUser } from "@/lib/db/queries";
 
-import { signIn } from "./auth";
+import { isGoogleAuthEnabled, signIn } from "./auth";
 
 const authFormSchema = z.object({
   email: z.email(),
   password: z.string().min(6),
 });
+
+export async function signInWithGoogle(_formData: FormData): Promise<void> {
+  if (!isGoogleAuthEnabled) {
+    redirect("/login?error=google_unconfigured");
+  }
+
+  await signIn("google", { redirectTo: "/" });
+}
 
 export type LoginActionState = {
   status: "idle" | "in_progress" | "success" | "failed" | "invalid_data";

@@ -34,6 +34,70 @@ test.describe("Chat Page", () => {
     await expect(page).toHaveURL(/\/chat\/agent$/);
   });
 
+  test("opens a fresh conversation from the sidebar chat link", async ({
+    page,
+  }) => {
+    await page.goto("/chat/sidebar-navigation");
+
+    const sidebar = page.locator('[data-sidebar="sidebar"]').first();
+    await sidebar.getByRole("link", { exact: true, name: "Chat" }).click();
+
+    await expect(page).toHaveURL(/\/chat$/);
+    await expect(page.getByTestId("multimodal-input")).toBeVisible();
+    await expect(page.locator(".marketing-home")).toHaveCount(0);
+  });
+
+  test("keeps the composer frame unchanged when the input is focused", async ({
+    page,
+  }) => {
+    await page.goto("/chat");
+
+    const input = page.getByTestId("multimodal-input");
+    const composer = page
+      .locator('[data-slot="input-group"]')
+      .filter({ has: input });
+    await expect(input).toBeVisible();
+
+    await input.blur();
+    await page.waitForTimeout(350);
+    const inactiveBorderColor = await composer.evaluate(
+      (element) => getComputedStyle(element).borderColor
+    );
+    const inactiveShadow = await composer.evaluate((element) =>
+      getComputedStyle(element).getPropertyValue("--tw-shadow")
+    );
+    const inactiveInputBorder = await input.evaluate(
+      (element) => getComputedStyle(element).borderWidth
+    );
+    const inactiveInputOutline = await input.evaluate(
+      (element) => getComputedStyle(element).outlineStyle
+    );
+
+    await input.focus();
+    await page.waitForTimeout(350);
+    const activeBorderColor = await composer.evaluate(
+      (element) => getComputedStyle(element).borderColor
+    );
+    const activeShadow = await composer.evaluate((element) =>
+      getComputedStyle(element).getPropertyValue("--tw-shadow")
+    );
+    const activeBoxShadow = await composer.evaluate(
+      (element) => getComputedStyle(element).boxShadow
+    );
+    const activeInputBorder = await input.evaluate(
+      (element) => getComputedStyle(element).borderWidth
+    );
+    const activeInputOutline = await input.evaluate(
+      (element) => getComputedStyle(element).outlineStyle
+    );
+
+    expect(activeBorderColor).toBe(inactiveBorderColor);
+    expect(activeShadow).toBe(inactiveShadow);
+    expect(activeInputBorder).toBe(inactiveInputBorder);
+    expect(activeInputOutline).toBe(inactiveInputOutline);
+    expect(activeBoxShadow).not.toContain("0px 0px 0px 3px");
+  });
+
   test("renders filed and unfiled chats in their matching sidebar sections", async ({
     page,
   }) => {
@@ -304,26 +368,26 @@ test.describe("Chat Page", () => {
   });
 
   test("home page loads with input field", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     await expect(page.getByTestId("multimodal-input")).toBeVisible();
   });
 
   test("can type in the input field", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     const input = page.getByTestId("multimodal-input");
     await input.fill("Hello world");
     await expect(input).toHaveValue("Hello world");
   });
 
   test("submit button is visible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     await expect(page.getByTestId("send-button")).toBeVisible();
   });
 
   test("hides studio and feed from the sidebar navigation", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/chat");
 
     await expect(
       page.getByRole("link", { exact: true, name: "Studio" })
@@ -336,7 +400,7 @@ test.describe("Chat Page", () => {
   test("hides agent and character surfaces from the chat shell", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/chat");
 
     await expect(
       page.getByRole("link", { exact: true, name: "Agentic Chat" })
@@ -353,13 +417,13 @@ test.describe("Chat Page", () => {
   });
 
   test("suggested actions are visible on empty chat", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     const suggestions = page.locator("[data-testid='suggested-actions']");
     await expect(suggestions).toBeVisible();
   });
 
   test("does not show the unused composer tools control", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
 
     await expect(
       page.getByRole("button", { exact: true, name: "Tools" })
@@ -370,7 +434,7 @@ test.describe("Chat Page", () => {
   test("shows only settings that are wired to chat requests", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     await page.getByRole("button", { exact: true, name: "Settings" }).click();
 
     await expect(page.getByTestId("setting-reasoning")).toBeEnabled();
@@ -386,7 +450,7 @@ test.describe("Chat Page", () => {
   });
 
   test("can stop generation with stop button", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
 
     // Type and send a message
     await page.getByTestId("multimodal-input").fill("Hello");
@@ -404,7 +468,7 @@ test.describe("Chat Page", () => {
 
 test.describe("Chat Input Features", () => {
   test("input clears after sending", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     const input = page.getByTestId("multimodal-input");
     await input.fill("Test message");
     await page.getByTestId("send-button").click();
@@ -414,7 +478,7 @@ test.describe("Chat Input Features", () => {
   });
 
   test("input supports multiline text", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
     const input = page.getByTestId("multimodal-input");
     await input.fill("Line 1\nLine 2\nLine 3");
     await expect(input).toContainText("Line 1");
@@ -422,7 +486,52 @@ test.describe("Chat Input Features", () => {
 });
 
 test.describe("Locale switching", () => {
-  test("follows a Chinese browser locale", async ({ page }) => {
+  for (const { expectedPrompt, locale } of [
+    {
+      expectedPrompt: "使用 Next.js 有哪些优势？",
+      locale: "zh",
+    },
+    {
+      expectedPrompt: "What are the advantages of using Next.js?",
+      locale: "en",
+    },
+  ]) {
+    test(`sends suggested actions in the active ${locale} locale`, async ({
+      page,
+    }) => {
+      let requestBody: Record<string, unknown> | undefined;
+      await page.addInitScript(
+        ({ activeLocale }) => {
+          window.localStorage.setItem("moanachat-locale", activeLocale);
+        },
+        { activeLocale: locale }
+      );
+      await page.route("**/api/chat", async (route) => {
+        requestBody = route.request().postDataJSON() as Record<string, unknown>;
+        await route.fulfill({
+          body: "",
+          contentType: "text/event-stream",
+          status: 200,
+        });
+      });
+
+      await page.goto("/chat");
+      await page
+        .getByRole("button", { exact: true, name: expectedPrompt })
+        .click();
+
+      await expect.poll(() => requestBody).toBeTruthy();
+      const message = requestBody?.message as {
+        parts?: Array<{ text?: string; type?: string }>;
+      };
+      expect(message.parts).toContainEqual({
+        text: expectedPrompt,
+        type: "text",
+      });
+    });
+  }
+
+  test("defaults to English for a Chinese browser locale", async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(navigator, "language", {
         configurable: true,
@@ -434,14 +543,14 @@ test.describe("Locale switching", () => {
       });
     });
 
-    await page.goto("/");
+    await page.goto("/chat");
 
-    await expect(page.getByText("今天想聊点什么？")).toBeVisible();
-    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+    await expect(page.getByText("What can I help with?")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 
   test("switches language and persists the choice", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/chat");
 
     await page.getByTestId("language-switcher").first().click();
     await page.getByTestId("language-option-zh").click();

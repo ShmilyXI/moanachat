@@ -27,7 +27,7 @@ test("selects and sends image and PDF attachments", async ({ page }) => {
     });
   });
 
-  await page.goto("/");
+  await page.goto("/chat");
   const attachmentButton = page.getByTestId("attachments-button");
   await expect(attachmentButton).toBeEnabled();
 
