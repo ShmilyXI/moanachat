@@ -11,7 +11,7 @@ import { useLocale } from "@/components/locale-provider";
 import { NEW_CHAT_PATH } from "@/lib/chat/routes";
 import { type RegisterActionState, register } from "../actions";
 
-export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function RegisterForm() {
   const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -68,7 +68,6 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
       <AuthForm
         action={formAction}
         defaultEmail={email}
-        googleEnabled={googleEnabled}
         googleIntent="register"
         onSubmit={handleSubmit}
       >

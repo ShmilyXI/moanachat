@@ -35,7 +35,6 @@ export function AuthForm({
   action,
   children,
   defaultEmail = "",
-  googleEnabled = false,
   googleIntent = "login",
   onSubmit,
 }: {
@@ -44,7 +43,6 @@ export function AuthForm({
   >;
   children: React.ReactNode;
   defaultEmail?: string;
-  googleEnabled?: boolean;
   googleIntent?: "login" | "register";
   onSubmit?: React.FormEventHandler<HTMLFormElement>;
 }) {
@@ -64,23 +62,19 @@ export function AuthForm({
 
   return (
     <>
-      {googleEnabled ? (
-        <>
-          <form action={signInWithGoogle} className="auth-socials">
-            <button
-              className="auth-socials__google"
-              data-testid="google-signin"
-              type="submit"
-            >
-              <GoogleIcon />
-              {googleLabel}
-            </button>
-          </form>
-          <div aria-hidden="true" className="auth-divider">
-            <span>{t("chat.auth.orDivider")}</span>
-          </div>
-        </>
-      ) : null}
+      <form action={signInWithGoogle} className="auth-socials">
+        <button
+          className="auth-socials__google"
+          data-testid="google-signin"
+          type="submit"
+        >
+          <GoogleIcon />
+          {googleLabel}
+        </button>
+      </form>
+      <div aria-hidden="true" className="auth-divider">
+        <span>{t("chat.auth.orDivider")}</span>
+      </div>
 
       <Form action={action} className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div className="flex flex-col gap-2">
