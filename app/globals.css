@@ -988,6 +988,10 @@ body:has(.marketing-home) [data-slot="sidebar-rail"] {
     display: inline-flex;
   }
 
+  .marketing-header[data-state="scrolled"] .marketing-header__signup.is-open-app {
+    display: inline-flex;
+  }
+
   .marketing-header[data-state="scrolled"] .marketing-header__signup {
     display: none;
   }

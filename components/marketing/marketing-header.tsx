@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUp, ChevronDown } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { saveDemoPrompt } from "./composer";
@@ -61,6 +62,10 @@ export function MarketingHeader({
 }) {
   const pathname = usePathname();
   const onHome = pathname === "/";
+  const { data: session, status } = useSession();
+  // First-time visitors get an auto guest session; only real sign-ins should
+  // swap the auth links for an app entry.
+  const signedIn = status === "authenticated" && session?.user?.type === "regular";
   // Section anchors only resolve on the homepage; elsewhere send visitors back
   // to the homepage section.
   const linkHref = useCallback(
@@ -218,12 +223,24 @@ export function MarketingHeader({
           )}
         </nav>
         <div className="marketing-header__actions">
-          <a className="marketing-header__login" href="/login">
-            Log in
-          </a>
-          <a className="marketing-header__signup" href="/sign-up">
-            Sign up
-          </a>
+          {signedIn ? (
+            <a
+              className="marketing-header__signup is-open-app"
+              data-testid="open-app-link"
+              href="/chat"
+            >
+              Open app
+            </a>
+          ) : (
+            <>
+              <a className="marketing-header__login" href="/login">
+                Log in
+              </a>
+              <a className="marketing-header__signup" href="/sign-up">
+                Sign up
+              </a>
+            </>
+          )}
           <button
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -258,10 +275,10 @@ export function MarketingHeader({
             ))}
             <a
               className="marketing-header__mobile-login"
-              href="/login"
+              href={signedIn ? "/chat" : "/login"}
               onClick={() => setMenuOpen(false)}
             >
-              Log in
+              {signedIn ? "Open app" : "Log in"}
             </a>
           </div>
         ) : null}

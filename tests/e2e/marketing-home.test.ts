@@ -1,6 +1,31 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("marketing homepage", () => {
+  test("swaps auth links for an open-app entry once signed in", async ({
+    page,
+  }) => {
+    const email = `open-app-${Date.now()}@example.com`;
+    await page.goto("/register");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill("open-app-password");
+    await page.getByRole("button", { name: "Sign up", exact: true }).click();
+    await page.waitForURL("**/chat", { timeout: 15_000 });
+    await page.goto("/");
+
+    const openApp = page.getByTestId("open-app-link");
+    await expect(openApp).toBeVisible();
+    await expect(openApp).toHaveAttribute("href", "/chat");
+    await expect(
+      page.locator(".marketing-header").getByRole("link", { name: "Log in" })
+    ).toHaveCount(0);
+    await expect(
+      page.locator(".marketing-header").getByRole("link", { name: "Sign up" })
+    ).toHaveCount(0);
+
+    await expect(
+      page.getByTestId("closing-cta-primary")
+    ).toHaveAttribute("href", "/chat");
+  });
   test("renders the Venice-inspired static homepage", async ({ page }) => {
     await page.goto("/");
     const hero = page.locator(".marketing-hero");

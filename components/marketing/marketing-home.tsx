@@ -1,6 +1,7 @@
 "use client";
 
 import Lenis from "lenis";
+import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
 import { CapabilitiesSection } from "./capabilities-section";
 import { Composer } from "./composer";
@@ -13,6 +14,11 @@ import { PrivacySection } from "./privacy-section";
 
 export function MarketingHome() {
   const scrollRef = useRef<HTMLElement>(null);
+  const { data: session, status } = useSession();
+  // Guest sessions are auto-created for first-time visitors; only real
+  // sign-ins should swap the sign-up CTA for an app entry.
+  const signedIn =
+    status === "authenticated" && session?.user?.type === "regular";
 
   useEffect(() => {
     const wrapper = scrollRef.current;
@@ -57,8 +63,12 @@ export function MarketingHome() {
             <Composer showPresets={false} />
           </div>
           <div className="marketing-closing-cta__actions">
-            <a className="marketing-closing-cta__link" href="/sign-up">
-              Sign up for free
+            <a
+              className="marketing-closing-cta__link"
+              data-testid="closing-cta-primary"
+              href={signedIn ? "/chat" : "/sign-up"}
+            >
+              {signedIn ? "Open app" : "Sign up for free"}
             </a>
             <a className="marketing-closing-cta__secondary-link" href="#pricing">
               View pricing
